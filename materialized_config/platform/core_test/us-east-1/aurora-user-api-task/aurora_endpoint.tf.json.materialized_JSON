@@ -1,0 +1,11 @@
+{
+  "protoFile": "terraform/v1/terraform.proto",
+  "value": {
+    "@type": "type.googleapis.com/terraform.v1.Terraform",
+    "output": {
+      "aurora_endpoint": {
+        "value": "aurora.internal"
+      }
+    }
+  }
+}

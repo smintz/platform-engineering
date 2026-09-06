@@ -1,0 +1,93 @@
+load("//platform/platform.pinc", "platform")
+load("//terraform/builtin/datasources/v1/remote_state.proto", "TerraformRemoteState")
+load("//terraform/v1/terraform.proto", TerraformProto = "Terraform")
+load("//terraform/v1/util.pinc", tf = "util")
+
+# Terraform driver: how a component's config becomes a state, and how one state reads a
+# value out of another. Nothing here knows which bucket, which region or which provider —
+# that is the caller's to decide, because those are the parts that differ per organisation
+# while the wiring between states does not.
+
+# S3Backend describes a family of Terraform states kept in one S3 bucket. `key_for` maps a
+# component's failure domain and state name to an object key, so the layout of the bucket
+# stays the caller's convention.
+def S3Backend(bucket, region, key_for):
+    def settings(domain, name):
+        return TerraformProto.TerraformSettings.Backend.BackendS3(
+            region = region,
+            bucket = bucket,
+            key = key_for(domain, name),
+        )
+
+    # A hook that points a config at its own state. It creates the terraform block if no
+    # provider has yet, so it composes in any order.
+    def state(domain, name):
+        def do(config, next):
+            if not config.terraform:
+                config.terraform = TerraformProto.TerraformSettings()
+            config.terraform.backend = TerraformProto.TerraformSettings.Backend(
+                s3 = settings(domain, name),
+            )
+            return next(config)
+
+        return do
+
+    # The data source that reads another state in the same family.
+    def remote(domain, name):
+        s3 = settings(domain, name)
+        return TerraformRemoteState(
+            backend = "s3",
+            config = {"bucket": s3.bucket, "key": s3.key, "region": s3.region},
+        )
+
+    return struct(state = state, remote = remote, key_for = key_for)
+
+# RemoteOutput is how a consumer spells a value published by `component`. Keep it next to
+# WithRemoteOutput: the two agree on the data source name, and nothing else has to.
+def RemoteOutput(component, output):
+    return "${data.terraform_remote_state.%s.outputs.%s}" % (component, output)
+
+# WithRemoteOutput connects a value across state boundaries in one declaration: it adds
+# `output "name"` to this component's config, and gives every dependant a
+# terraform_remote_state data source pointing at this component's state, so the dependant
+# can read the value back with RemoteOutput(name_of_this_component, name).
+#
+# It is two hooks — the near half and the far half of one handshake — returned together so
+# a call site cannot apply one without the other. Both close over the same cell, so the
+# dependant reads the publisher's real domain and name rather than assuming its own.
+def WithRemoteOutput(backend, name, value, key = platform.MAIN_CONFIG):
+    publisher = []
+
+    def publish(component, next):
+        publisher.append(struct(domain = component.domain, name = component.name))
+        platform.mutate_config(component, key, tf.Output(name, value))
+        return next(component)
+
+    def consume(component, next):
+        up = publisher[0]
+        platform.mutate_config(
+            component,
+            key,
+            tf.Data(up.name, backend.remote(up.domain, up.name)),
+        )
+        return next(component)
+
+    return (
+        platform.component_filter(publish),
+        platform.ForDownstream(platform.component_filter(consume)),
+    )
+
+# WithState builds a component's config from `contents` — whatever Terraform message the
+# caller assembles, providers and all — and points it at its own state in `backend`. The
+# state name defaults to the component's name.
+def WithState(backend, contents, name = None, key = platform.MAIN_CONFIG):
+    def do(component, next):
+        platform.mutate_config(
+            component,
+            key,
+            contents(component),
+            backend.state(component.domain, name or component.name),
+        )
+        return next(component)
+
+    return platform.component_filter(do)

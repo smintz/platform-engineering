@@ -1,0 +1,214 @@
+load("//platform/v1/platform.proto", component_proto = "Component")
+load("//terraform/v1/util.pinc", tf = "util")
+load("any.star", "any")
+
+def chain(msg, *hooks):
+    if not hooks:
+        return msg
+
+    queue = list(hooks)
+
+    def run_next(current):
+        if not queue:
+            return current
+
+        next_hook = queue.pop(0)
+        return next_hook(current, run_next)
+
+    first = queue.pop(0)
+    return first(msg, run_next)
+
+def flatten(hooks):
+    flat = []
+    for h in hooks:
+        if type(h) in ("tuple", "list"):
+            flat.extend(h)
+        else:
+            flat.append(h)
+    return flat
+
+# message_filter wraps hooks so they only run on messages of p's type (p may be
+# a message type or an instance); anything else passes straight through.
+def message_filter(p, *hooks):
+    want = type(p)
+
+    def wrapper(msg, next):
+        if type(msg) != want:
+            return next(msg)
+
+        queue = list(hooks)
+
+        def run_next(current):
+            if not queue:
+                return next(current)
+            return queue.pop(0)(current, run_next)
+
+        return run_next(msg)
+
+    return wrapper
+
+def component_filter(*hooks):
+    return message_filter(component_proto, *hooks)
+
+def terraform_filter(*hooks):
+    return message_filter(tf.Terraform(), *hooks)
+
+# TerraformConfig turns a ready-made Terraform message into a Terraform-typed hook.
+def TerraformConfig(terraform):
+    return terraform_filter(tf.From(terraform))
+
+# Markers are not hooks: Component pulls them out of its hook list and acts on them
+# itself, because what they describe cannot be expressed as "mutate this message".
+
+# WithDeps declares upstream dependencies as uninstantiated component factories. Component
+# builds each one with its inherited hooks, appends it as an upstream and runs the dep's
+# ForDownstream hooks. Each factory takes hooks: def MyComponent(*hooks).
+def WithDeps(*deps):
+    return module("WithDeps", kind = "deps", deps = deps)
+
+# ForDownstream defers hooks instead of running them on the component that declares
+# them: they are parked on the component module and only fire when that component is
+# added as an upstream (see WithDeps), with the downstream component as the message.
+def ForDownstream(*hooks):
+    return module("ForDownstream", kind = "downstream", hooks = hooks)
+
+# Finally defers hooks to the end of this component's own construction: after every other
+# hook and after dependencies are wired. Anything that has to see the finished component —
+# rendering a view of what was declared, rather than declaring more — belongs here, because
+# a hook that runs mid-chain can only see the half of the component built before it.
+def Finally(*hooks):
+    return module("Finally", kind = "finalize", hooks = hooks)
+
+# Inherit marks hooks that also apply to every dependency declared with WithDeps, and to
+# their dependencies in turn.
+def Inherit(*hooks):
+    return module("Inherit", kind = "inherit", hooks = hooks)
+
+# mutate_config is the primitive every config write goes through — usable by any hook
+# that already holds the component message. WithConfig is its declarative wrapper.
+def mutate_config(component, key, *hooks):
+    cfg_any = component.configs.get(key)
+
+    # ponytail: configs default to Terraform; a non-Terraform config can be set (a bare
+    # message below) but not re-opened, since unpack needs a target type.
+    cfg = any.unpack(cfg_any, tf.Terraform()) if cfg_any else tf.Terraform()
+
+    # a bare message stands for "replace the config with this one", like tf.From
+    hooks = [h if type(h) == "function" else tf.From(h) for h in hooks]
+    component.configs[key] = any.new(chain(cfg, *hooks))
+    return component
+
+# WithDescription sets the component's human-readable description.
+def WithDescription(description):
+    def do(component, next):
+        component.description = description
+        return next(component)
+
+    return component_filter(do)
+
+# WithConfig is a component-typed hook that mutates one of the component's configs.
+# A None key means the main config.
+def WithConfig(key, *hooks):
+    def do(component, next):
+        mutate_config(component, key or MAIN_CONFIG, *hooks)
+        return next(component)
+
+    return component_filter(do)
+
+# WithFailureDomain sets the component's failure domain: the identifier of a group of
+# components that fail together — a region, an AZ, a cell, whatever the blast radius is.
+# It is inherited: a dependency shares the blast radius of the thing that depends on it.
+def WithFailureDomain(domain):
+    def do(component, next):
+        component.domain = domain
+        return next(component)
+
+    return Inherit(component_filter(do))
+
+MAIN_CONFIG = "infra/main.tf.json"
+
+# config type_url -> prototype, for unpacking in GetConfigs
+CONFIG_TYPES = {
+    "type.googleapis.com/terraform.v1.Terraform": tf.Terraform,
+}
+
+def Component(slug, *hooks):
+    # a macro that has to declare several hooks at once returns them as a tuple, so the
+    # call site stays one line and the pieces cannot be split up by accident
+    hooks = flatten(hooks)
+    markers = [h for h in hooks if type(h) == "module"]
+    deferred = [h for m in markers if m.kind == "downstream" for h in m.hooks]
+    inherited = [h for m in markers if m.kind == "inherit" for h in m.hooks]
+    deps = [d for m in markers if m.kind == "deps" for d in m.deps]
+    finalizers = [h for m in markers if m.kind == "finalize" for h in m.hooks]
+
+    # inherited first: it is ambient context (failure domain, environment), and local
+    # hooks read it — a hook that derives a value from component.domain has to run after
+    # whatever set the domain.
+    hooks = inherited + [h for h in hooks if type(h) != "module"]
+
+    component = component_proto(name = slug)
+
+    # Main config first: hooks that run later (a dep's ForDownstream hooks) mutate
+    # configs, and TerraformConfig would otherwise replace them.
+    # Same hook list, different message type: only the Terraform-typed hooks fire here.
+    mutate_config(component, MAIN_CONFIG, *hooks)
+    component = chain(component, *hooks)
+
+    # Deps are built after the chain, so they inherit a fully-populated component.
+    if deps and not component.upstreams:
+        component.upstreams = component_proto.Upstreams()
+    for dep_factory in deps:
+        dep = dep_factory(Inherit(*inherited))
+        component.upstreams.components.append(dep.msg)
+        dep.RunForDownstream(component)
+
+    # after dependencies, so a finalizer also sees whatever they contributed
+    component = chain(component, *finalizers)
+
+    # ponytail: deferred hooks see the downstream component only; reach this component
+    # through downstream.upstreams if a hook ever needs to mutate both.
+    def RunForDownstream(downstream):
+        return chain(downstream, *deferred)
+
+    return module(
+        "Component",
+        msg = component,
+        RunForDownstream = RunForDownstream,
+    )
+
+# GetConfigs walks a Component and its upstreams, and returns a map of all the Terraform
+# configs keyed by "<domain>/<name>/<config name>". Components store their configs under
+# the bare config name; the prefix is only applied here, once the whole component chain
+# has run and domain/name are final.
+def GetConfigs(component):
+    configs = {}
+
+    def collect_configs(component):
+        prefix = "/".join([p for p in (component.domain, component.name) if p])
+        for key, cfg_any in component.configs.items():
+            # configs hold two kinds of message: the ones that become a file, and the ones
+            # a driver parks on the component as working state — the ECS task spec a
+            # sidecar contributes to, say. Only the first kind is registered here, and only
+            # it is rendered; the rest is somebody's scratch space and none of our business.
+            if cfg_any.type_url not in CONFIG_TYPES:
+                continue
+            proto = CONFIG_TYPES[cfg_any.type_url]
+            cfg = any.unpack(cfg_any, proto())
+
+            # a component that provisions nothing of its own — its whole job is the hooks
+            # it hands to dependants — should not emit an empty config file
+            if str(cfg) == str(proto()):
+                continue
+            configs[prefix + "/" + key] = cfg
+
+    def walk_upstreams(component, next):
+        if not component.upstreams:
+            return next(component)
+        for upstream in component.upstreams.components:
+            walk_upstreams(upstream, next)
+        return next(component)
+
+    walk_upstreams(component, collect_configs)
+
+    return configs

@@ -1,0 +1,656 @@
+load("//github/lib.pinc", "lib")
+load("encoding/json.star", "json")
+load("re.star", "re")
+
+# GitHub Actions driver: turns the Terraform configs a component tree declares into one
+# workflow that plans them on every pull request and applies them on main.
+#
+# It is a driver in the same sense as terraform.pinc next door — it knows how to run
+# Terraform in CI and nothing about which components exist. Its only input is the map
+# GetConfigs() returns, so a component never has to say anything about its own pipeline;
+# the pipeline is derived from the configs, including the order they have to run in.
+#
+# Order is the reason this is a driver rather than a template. A config that reads another
+# config's state through `terraform_remote_state` cannot be planned until the state it
+# reads has been applied, and that edge is already written down — in the data source's
+# bucket/key on one side and the backend's bucket/key on the other. Matching the two
+# recovers the dependency graph without anybody restating it.
+
+TERRAFORM_VERSION = "1.9.8"
+PLUGIN_CACHE_DIR = "/home/runner/.terraform.d/plugin-cache"
+LOCK_TIMEOUT = "5m"
+
+# GitHub job ids may hold letters, digits, `-` and `_`, and must not start with a digit.
+# Config keys hold `/` and `.`, so everything outside the safe set collapses to `_`; the
+# `plan_`/`apply_` prefix takes care of the leading character. Underscores rather than
+# dashes because `needs.<id>.outputs.x` is an expression, and a `-` in an id would have to
+# be spelled `needs['a-b']` everywhere it is read.
+_unsafe = re.compile("[^a-zA-Z0-9]+")
+
+# The one job id not derived from a config. Plan and apply ids are prefixed, so nothing
+# a config can be called collides with it.
+COMMENT_JOB_ID = "pr_comment"
+
+def _dir(key):
+    return "/".join(key.split("/")[:-1])
+
+def _slug(path):
+    return _unsafe.sub("_", path)
+
+def _plan_id(key):
+    return "plan_" + _slug(_dir(key))
+
+def _apply_id(key):
+    return "apply_" + _slug(_dir(key))
+
+# _state_id names a Terraform state in a way both sides of the handshake can produce: from
+# the backend block of the config that writes it, and from the config map of a
+# terraform_remote_state that reads it. Backends this driver cannot name return None, and
+# a None never matches, so an unrecognised backend costs an edge rather than a wrong one.
+def _backend_state_id(config):
+    if not config.terraform or not config.terraform.backend:
+        return None
+    backend = config.terraform.backend
+    if backend.s3:
+        return "s3://%s/%s" % (backend.s3.bucket, backend.s3.key)
+    if backend.local:
+        return "local://%s" % backend.local.path
+    if backend.remote and backend.remote.workspaces:
+        return "remote://%s/%s" % (
+            backend.remote.organization,
+            backend.remote.workspaces.name,
+        )
+    return None
+
+def _remote_state_id(remote_state):
+    settings = remote_state.config
+    if remote_state.backend == "s3":
+        return "s3://%s/%s" % (
+            settings.get("bucket", ""),
+            settings.get("key", ""),
+        )
+    if remote_state.backend == "local":
+        return "local://%s" % settings.get("path", "")
+    if remote_state.backend == "remote":
+        return "remote://%s/%s" % (
+            settings.get("organization", ""),
+            settings.get("workspaces", ""),
+        )
+    return None
+
+def _reads(config):
+    if not config.data:
+        return []
+    return [
+        _remote_state_id(remote_state)
+        for remote_state in config.data.terraform_remote_state.values()
+    ]
+
+# dependencies maps each config key to the keys of the configs whose state it reads. A
+# state read from outside this set — a hand-written module, another repository — yields no
+# edge: there is no job here to wait for, and pretending otherwise would be a lie about
+# what the pipeline actually orders.
+def dependencies(configs):
+    producer = {}
+    for key in sorted(configs.keys()):
+        state = _backend_state_id(configs[key])
+        if not state:
+            continue
+
+        # Two configs pointing at one state is not a pipeline the driver can order: their
+        # applies would race for the same lock, and whichever landed second would plan
+        # against a state the other had already moved. It is silent in Terraform and
+        # silent in GitHub, so it has to be loud here.
+        if state in producer:
+            fail(
+                "%s and %s both write the Terraform state %s" %
+                (producer[state], key, state),
+            )
+        producer[state] = key
+
+    deps = {}
+    for key, config in configs.items():
+        upstreams = [
+            producer[state]
+            for state in _reads(config)
+            if state and state in producer and producer[state] != key
+        ]
+
+        # sorted and deduplicated so the workflow is a function of the configs alone —
+        # two compiles of the same input have to produce byte-identical YAML
+        deps[key] = sorted({u: True for u in upstreams}.keys())
+    return deps
+
+# A cycle is a real possibility once two components read each other's outputs, and GitHub
+# only reports it as an unhelpful "workflow is invalid" at dispatch time. Kahn's algorithm
+# costs a dozen lines here and turns that into a compile error naming the states involved.
+def _check_acyclic(deps):
+    remaining = {key: len(ups) for key, ups in deps.items()}
+    dependants = {key: [] for key in deps}
+    for key, ups in deps.items():
+        for up in ups:
+            dependants[up].append(key)
+
+    ready = sorted([key for key, n in remaining.items() if n == 0])
+    settled = 0
+
+    # bounded loop: Starlark has no while, and every iteration settles one config
+    for _ in range(len(deps)):
+        if not ready:
+            break
+        key = ready.pop(0)
+        settled += 1
+        for dependant in dependants[key]:
+            remaining[dependant] -= 1
+            if remaining[dependant] == 0:
+                ready.append(dependant)
+        ready = sorted(ready)
+
+    if settled != len(deps):
+        fail(
+            "terraform_remote_state cycle between: %s" %
+            ", ".join(sorted([k for k, n in remaining.items() if n > 0])),
+        )
+
+# Credentials are the caller's: which role a plan may assume, and whether a runner gets it
+# from OIDC or from a stored key, is an organisation's policy and not a property of any
+# component. Both helpers are functions of the phase and the config, so a read-only role
+# can be handed to plan and a write role to apply without the driver knowing either one,
+# and a config can be given credentials for the providers it actually declares — see
+# GrafanaServiceAccountToken, which reads exactly that.
+def OidcCredentials(
+        region,
+        plan_role = "${{ vars.TF_PLAN_ROLE }}",
+        apply_role = "${{ vars.TF_APPLY_ROLE }}"):
+    def credentials(phase, config):
+        return [
+            lib.Step(
+                "aws-credentials",
+                lib.Uses("aws-actions/configure-aws-credentials@v4"),
+                lib.With(
+                    **{
+                        "role-to-assume": plan_role if phase == "plan" else apply_role,
+                        "aws-region": region,
+                    }
+                ),
+            ),
+        ]
+
+    return credentials
+
+def AccessKeyCredentials(
+        region,
+        access_key_id = "${{ secrets.AWS_ACCESS_KEY_ID }}",
+        secret_access_key = "${{ secrets.AWS_SECRET_ACCESS_KEY }}"):
+    def credentials(phase, config):
+        return [
+            lib.Step(
+                "aws-credentials",
+                lib.Uses("aws-actions/configure-aws-credentials@v4"),
+                lib.With(
+                    **{
+                        "aws-access-key-id": access_key_id,
+                        "aws-secret-access-key": secret_access_key,
+                        "aws-region": region,
+                    }
+                ),
+            ),
+        ]
+
+    return credentials
+
+# Minting a Grafana credential is one step rather than a resource because of what the
+# credential is: Amazon Managed Grafana service account tokens expire within thirty days
+# at the outside, and a token created by Terraform would have to be written in cleartext
+# into the state of every config that reads it, then rotated there before it died. A token
+# minted per job is never stored, never rotated, and outlives nothing.
+#
+# The service accounts it mints against are Terraform's (see infra/grafana.pinc) and are
+# found by name, so this step reads no state and the pipeline stays independent of the one
+# that creates them.
+#
+# The credentials in scope need grafana:ListWorkspaceServiceAccounts,
+# grafana:ListWorkspaceServiceAccountTokens, grafana:CreateWorkspaceServiceAccountToken,
+# grafana:DeleteWorkspaceServiceAccountToken and grafana:DescribeWorkspace.
+GRAFANA_TOKEN_SCRIPT = """\
+set -euo pipefail
+
+ws="%(workspace)s"
+account="%(account)s"
+
+sa=$(aws grafana list-workspace-service-accounts --workspace-id "$ws" \\
+  --query "serviceAccounts[?name=='$account'].id | [0]" --output text)
+if [ -z "$sa" ] || [ "$sa" = "None" ]; then
+  echo "::error::no Grafana service account named $account in workspace $ws - apply the grafana state first"
+  exit 1
+fi
+
+# Grafana keeps expired tokens on the account, and this job cannot touch the live ones
+# belonging to the jobs running beside it, so it collects the dead and leaves the rest.
+now=$(date -u +%%Y-%%m-%%dT%%H:%%M:%%SZ)
+aws grafana list-workspace-service-account-tokens --workspace-id "$ws" --service-account-id "$sa" \\
+  | jq -r --arg now "$now" '.serviceAccountTokens[] | select(.expiresAt[0:19] < $now[0:19]) | .id' \\
+  | while read -r dead; do
+      aws grafana delete-workspace-service-account-token \\
+        --workspace-id "$ws" --service-account-id "$sa" --token-id "$dead" >/dev/null || true
+    done
+
+key=$(aws grafana create-workspace-service-account-token --workspace-id "$ws" --service-account-id "$sa" \\
+  --name "gha-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-$GITHUB_JOB" --seconds-to-live %(ttl)d \\
+  --query 'serviceAccountToken.key' --output text)
+echo "::add-mask::$key"
+
+{
+  echo "GRAFANA_AUTH=$key"
+  echo "GRAFANA_URL=https://$(aws grafana describe-workspace --workspace-id "$ws" \\
+    --query 'workspace.endpoint' --output text)"
+} >> "$GITHUB_ENV"
+"""
+
+# GrafanaServiceAccountToken wraps another set of credentials with a short-lived Grafana
+# token, on the jobs that need one. Which jobs those are is not a list anybody keeps: a
+# config that declares the Grafana provider needs the token and a config that does not
+# never sees the step, which is the same rule that gives this driver its job ordering.
+#
+# `plan_account` should be the read-only account and `apply_account` the writing one, so
+# a plan cannot change the workspace it is reading.
+def GrafanaServiceAccountToken(
+        credentials,
+        workspace,
+        plan_account,
+        apply_account,
+        seconds_to_live = 1800):
+    def with_token(phase, config):
+        steps = credentials(phase, config)
+        if not config.provider or not config.provider.grafana:
+            return steps
+
+        return steps + [
+            lib.Step(
+                "grafana-token",
+                lib.Cmd(
+                    GRAFANA_TOKEN_SCRIPT %
+                    {
+                        "workspace": workspace,
+                        "account": plan_account if phase == "plan" else apply_account,
+                        "ttl": seconds_to_live,
+                    },
+                ),
+            ),
+        ]
+
+    return with_token
+
+# One comment for the whole run rather than one per state. The plan jobs no longer write
+# to the pull request at all — they upload their plan as an artifact, which they already
+# did, and a single job at the end collects those and writes the one comment. Doing it
+# this way rather than having every job edit a shared comment is what makes it correct:
+# the plan jobs run concurrently, and GitHub offers no way to update a comment
+# conditionally, so N jobs editing one comment is N-1 lost updates.
+#
+# The cost is that the comment appears when the last plan finishes rather than as each one
+# lands, which is also the point at which it can say anything about the run as a whole.
+PLAN_COMMENT_SCRIPT = """\
+const fs = require('fs');
+const tag = '<!-- tf-plan -->';
+const plans = JSON.parse(process.env.PLANS);
+const needs = JSON.parse(process.env.NEEDS);
+const runId = process.env.GITHUB_RUN_ID;
+
+// GitHub rejects a comment over 65536 characters, and a rejected comment says nothing at
+// all about any state. Everything below is spent staying under that.
+const BUDGET = 60000;
+
+const rows = [];
+const changed = [];
+for (const p of plans) {
+  const job = needs[p.job] || {};
+  const result = job.result || 'skipped';
+  const changes = (job.outputs || {}).changes;
+  rows.push(`| \\`${p.label}\\` | ${result === 'success' ? (changes === 'true' ? 'changes' : 'no changes') : result} |`);
+  if (result !== 'success' || changes !== 'true') continue;
+  try {
+    changed.push({ label: p.label, text: fs.readFileSync(`plans/tfplan-${p.slug}-${runId}/plan.txt`, 'utf8') });
+  } catch (e) {
+    core.warning(`no plan artifact for ${p.label}`);
+  }
+}
+
+const header = `${tag}
+### Terraform plan
+
+| state | plan |
+| --- | --- |
+${rows.join('\\n')}
+`;
+
+// Only the states that changed are worth showing, and they share what is left of the
+// budget equally, so one enormous plan cannot crowd every other state out of the comment.
+const share = changed.length ? Math.floor((BUDGET - header.length) / changed.length) - 200 : 0;
+const details = changed.map(c => {
+  const text = c.text.length > share ? c.text.slice(0, Math.max(share, 0)) + '\\n... truncated, see the artifact' : c.text;
+  return `<details><summary><code>${c.label}</code></summary>
+
+\\`\\`\\`hcl
+${text}
+\\`\\`\\`
+
+</details>`;
+}).join('\\n');
+
+const out = header + '\\n' + details;
+const { data: comments } = await github.rest.issues.listComments({
+  ...context.repo, issue_number: context.issue.number });
+const prev = comments.find(c => c.body.startsWith(tag));
+prev
+  ? await github.rest.issues.updateComment({ ...context.repo, comment_id: prev.id, body: out })
+  : await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body: out });
+"""
+
+PLAN_SCRIPT = """\
+set +e
+terraform plan -detailed-exitcode -lock-timeout=%(lock)s -out=tfplan
+code=$?
+set -e
+case $code in
+  0) echo "changes=false" >> "$GITHUB_OUTPUT" ;;
+  2) echo "changes=true"  >> "$GITHUB_OUTPUT" ;;
+  *) exit $code ;;
+esac
+terraform show -no-color tfplan > plan.txt
+"""
+
+# Every job starts the same way: the repository, a set of credentials, a pinned Terraform
+# and a warm plugin cache. The cache key is per state, because each state pulls its own
+# set of providers and one shared key would thrash between them.
+def _setup(directory, credentials, phase, terraform_version, config):
+    return (
+        [lib.Step("checkout", lib.Uses("actions/checkout@v4"))] +
+        credentials(phase, config) +
+        [
+            lib.Step(
+                "setup-terraform",
+                lib.Uses("hashicorp/setup-terraform@v3"),
+                lib.With(
+                    terraform_version = terraform_version,
+                    terraform_wrapper = False,
+                ),
+            ),
+            # terraform refuses to use a plugin cache directory that does not exist, and
+            # a cache miss leaves it that way
+            lib.Step("plugin-cache-dir", lib.Cmd("mkdir -p %s" % PLUGIN_CACHE_DIR)),
+            lib.Step(
+                "plugin-cache",
+                lib.Uses("actions/cache@v4"),
+                lib.With(
+                    **{
+                        "path": PLUGIN_CACHE_DIR,
+                        "key": "tf-plugins-%s-${{ hashFiles('%s/.terraform.lock.hcl') }}" %
+                               (_slug(directory), directory),
+                        "restore-keys": "tf-plugins-%s-" % _slug(directory),
+                    }
+                ),
+            ),
+            # no -lockfile=readonly: these directories are generated, so the lock file is
+            # written by this very init rather than committed alongside the config
+            lib.Step("init", lib.Cmd("terraform init -lock-timeout=%s" % LOCK_TIMEOUT)),
+        ]
+    )
+
+# A config that declares the postgres provider has to reach leap-aurora to plan or apply
+# at all, and leap-aurora is not reachable from GitHub's runners: it is not publicly
+# accessible and its security group admits 5432 only from the private subnets. Those
+# states go to the self-hosted pool that sits on those subnets. Everything else stays on
+# GitHub's runners, which are disposable in a way the self-hosted ones are not.
+#
+# Reading the provider off the config keeps this in step with the rest of the driver:
+# nothing lists which states are private, the configs already say so.
+def _runs_on(config, private_runner):
+    if private_runner and config.provider and config.provider.postgresql:
+        return [lib.RunsOn(private_runner)]
+    return []
+
+def _plan_job(
+        key,
+        directory,
+        upstreams,
+        credentials,
+        terraform_version,
+        config,
+        private_runner):
+    id = _plan_id(key)
+    label = _dir(key)
+    artifact = "tfplan-%s-${{ github.run_id }}" % _slug(_dir(key))
+
+    steps = _setup(directory, credentials, "plan", terraform_version, config) + [
+        # `terraform fmt` only ever touches .tf and .tfvars files, so there is deliberately
+        # no fmt check here: these directories hold generated .tf.json, whose formatting is
+        # this compiler's business and not Terraform's.
+        lib.Step("validate", lib.Cmd("terraform validate -no-color")),
+        lib.Step(
+            "plan",
+            lib.Cmd(PLAN_SCRIPT % {"lock": LOCK_TIMEOUT}),
+        ),
+        # the plan file holds resolved values, some of them secret — keep it short-lived
+        lib.Step(
+            "upload-plan",
+            lib.Uses("actions/upload-artifact@v4"),
+            lib.With(
+                **{
+                    "name": artifact,
+                    "path": "%s/tfplan\n%s/plan.txt\n" % (directory, directory),
+                    "retention-days": 5,
+                }
+            ),
+        ),
+        # a nightly plan that still has changes means somebody changed this state by hand
+        lib.Step(
+            "drift",
+            lib.If(
+                "github.event_name == 'schedule' && steps.plan.outputs.changes == 'true'",
+            ),
+            lib.Cmd('echo "::error::drift detected in %s"\nexit 1' % label),
+        ),
+    ]
+
+    return lib.Job(
+        id,
+        lib.Name("plan %s" % label),
+        # An upstream with nothing to apply is skipped, not failed, and a plan that waited
+        # on `success()` would be skipped with it and take the whole downstream chain
+        # along. This says the real rule instead: run unless something upstream broke.
+        lib.If("!cancelled() && !failure()"),
+        lib.Needs(*[_apply_id(u) for u in upstreams]),
+        lib.Defaults(working_directory = directory),
+        lib.Outputs(changes = "${{ steps.plan.outputs.changes }}"),
+        *(_runs_on(config, private_runner) + steps)
+    )
+
+def _apply_job(
+        key,
+        directory,
+        credentials,
+        terraform_version,
+        environment,
+        config,
+        private_runner):
+    id = _apply_id(key)
+    plan = _plan_id(key)
+    label = _dir(key)
+    artifact = "tfplan-%s-${{ github.run_id }}" % _slug(_dir(key))
+
+    steps = _setup(directory, credentials, "apply", terraform_version, config) + [
+        lib.Step(
+            "download-plan",
+            lib.Uses("actions/download-artifact@v4"),
+            lib.With(name = artifact, path = directory),
+        ),
+        # the saved plan, not a fresh one: what a reviewer approved is what gets applied
+        lib.Step(
+            "apply",
+            lib.Cmd(
+                "terraform apply -auto-approve -lock-timeout=%s tfplan" % LOCK_TIMEOUT,
+            ),
+        ),
+    ]
+
+    hooks = [
+        lib.Name("apply %s" % label),
+        # `needs` is only the matching plan: that plan already waited for the upstream
+        # applies, so ordering between states is inherited rather than restated.
+        lib.Needs(plan),
+        lib.If(
+            "github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.%s.outputs.changes == 'true'" %
+            plan,
+        ),
+        lib.Defaults(working_directory = directory),
+    ] + _runs_on(config, private_runner)
+    if environment:
+        hooks.append(lib.Environment(environment))
+
+    return lib.Job(id, *(hooks + steps))
+
+# _comment_job is the only job that writes to the pull request. It waits for every plan,
+# collects the plans they uploaded and says in one comment what the whole run found.
+def _comment_job(keys):
+    manifest = [
+        {"job": _plan_id(key), "slug": _slug(_dir(key)), "label": _dir(key)}
+        for key in keys
+    ]
+
+    return lib.Job(
+        COMMENT_JOB_ID,
+        lib.Name("comment"),
+        # always(), because a plan that failed or never ran is the most interesting thing
+        # the comment can say; the default would drop the comment along with the failure.
+        lib.If("always() && github.event_name == 'pull_request'"),
+        lib.Needs(*[_plan_id(key) for key in keys]),
+        lib.Step(
+            "download-plans",
+            lib.Uses("actions/download-artifact@v4"),
+            lib.With(**{"pattern": "tfplan-*-${{ github.run_id }}", "path": "plans"}),
+            # a run where every plan failed before uploading has no artifacts at all, and
+            # that run is precisely the one whose comment matters
+            lib.ContinueOnError(),
+        ),
+        lib.Step(
+            "comment",
+            lib.Uses("actions/github-script@v7"),
+            lib.SetEnv(
+                PLANS = json.encode(manifest),
+                NEEDS = "${{ toJSON(needs) }}",
+            ),
+            lib.With(script = PLAN_COMMENT_SCRIPT),
+        ),
+    )
+
+# TerraformPipeline writes one workflow for every Terraform config in `configs` — the
+# map GetConfigs returns — rooted at `output_root`, the directory the compiler wrote those
+# configs to. Each config gets a plan job and an apply job, and the plan jobs are ordered
+# by whatever `terraform_remote_state` says about who reads whom.
+#
+# `configs` is keyed by "<domain>/<name>/<config>.tf.json", which is exactly the path under
+# `output_root` the compiler wrote, so a config's working directory needs no extra
+# bookkeeping — it is the key's directory.
+def TerraformPipeline(
+        configs,
+        output_root,
+        credentials,
+        name = "terraform",
+        terraform_version = TERRAFORM_VERSION,
+        environment = "",
+        drift_cron = "0 3 * * *",
+        paths = None,
+        private_runner = ""):
+    if not configs:
+        fail("TerraformPipeline: no Terraform configs to build a pipeline from")
+
+    # A change anywhere under the root can change any state, because a single component
+    # writes into several of them. Narrowing this per job is not possible in one workflow,
+    # and would be wrong anyway.
+    if paths == None:
+        paths = ["%s/**" % output_root]
+
+    deps = dependencies(configs)
+    _check_acyclic(deps)
+
+    # _slug is lossy — `a-b` and `a_b` collapse to the same job id — and jobs live in a
+    # map, so a collision would not fail the workflow, it would quietly drop one config
+    # out of the pipeline. That is the one failure this driver must never have.
+    owner = {}
+    for key in sorted(configs.keys()):
+        id = _plan_id(key)
+        if id in owner:
+            fail("%s and %s produce the same job id %s" % (owner[id], key, id))
+        owner[id] = key
+
+    jobs = []
+    for key in sorted(configs.keys()):
+        directory = "%s/%s" % (output_root, _dir(key))
+        jobs.append(
+            _plan_job(
+                key,
+                directory,
+                deps[key],
+                credentials,
+                terraform_version,
+                configs[key],
+                private_runner,
+            ),
+        )
+        jobs.append(
+            _apply_job(
+                key,
+                directory,
+                credentials,
+                terraform_version,
+                environment,
+                configs[key],
+                private_runner,
+            ),
+        )
+    jobs.append(_comment_job(sorted(configs.keys())))
+
+    triggers = [
+        lib.OnPullRequest(paths = paths),
+        lib.OnPush(branches = ["main"], paths = paths),
+        lib.OnWorkflowDispatch(),
+    ]
+    if drift_cron:
+        triggers.append(lib.OnSchedule(cron = drift_cron))
+
+    return lib.File(
+        name,
+        *(
+            triggers +
+            [
+                # One run at a time per ref, and never cancelled: interrupting a run
+                # between `apply` and the state write is how a state lock outlives the job
+                # that took it.
+                lib.Concurrency(
+                    group = "%s-${{ github.ref }}" % name,
+                    cancel_in_progress = False,
+                ),
+                lib.Permissions(
+                    contents = "read",
+                    # id-token so OidcCredentials can trade the run's identity for a role
+                    # rather than a long-lived key; pull-requests to post the plan
+                    **{"id-token": "write", "pull-requests": "write"}
+                ),
+                lib.SetEnv(
+                    TF_IN_AUTOMATION = "true",
+                    TF_INPUT = "false",
+                    TF_PLUGIN_CACHE_DIR = PLUGIN_CACHE_DIR,
+                ),
+            ] +
+            jobs
+        )
+    )
+
+actions = struct(
+    TerraformPipeline = TerraformPipeline,
+    OidcCredentials = OidcCredentials,
+    AccessKeyCredentials = AccessKeyCredentials,
+    GrafanaServiceAccountToken = GrafanaServiceAccountToken,
+    dependencies = dependencies,
+)

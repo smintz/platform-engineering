@@ -1,0 +1,48 @@
+load("//platform/platform.pinc", "platform")
+load("//terraform/v1/util.pinc", tf = "util")
+
+def described(desc):
+    # component-typed hook: skipped when the chain is running over a Terraform message
+    def do(component, next):
+        component.description = desc
+        return next(component)
+
+    return platform.component_filter(do)
+
+# no WithFailureDomain here: it is inherited from whatever depends on aurora
+def AuroraComponent(*hooks):
+    return platform.Component(
+        "aurora",
+        described("aurora cluster"),
+        # runs on the downstream component, writing into its own main.tf.json
+        platform.ForDownstream(
+            platform.WithConfig(None, tf.Output("aurora_endpoint", "aurora.internal")),
+            platform.WithConfig(
+                "aurora_endpoint.tf.json",
+                tf.Output("aurora_endpoint", "aurora.internal"),
+            ),
+        ),
+        *hooks
+    )
+
+def AuroraUserComponent(user):
+    return lambda *hooks: platform.Component(
+        "aurora-user-" + user,
+        described("aurora user:" + user),
+        platform.WithDeps(AuroraComponent),
+        *hooks
+    )
+
+def ApiTaskComponent(*hooks):
+    return platform.Component(
+        "api-task",
+        described("api task"),
+        # uninstantiated: Component calls it with the hooks marked Inherit
+        platform.WithDeps(AuroraUserComponent("api-task")),
+        *hooks
+    )
+
+def main():
+    return platform.GetConfigs(
+        ApiTaskComponent(platform.WithFailureDomain("us-east-1")).msg,
+    )

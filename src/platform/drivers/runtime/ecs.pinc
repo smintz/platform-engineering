@@ -1,0 +1,137 @@
+load("//aws/ecs/v1/taskdefinition.proto", "ContainerDefinition", "TaskSpec")
+load("//lib/ecs/ecs.pinc", lib = "ecs")
+load("//platform/platform.pinc", "platform")
+load("//terraform/aws/resources/v5/iam.proto", "AwsIamRolePolicyAttachment")
+load("//terraform/v1/util.pinc", "util")
+load("any.star", "any")
+
+# ECS runtime driver: lib/ecs's task hooks, addressed as a component instead of as a
+# Terraform message.
+#
+# A component's tasks are rendered last, in a Finally, because a task is not only what the
+# component said about it: a dependency may add a container to every task of whatever
+# depends on it (an observability sidecar is the reason this exists). Those contributions
+# arrive when dependencies are wired, which is after the component's own hooks and before
+# finalizers — so rendering early would mean rendering a task that is still incomplete.
+#
+# The contribution has to be data rather than a hook: it is parked on the component
+# between the two moments, and only a message can be parked there.
+TASK_SPEC = "runtime/ecs/task_spec"
+
+def task_spec(component):
+    spec = component.configs.get(TASK_SPEC)
+    return any.unpack(spec, TaskSpec()) if spec else TaskSpec()
+
+# WithContainer gives every task of the component an extra container, and the managed
+# policies that container needs on the task role. Meant for a dependency's ForDownstream
+# hooks — a component that wants a container of its own can just declare it on the task.
+def WithContainer(container, policy_arns = []):
+    def do(component, next):
+        spec = task_spec(component)
+        if container.name not in [c.name for c in spec.containers]:
+            have = list(spec.policy_arns)
+            spec.containers.append(container)
+            spec.policy_arns.extend([a for a in policy_arns if a not in have])
+            component.configs[TASK_SPEC] = any.new(spec)
+        return next(component)
+
+    return platform.component_filter(do)
+
+# WithTaskSecret and WithTaskEnv are the same channel for a value rather than a container:
+# a dependency that provisions credentials hands them to every task of whatever depends on
+# it. Both land on the main container, which is the one a component's own hooks configure.
+def WithTaskSecret(name, value_from):
+    def do(component, next):
+        spec = task_spec(component)
+        if name not in [s.name for s in spec.secrets]:
+            spec.secrets.append(
+                ContainerDefinition.Secret(name = name, value_from = value_from),
+            )
+            component.configs[TASK_SPEC] = any.new(spec)
+        return next(component)
+
+    return platform.component_filter(do)
+
+def WithTaskEnv(name, value):
+    def do(component, next):
+        spec = task_spec(component)
+        if name not in [e.name for e in spec.environment]:
+            spec.environment.append(ContainerDefinition.Env(name = name, value = value))
+            component.configs[TASK_SPEC] = any.new(spec)
+        return next(component)
+
+    return platform.component_filter(do)
+
+# A contributed container is written once but rendered into every task, so the part of it
+# that names a single task — its log stream — is stamped here rather than by the
+# contributor, which has no task to name.
+def with_container(container, stream_prefix):
+    def do(t, next):
+        if container.name in t.tmp["containers"]:
+            return next(t)
+        container.log_configuration.options["awslogs-stream-prefix"] = (
+            stream_prefix + "_" + container.name
+        )
+        t.tmp["containers"][container.name] = container
+        return next(t)
+
+    return do
+
+def with_policy_arn(arn):
+    name = lib.to_terraform_safe_name(arn.split("/")[-1]).lower()
+
+    def do(t, next):
+        t.Chain(
+            util.Resource(
+                t.prefix + name + t.suffix,
+                AwsIamRolePolicyAttachment(
+                    policy_arn = arn,
+                    role = t.var.task_role.name,
+                ),
+            ),
+        )
+        return next(t)
+
+    return do
+
+# WithTask declares one ECS task on the component: the same task hooks lib/ecs already
+# has, addressed as a component instead of as a Terraform message. What it removes is the
+# wiring a component should not have to repeat — the region a task logs to is the
+# component's failure domain, and the config it lands in is the component's own.
+#
+# The cluster, subnets and log group a task attaches to stay out: those are data sources
+# the caller declares in the same state (see SHARED_DATA_SOURCES), because which cluster
+# Leap runs is not the driver's business.
+def WithTask(name, *hooks, **kwargs):
+    key = kwargs.pop("key", platform.MAIN_CONFIG)
+    suffix = kwargs.get("suffix")
+    full_name = name + "_" + suffix if suffix else name
+
+    def render(component, next):
+        spec = task_spec(component)
+        contributed = [with_container(c, full_name) for c in spec.containers]
+        contributed += [with_policy_arn(a) for a in spec.policy_arns]
+
+        # replayed as lib hooks rather than written into the container: WithSecret also
+        # grants the execution role permission to read the secret it names
+        contributed += [lib.WithSecret(s.name, s.value_from) for s in spec.secrets]
+        contributed += [lib.WithEnv(e.name, e.value) for e in spec.environment]
+        platform.mutate_config(
+            component,
+            key,
+            lib.Task(name, component.domain, *(hooks + tuple(contributed)), **kwargs),
+        )
+        return next(component)
+
+    return platform.Finally(platform.component_filter(render))
+
+# Everything lib/ecs offers, plus the two hooks above, so declaring a task costs one load.
+# Task itself is left out: it is the same thing one rung lower, and a component reaching
+# for it would have to invent the region it deliberately does not know.
+ecs = struct(
+    WithTask = WithTask,
+    WithContainer = WithContainer,
+    WithTaskSecret = WithTaskSecret,
+    WithTaskEnv = WithTaskEnv,
+    **{name: getattr(lib, name) for name in dir(lib) if name != "Task"}
+)

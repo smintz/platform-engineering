@@ -1,0 +1,310 @@
+load("//google/protobuf/struct.proto", "ListValue", "Struct", "Value")
+load("//protoconf_terraform/config/v1/config.proto", "SubscriptionConfig")
+load("any.star", "any")
+load("re.star", "re")
+load("terraform.proto", TerraformProto = "Terraform")
+
+# The Any type_url for the top-level Terraform message. Used by
+# GenerateTerraformConfigs to identify Terraform configs nested inside
+# protoconf component config maps.
+_TERRAFORM_TYPE_URL = "type.googleapis.com/terraform.v1.Terraform"
+
+def Chain(msg, *hooks):
+    """
+    Run a sequence of hooks against msg.
+
+    Each hook has signature (msg, next) and either returns next(msg) to
+    continue, or returns its own value to terminate the chain. An empty
+    hooks list is valid and returns msg unchanged.
+    """
+    queue = list(hooks)
+
+    def run_next(c):
+        if not queue:
+            return c
+        nxt = queue.pop(0)
+        return nxt(c, run_next)
+
+    return run_next(msg)
+
+def Terraform(*hooks):
+    return Chain(TerraformProto(), *hooks)
+
+def From(tf):
+    def do(_, next):
+        return next(tf)
+
+    return do
+
+def Provider(provider):
+    def do(tf, next):
+        if not tf.provider:
+            tf.provider = TerraformProto.Providers()
+        if not tf.terraform:
+            tf.terraform = TerraformProto.TerraformSettings()
+
+        provider_name = str(provider).split(".")[1]
+        provider_list = getattr(tf.provider, provider_name)
+
+        # Dedup at insertion time so calling Provider(google) twice in the
+        # same chain doesn't produce duplicate entries. The `in` operator
+        # is not defined on Starlark proto repeated fields, so wrap in
+        # list() first.
+        if provider not in list(provider_list):
+            provider_list.append(provider)
+        tf.terraform.required_providers[provider_name] = TerraformProto.TerraformSettings.Provider(
+            source = provider.provider_fqdn,
+            version = provider.provider_version,
+        )
+        return next(tf)
+
+    return do
+
+_match_first_cap = re.compile("(.)([A-Z][a-z]+)")
+_match_all_cap = re.compile("([a-z0-9])([A-Z])")
+
+def _to_snake_case(s):
+    s = _match_first_cap.sub("${1}_${2}", s)
+    s = _match_all_cap.sub("${1}_${2}", s)
+    return s.lower()
+
+def _resource_type(resource):
+    return _to_snake_case(str(resource).split()[0].split(".")[-1])
+
+def _link(name, resource, var = False, is_data = False):
+    prefix = ".".join([_resource_type(resource), name])
+    if is_data:
+        prefix = ".".join(["data", prefix])
+    return module(
+        prefix,
+        self = prefix,
+        **dict(
+            [
+                (
+                    field,
+                    ".".join([prefix, field]) if not var else "${%s}" % ".".join([prefix, field]),
+                )
+                for field in dir(resource)
+            ],
+        )
+    )
+
+def _flatten(x):
+    result = []
+    for el in x:
+        if type(el) == "list" or type(el) == "tuple":
+            result.extend(_flatten(el))
+        else:
+            result.append(el)
+    return result
+
+# _add_resource powers Resource() and Data(). The two differ only in which
+# container they populate (tf.resource vs tf.data) and whether the link
+# prefix gets a "data." segment. The container is created and returned by
+# get_container — Starlark has no setattr(), so each caller writes its own
+# attribute assignment via a small closure.
+#
+# *link_consumers is variadic; each element is `lambda link_obj: hook` — a
+# callable that receives the resource's link view and returns one or more
+# real (msg, next) hooks to splice back into the chain. Returning a list (or
+# nested list) is fine; _flatten() unwraps it.
+def _add_resource(name, resource, link_consumers, get_container, is_data):
+    def do(tf, next):
+        container = get_container(tf)
+        bucket = getattr(container, _resource_type(resource))
+        bucket[name] = resource
+        ref = _link(name, resource, var = True, is_data = is_data)
+        sub = _flatten([consumer(ref) for consumer in link_consumers])
+        return next(Chain(tf, *sub))
+
+    return do
+
+def Resource(name, resource, *link_consumers):
+    def get_resources(tf):
+        if not tf.resource:
+            tf.resource = TerraformProto.Resources()
+        return tf.resource
+
+    return _add_resource(name, resource, link_consumers, get_resources, is_data = False)
+
+def Data(name, datasource, *link_consumers):
+    def get_data(tf):
+        if not tf.data:
+            tf.data = TerraformProto.Datasources()
+        return tf.data
+
+    return _add_resource(name, datasource, link_consumers, get_data, is_data = True)
+
+def Group(*hooks):
+    def do(tf, next):
+        return next(Chain(tf, *hooks))
+
+    return do
+
+def Link(*link_consumers, **resources):
+    """
+    Attach multiple resources at once and let consumer hooks reference any
+    of them by name.
+
+    Where Resource(name, foo, lambda foo_link: ...) gives a single consumer
+    access to one resource's link, Link gives consumers a view over ALL
+    the registered resources at once via an `inputs` struct:
+
+        util.Link(
+            lambda inputs: util.Output("ip",   inputs.var.web.private_ip),
+            lambda inputs: util.Output("name", inputs.var.db.identifier),
+            web=AwsInstance(...),
+            db=AwsRdsInstance(...),
+        )
+
+    The inputs struct exposes three views of each registered resource:
+
+        inputs.resource.<name>      the resource message itself
+        inputs.link.<name>.<field>  the bare HCL path "<type>.<name>.<field>"
+        inputs.var.<name>.<field>   the interpolation "${<type>.<name>.<field>}"
+
+    Each *link_consumer is a `lambda inputs: hook | [hook, ...]` callable
+    — receives the inputs struct and returns one or more real (msg, next)
+    hooks to splice back into the chain. Returning a list (or nested list
+    or tuple) is fine; _flatten unwraps them. This is the same convention
+    Resource() and Data() use for their trailing lambdas.
+
+    NOTE: Earlier versions of Link took *hooks (real (msg, next) hooks)
+    instead of *link_consumers and ran them against a frozen struct whose
+    mutations could not propagate back to tf — i.e. the hooks were silent
+    no-ops. Migrate by wrapping your hooks in `lambda inputs: <hook>`.
+    """
+
+    def do(tf, next):
+        register = [Resource(name, resource) for name, resource in resources.items()]
+        tf = Chain(tf, *register)
+
+        inputs = struct(
+            resource = module("resources", **resources),
+            link = module("paths", **{
+                name: _link(name, resource)
+                for name, resource in resources.items()
+            }),
+            var = module("interpolations", **{
+                name: _link(name, resource, var = True)
+                for name, resource in resources.items()
+            }),
+        )
+        sub = _flatten([consumer(inputs) for consumer in link_consumers])
+        return next(Chain(tf, *sub))
+
+    return do
+
+def Walk(component, func, _seen = None):
+    """
+    Depth-first walk over a component and its upstreams, calling func once
+    per unique component. Cycles and diamond shapes are handled — each
+    (domain, name) pair is visited at most once.
+
+    _seen is internal; callers should not pass it.
+    """
+    seen = _seen if _seen != None else {}
+    key = (component.domain, component.name)
+    if key in seen:
+        return
+    seen[key] = True
+    func(component)
+    for dep in component.upstreams:
+        Walk(dep, func, seen)
+
+def GenerateTerraformConfigs(
+        prefix,
+        state,
+        outputs,
+        subscription_config_key_name = "watch"):
+    subscription_config = SubscriptionConfig(keys = [])
+
+    def extract_config(component):
+        for config_name, config in component.configs.items():
+            if config.type_url == _TERRAFORM_TYPE_URL:
+                unpackedConfig = any.unpack(config, TerraformProto())
+
+                # any.pack/unpack duplicates entries in repeated provider lists;
+                # dedupe each list back down. Provider() also dedupes at
+                # insertion time, but that only catches duplicates introduced
+                # in this chain — pack/unpack adds its own.
+                for providerType in dir(unpackedConfig.provider):
+                    p = getattr(unpackedConfig.provider, providerType)
+                    if p:
+                        unpackedConfig.provider[providerType] = list(set(p))
+
+                key = "/".join([prefix, component.domain, component.name, config_name])
+                outputs[key] = unpackedConfig
+                subscription_config.keys.append(key)
+
+    for domain in state.domains.values():
+        Walk(domain.head, extract_config)
+
+    outputs[subscription_config_key_name] = subscription_config
+    return outputs
+
+def Output(k, v):
+    def do(tf, next):
+        tf.output[k] = TerraformProto.Output(value = v)
+        return next(tf)
+
+    return do
+
+def _to_struct(d):
+    """Build a google.protobuf.Struct from a Starlark dict."""
+    return Struct(fields = dict([(k, to_value(vv)) for k, vv in d.items()]))
+
+def to_value(v):
+    """
+    Convert a Starlark scalar / list / dict to a google.protobuf.Value.
+
+    Named to_value (not `value`) so it does not shadow the imported Value
+    WKT type. Dicts become Value(struct_value=Struct(...)), so nested
+    lists-of-dicts round-trip correctly. None becomes Value(null_value=...).
+
+    Args:
+        v: a Starlark value (string, int, float, bool, None, list, dict)
+    Returns:
+        Value
+    """
+    if v == None:
+        return Value(null_value = 0)
+    if type(v) == "string":
+        return Value(string_value = v)
+    if type(v) == "int":
+        return Value(number_value = float(v))
+    if type(v) == "float":
+        return Value(number_value = v)
+    if type(v) == "bool":
+        return Value(bool_value = v)
+    if type(v) == "list":
+        return Value(list_value = ListValue(values = [to_value(i) for i in v]))
+    if type(v) == "dict":
+        return Value(struct_value = _to_struct(v))
+    fail("to_value(): unsupported type %s for %r" % (type(v), v))
+
+def Module(name, source, then = (), **kwargs):
+    def do(tf, next):
+        kwargs["source"] = source
+        tf.module[name] = _to_struct(kwargs)
+        outputs = lambda key: "${module.%s.%s}" % (name, key)
+        return next(Chain(tf, *[child(outputs) for child in then]))
+
+    return do
+
+util = module(
+    "Terraform",
+    Chain = Chain,
+    Terraform = Terraform,
+    From = From,
+    Provider = Provider,
+    Resource = Resource,
+    Data = Data,
+    Output = Output,
+    Group = Group,
+    Link = Link,
+    Module = Module,
+    Walk = Walk,
+    GenerateTerraformConfigs = GenerateTerraformConfigs,
+    to_value = to_value,
+)

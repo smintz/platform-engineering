@@ -1,0 +1,7 @@
+{
+  "output": {
+    "aurora_endpoint": {
+      "value": "aurora.internal"
+    }
+  }
+}

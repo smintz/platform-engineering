@@ -1,0 +1,414 @@
+load("//google/protobuf/struct.proto", "NullValue", "Value")
+load("//google/protobuf/wrappers.proto", "BoolValue", "DoubleValue")
+load(
+    "//grafana/v1/dashboard.proto",
+    "Dashboard",
+    "DataSource",
+    "FieldConfig",
+    "GridPos",
+    "Link",
+    "Panel",
+    "Target",
+    "Thresholds",
+)
+load("//platform/drivers/monitoring/alerts.pinc", "alerts")
+load("//platform/platform.pinc", "platform")
+load("//platform/v1/platform.proto", component_proto = "Component")
+load("//terraform/grafana/datasources/v4/data.proto", "GrafanaDataSource")
+load("//terraform/grafana/provider/v4/grafana.proto", "Grafana")
+load("//terraform/grafana/resources/v4/dashboard.proto", "GrafanaDashboard")
+load("//terraform/v1/util.pinc", "util")
+load("re.star", "re")
+
+# Grafana generates a uid for each datasource when it is created, and a dashboard that
+# names the wrong one silently renders nothing. Rather than pinning uids we cannot know
+# here, the monitoring state looks each datasource up by name and the dashboard references
+# the result — Terraform substitutes the real uid at apply time.
+# Grafana's unit ids for the units an objective can be measured in. Unknown or unspecified
+# leaves the axis unlabelled rather than guessing, since a wrong unit is worse than none.
+GRAFANA_UNITS = {
+    platform.Unit.UNIT_RATIO: "percentunit",
+    platform.Unit.UNIT_PERCENT: "percent",
+    platform.Unit.UNIT_SECONDS: "s",
+    platform.Unit.UNIT_MILLISECONDS: "ms",
+    platform.Unit.UNIT_BYTES: "bytes",
+    platform.Unit.UNIT_COUNT: "short",
+}
+
+# An SLO panel answers one question with one number, so it is small and there are many of
+# them across the row; a diagnostic is a shape over time and needs the width to show it.
+DASHBOARD_W = 24
+SLO_W = 4
+SLO_H = 4
+
+# The dependencies section is one Alert List, full width.
+DEPS_H = 8
+PANEL_W = 12
+PANEL_H = 8
+ROW_H = 1
+SCHEMA_VERSION = 39
+SLO = component_proto.Objective.Type.TYPE_SLO
+DIAGNOSTIC = component_proto.Objective.Type.TYPE_DIAGNOSTIC
+NULL = Value(null_value = NullValue.NULL_VALUE)
+
+# Thresholds read from the SLO's bounds: green inside the range, red outside. Grafana steps
+# only ever go upward, so a lower bound and an upper bound produce mirrored step lists, and
+# the first step is always the open-ended one (value: null).
+def thresholds(query):
+    if query.min:
+        return Thresholds(
+            mode = "absolute",
+            steps = [
+                Thresholds.Step(color = "red", value = NULL),
+                Thresholds.Step(color = "green", value = Value(number_value = query.min)),
+            ],
+        )
+    steps = [Thresholds.Step(color = "green", value = NULL)]
+    if query.max:
+        steps.append(Thresholds.Step(color = "red", value = Value(number_value = query.max)))
+    return Thresholds(mode = "absolute", steps = steps)
+
+CLOUDWATCH = "cloudwatch"
+POSTGRES = "postgres"
+
+def datasource_uid(kind):
+    return "${data.grafana_data_source.%s.uid}" % kind
+
+LOWERCASE = "abcdefghijklmnopqrstuvwxyz"
+NOT_ID_CHAR = re.compile("[^a-z0-9_]")
+
+# A CloudWatch metric id has to start with a lowercase letter and hold only letters, digits
+# and underscores, so an objective's name becomes one rather than being used as-is.
+def metric_id(name):
+    slug = NOT_ID_CHAR.sub("_", name.lower())
+    if slug[0] not in LOWERCASE:
+        return "q" + slug
+    return slug
+
+# Every datasource spells a query differently. Prometheus takes an expression; CloudWatch
+# takes Metrics Insights SQL in sqlExpression — not expression, which is metric math —
+# plus the two mode fields that tell the frontend which of the two to read; Postgres takes
+# the statement in rawSql, and time_series format expects it to select a "time" column.
+def target(objective, region):
+    query = objective.query
+    if query.datasource == CLOUDWATCH:
+        return Target(
+            ref_id = "A",
+            id = metric_id(objective.name),
+            label = objective.name,
+            sql_expression = query.query,
+            region = region,
+            query_mode = "Metrics",
+            metric_query_type = 1,
+            metric_editor_mode = 1,
+            statistic = alerts.CLOUDWATCH_STATISTIC,
+        )
+    if query.datasource == POSTGRES:
+        return Target(
+            ref_id = "A",
+            raw_sql = query.query,
+            raw_query = True,
+            format = "time_series",
+        )
+    return Target(
+        ref_id = "A",
+        expr = query.query,
+        legend_format = objective.name,
+    )
+
+def field_config(objective):
+    query = objective.query
+    defaults = FieldConfig.Defaults(
+        thresholds = (
+            Thresholds(
+                mode = "absolute",
+                steps = [Thresholds.Step(color = "text", value = NULL)],
+            ) if objective.type == DIAGNOSTIC else thresholds(query)
+        ),
+        unit = GRAFANA_UNITS.get(query.unit, ""),
+    )
+
+    # an unset bound stays unset: the axis range is Grafana's to pick, not ours
+    if query.min:
+        defaults.min = DoubleValue(value = query.min)
+    if query.max:
+        defaults.max = DoubleValue(value = query.max)
+    return FieldConfig(defaults = defaults)
+
+def panel(objective, kind, grid_pos, region, options = None, title = None):
+    query = objective.query
+    p = Panel(
+        type = kind,
+        title = objective.name if title == None else title,
+        description = objective.description,
+        datasource = DataSource(
+            type = query.datasource,
+            uid = datasource_uid(query.datasource),
+        ),
+        grid_pos = grid_pos,
+        targets = [target(objective, region)],
+        field_config = field_config(objective),
+    )
+
+    # only the stat panel has options worth spelling out; a timeseries takes Grafana's
+    if options:
+        p.options = options
+    return p
+
+# A dashboard's uid is its component's name, so a dependency's dashboard is reachable
+# without knowing anything about it beyond what the upstream message already carries.
+def dashboard_url(component):
+    return "/d/%s" % component.name
+
+def stat_options(graph_mode):
+    return Panel.Options(
+        reduce_options = Panel.Options.ReduceOptions(calcs = ["lastNotNull"]),
+        color_mode = "background",
+        graph_mode = graph_mode,
+        text_mode = "value_and_name",
+        justify_mode = "auto",
+        orientation = "auto",
+    )
+
+# An SLO is a single claim about now — met or not — so it renders as one number whose
+# background carries the threshold colour: the row is readable at a glance from across the
+# office, and the sparkline behind each number still says which way it is moving.
+#
+# The panel header is left empty and value_and_name prints the name inside the coloured
+# block instead — one label per panel rather than two, and it takes the fill with it.
+def slo_panel(objective, grid_pos, region):
+    return panel(objective, "stat", grid_pos, region, stat_options("area"), title = "")
+
+# Alert rules are expected to label themselves with the component they belong to, so one
+# matcher over the dependency names is the whole filter. Anchored by Grafana, so the
+# alternation matches whole names and nothing longer.
+DEP_LABEL = "component"
+MAX_DEP_ALERTS = 20
+
+def dependency_filter(deps):
+    return '{%s=~"%s"}' % (DEP_LABEL, "|".join([d.name for d in deps]))
+
+# A dependency is not something this component measures — it is somebody else's promise,
+# already alerted on by whoever owns it. So the section asks Grafana what is currently
+# wrong upstream rather than re-running upstream's queries: one Alert List over every
+# dependency, worst first.
+#
+# Normal is in the state filter alongside the ones that mean trouble, so the panel is the
+# whole roster of what upstream alerts on rather than only what is failing. It costs the
+# "empty means fine" reading — a quiet panel and a panel with no matching rules look the
+# same at a glance either way — and buys the more useful question: an upstream that
+# promises nothing shows up as an absence here, where before it was indistinguishable from
+# an upstream that was simply healthy.
+#
+# The panel header carries a link per dependency, since the alerts themselves link to
+# their rule and the question a firing one raises is "what else is wrong over there". Only
+# dependencies that declared objectives are linked — the others have no dashboard to point
+# at (see render below). They stay in the filter regardless: what a component alerts on is
+# its own business, and may well be more than it promised us.
+def deps_panel(deps, grid_pos):
+    return Panel(
+        type = "alertlist",
+        title = "Upstream alerts",
+        grid_pos = grid_pos,
+        links = [
+            Link(title = "%s dashboard" % d.name, url = dashboard_url(d))
+            for d in deps
+            if d.objectives
+        ],
+        options = Panel.Options(
+            view_mode = "list",
+            group_mode = "default",
+            max_items = MAX_DEP_ALERTS,
+            # by importance: firing before pending, worst first
+            sort_order = 3,
+            state_filter = Panel.Options.StateFilter(
+                firing = True,
+                pending = True,
+                no_data = True,
+                error = True,
+                normal = True,
+            ),
+            alert_instance_label_filter = dependency_filter(deps),
+            show_instances = True,
+        ),
+    )
+
+def diagnostic_panel(objective, grid_pos, region):
+    return panel(objective, "timeseries", grid_pos, region)
+
+def row(title, y):
+    return Panel(
+        type = "row",
+        title = title,
+        collapsed = BoolValue(value = False),
+        grid_pos = GridPos(h = ROW_H, w = DASHBOARD_W, x = 0, y = y),
+    )
+
+def _rows_needed(count, per_row):
+    return (count + per_row - 1) // per_row
+
+# Grafana lays a dashboard out by gridPos alone, so a row header is just another panel at
+# the y where its section starts and everything under it has to be placed past it. Returns
+# the panels and the y the next section starts at.
+def section(title, y, items, w, h, build):
+    per_row = DASHBOARD_W // w
+    laid_out = [row(title, y)]
+    for i, item in enumerate(items):
+        laid_out.append(
+            build(
+                item,
+                GridPos(
+                    h = h,
+                    w = w,
+                    x = (i % per_row) * w,
+                    y = y + ROW_H + (i // per_row) * h,
+                ),
+            ),
+        )
+    return laid_out, y + ROW_H + _rows_needed(len(items), per_row) * h
+
+# Upstreams, depth-first and deduplicated by name: something two hops up can still take
+# this component down, and the same dependency reached by two paths is still one entry in
+# the filter.
+def dependencies(component):
+    seen = {}
+    ordered = []
+
+    def walk(c):
+        if not c.upstreams:
+            return
+        for upstream in c.upstreams.components:
+            if upstream.name not in seen:
+                seen[upstream.name] = True
+                ordered.append(upstream)
+            walk(upstream)
+
+    walk(component)
+    return ordered
+
+# Three sections, in the order an incident is worked: what we promised, then whose promise
+# might be the reason ours broke, then the signals that say how. A section with nothing in
+# it is dropped rather than left as an empty header.
+def panels(slos, deps, diagnostics, region):
+    laid_out = []
+    y = 0
+    if slos:
+        built, y = section(
+            "SLOs",
+            y,
+            slos,
+            SLO_W,
+            SLO_H,
+            lambda o, g: slo_panel(o, g, region),
+        )
+        laid_out += built
+    if deps:
+        built, y = section(
+            "Dependencies",
+            y,
+            [deps],
+            DASHBOARD_W,
+            DEPS_H,
+            lambda ds, g: deps_panel(ds, g),
+        )
+        laid_out += built
+    if diagnostics:
+        built, y = section(
+            "Diagnostics",
+            y,
+            diagnostics,
+            PANEL_W,
+            PANEL_H,
+            lambda o, g: diagnostic_panel(o, g, region),
+        )
+        laid_out += built
+    return laid_out
+
+def dashboard(component, slos, deps, diagnostics):
+    return Dashboard(
+        uid = component.name,
+        title = "%s SLOs" % component.name,
+        tags = ["slo", component.domain, component.name],
+        schema_version = SCHEMA_VERSION,
+        editable = BoolValue(value = False),
+        refresh = "1m",
+        panels = panels(slos, deps, diagnostics, component.domain),
+    )
+
+def render_with(backend, datasources):
+    def render(component, next):
+        # a row each: the dashboard should read as "what we promised", then "what to look
+        # at when it broke"
+        slos = [o for o in component.objectives if o.type == SLO]
+        diagnostics = [o for o in component.objectives if o.type == DIAGNOSTIC]
+
+        # a component earns a dashboard by promising something itself; a dependency's SLOs
+        # are shown on it but are not on their own a reason for it to exist
+        if not slos and not diagnostics:
+            return next(component)
+
+        deps = dependencies(component)
+
+        # every datasource the dashboard queries has to be looked up in this component's
+        # own monitoring state — a panel pointing at a data resource nobody declared is a
+        # Terraform error, not a blank panel. Dependencies contribute nothing here: the
+        # Alert List reads Grafana's own alerting API, not a datasource.
+        kinds = sorted({o.query.datasource: True for o in slos + diagnostics})
+        for kind in kinds:
+            if kind not in datasources:
+                fail("no Grafana datasource name given for '%s'" % kind)
+
+        resources = [
+            util.Resource(
+                "slos",
+                GrafanaDashboard(
+                    config_json = dashboard(component, slos, deps, diagnostics).as_json(),
+                    overwrite = True,
+                    message = "Managed by protoconf",
+                ),
+            ),
+        ]
+
+        # Alert rules go in the same state as the dashboard they are about: they are the
+        # same promise expressed twice, they read the same datasources, and separating them
+        # would let one be applied without the other. The rules label themselves with the
+        # component, which is what lets a dependant's dashboard list them (see deps_panel).
+        built = alerts.rules(component, slos, datasource_uid)
+        if built:
+            resources.append(util.Resource("alerts", alerts.folder(component)))
+            resources.append(
+                util.Resource(
+                    "slo_alerts",
+                    alerts.rule_group(component, built, "${grafana_folder.alerts.uid}"),
+                ),
+            )
+
+        platform.WithMonitoring(
+            component,
+            backend,
+            util.Provider(Grafana()),
+            *(
+                [
+                    util.Data(kind, GrafanaDataSource(name = datasources[kind]))
+                    for kind in kinds
+                ] +
+                resources
+            )
+        )
+        return next(component)
+
+    return render
+
+# WithGrafanaDashboard renders one dashboard from whatever SLOs the component declared. It
+# runs last (Finally) because it is a view of the finished component, and it is wired in
+# through a Defaults macro rather than by Component itself — dashboards are one provider's
+# opinion, and swapping Grafana for something else should not touch a single component.
+#
+# `datasources` maps the kind of datasource an objective says it queries to the name of a
+# datasource in the caller's Grafana. The driver knows how to spell a query for each kind
+# and nothing about what any organisation called its datasources — the kind doubles as the
+# Grafana datasource type, so one name per type.
+def WithGrafanaDashboard(backend, datasources):
+    return platform.Finally(
+        platform.component_filter(render_with(backend, datasources)),
+    )

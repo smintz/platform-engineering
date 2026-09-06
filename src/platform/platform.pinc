@@ -1,0 +1,69 @@
+load(
+    "//platform/core.pinc",
+    "CONFIG_TYPES",
+    "Component",
+    "Finally",
+    "ForDownstream",
+    "GetConfigs",
+    "Inherit",
+    "MAIN_CONFIG",
+    "TerraformConfig",
+    "WithConfig",
+    "WithDeps",
+    "WithDescription",
+    "WithFailureDomain",
+    "chain",
+    "component_filter",
+    "flatten",
+    "message_filter",
+    "mutate_config",
+    "terraform_filter",
+)
+load(
+    "//platform/monitoring.pinc",
+    "MONITORING_CONFIG",
+    "MONITORING_SUFFIX",
+    "Status",
+    "Unit",
+    "WithDiagnostic",
+    "WithMonitoring",
+    "WithSLO",
+)
+
+# platform is the whole platform surface in one name: a call site declares a component and
+# its objectives without collecting a load line per hook. The modules behind it still load
+# each other by symbol — this file loads them, so they cannot load it back.
+#
+# Drivers are deliberately absent: which backend holds the state and which tool draws the
+# dashboards are replaceable choices, and importing one should stay a visible decision.
+platform = struct(
+    # hook plumbing
+    chain = chain,
+    flatten = flatten,
+    message_filter = message_filter,
+    component_filter = component_filter,
+    terraform_filter = terraform_filter,
+    # markers
+    WithDeps = WithDeps,
+    ForDownstream = ForDownstream,
+    Finally = Finally,
+    Inherit = Inherit,
+    # components and their configs
+    Component = Component,
+    GetConfigs = GetConfigs,
+    MAIN_CONFIG = MAIN_CONFIG,
+    CONFIG_TYPES = CONFIG_TYPES,
+    TerraformConfig = TerraformConfig,
+    WithConfig = WithConfig,
+    mutate_config = mutate_config,
+    WithDescription = WithDescription,
+    WithFailureDomain = WithFailureDomain,
+    # monitoring
+    MONITORING_CONFIG = MONITORING_CONFIG,
+    MONITORING_SUFFIX = MONITORING_SUFFIX,
+    WithMonitoring = WithMonitoring,
+    WithDiagnostic = WithDiagnostic,
+    WithSLO = WithSLO,
+    Unit = Unit,
+    Status = Status,
+)

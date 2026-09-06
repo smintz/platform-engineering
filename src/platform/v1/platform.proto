@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package platform.v1;
+
+import "google/protobuf/any.proto";
+
+message Component {
+    string component_id = 1;
+
+    string domain = 2;
+    // `name` of the component
+    string name = 3;
+
+    string description = 4;
+
+
+    Metadata metadata = 5;
+
+    // Objectives == SLOs, RTOs and RPOs of the component
+    repeated Objective objectives = 6;
+
+    Upstreams upstreams = 7;
+
+    Status status = 8;
+    map<string,google.protobuf.Any> configs = 9;
+    
+    message Metadata {
+        repeated string tags = 1;
+        map<string, string> labels = 2;
+    }
+    
+    message Upstreams {
+        repeated Component components = 1;
+    }
+
+    enum Status {
+        STATUS_UNSPECIFIED = 0;
+        STATUS_OK = 1;
+        STATUS_NOTICE = 2;
+        STATUS_WARN = 3;
+        STATUS_CRIT = 4;
+        STATUS_FATAL = 5;
+    }
+
+    message Objective {
+        string name = 1;
+        string description = 2;
+        Type type = 3;
+        oneof action {
+            Check check = 4;
+            Query query = 5;
+        }
+        Component.Status severity = 10;
+        ObjectiveState state = 11;
+
+        enum Type {
+            TYPE_UNSPECIFIED = 0;
+            TYPE_SLO = 1;
+            TYPE_RPO = 2;
+            TYPE_RTO = 3;
+            // Not a promise: a signal that explains one. Saturation, restarts, queue
+            // depth — the things a responder wants on screen when an objective breaks,
+            // which nobody should be woken for on their own.
+            TYPE_DIAGNOSTIC = 4;
+        }
+
+        message Check {
+            // TODO(smintz): Fill this out
+        }
+
+        message Query {
+            string datasource = 1;
+            string query = 2;
+            double min = 3;
+            double max = 4;
+            // What the numbers mean, so whoever renders them can label an axis. Kept
+            // provider-neutral on purpose: Grafana's unit ids are Grafana's business.
+            Unit unit = 5;
+
+            // The same SLI with the alert driver's window token where its lookback goes,
+            // so the identical measurement can be re-asked over the short windows a
+            // burn-rate alert needs. Empty means this objective is not alerted on, which
+            // is the honest default: a gauge has no error budget to burn, and a query
+            // whose window cannot be shortened cannot be measured fast enough to page on.
+            string burn_query = 6;
+
+            // Severity for an alert on the bound itself, for objectives that can carry no
+            // error budget. Empty means none. Prefer burn_query wherever the telemetry
+            // allows it: a threshold cannot say how much of the month has been spent, and
+            // this one is deliberately not allowed to imply that it can.
+            string threshold_alert = 7;
+
+            enum Unit {
+                UNIT_UNSPECIFIED = 0;
+                // 0.0 - 1.0
+                UNIT_RATIO = 1;
+                // 0 - 100
+                UNIT_PERCENT = 2;
+                UNIT_SECONDS = 3;
+                UNIT_MILLISECONDS = 4;
+                UNIT_BYTES = 5;
+                UNIT_COUNT = 6;
+            }
+        }
+
+        message ObjectiveState {
+            string reason = 1;
+            double value = 2;
+            bool firing = 3;
+        }
+    }
+}
+
+message FailureDomain {
+    string name = 1;
+    Component head = 2;
+    map<string,google.protobuf.Any> configs = 3;
+}
+
+message State {
+    map<string,FailureDomain> domains = 1;
+}

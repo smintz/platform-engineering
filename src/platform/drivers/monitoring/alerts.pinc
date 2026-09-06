@@ -1,0 +1,338 @@
+load("//platform/v1/platform.proto", component_proto = "Component")
+load("//terraform/grafana/resources/v4/folder.proto", "GrafanaFolder")
+load("//terraform/grafana/resources/v4/rule.proto", "GrafanaRuleGroup")
+load("encoding/json.star", "json")
+
+Rule = GrafanaRuleGroup.Rule
+Data = Rule.Data
+
+# Two shapes of rule live here, and which one an objective gets is decided by the objective,
+# not by this driver. Burn rate is the one worth having; a threshold is what is left when
+# the telemetry cannot support a budget.
+
+# Alerting when the SLI dips below its target sounds right and behaves terribly: at a 99%
+# target evaluated over ten minutes, one bad minute breaches it, and widening the window to
+# fix that makes the alert take a day and a half to clear. So these rules alert on how fast
+# an incident is spending the error budget instead — a number that scales itself to
+# severity, and the one anybody actually cares about.
+#
+# Multiwindow, multi-burn-rate, as the SRE workbook specifies. The long window confirms
+# enough budget has genuinely gone to be worth someone's attention; the short one — a
+# twelfth of it — confirms the problem is still happening, so the alert clears minutes
+# after the incident ends rather than hours. Both must be over threshold to fire.
+#
+# These are policy, not per-service tuning. Keeping them identical everywhere is what stops
+# on-call having to remember which service alerts on what, and the per-service benefit has
+# never been measured.
+BURN_RATES = [
+    struct(
+        name = "fast burn",
+        long = "1h",
+        short = "5m",
+        factor = 14.4,
+        severity = "page",
+        spent = "2%",
+    ),
+    struct(
+        name = "slow burn",
+        long = "6h",
+        short = "30m",
+        factor = 6.0,
+        severity = "page",
+        spent = "5%",
+    ),
+    struct(
+        name = "budget leak",
+        long = "3d",
+        short = "6h",
+        factor = 1.0,
+        severity = "ticket",
+        spent = "10%",
+    ),
+]
+
+# An objective writes WINDOW_TOKEN where its lookback goes, and the driver substitutes the
+# spelling the datasource wants — Prometheus takes a range-vector duration, Postgres wants
+# an interval literal. A kind with no spelling here cannot be alerted on, which is a
+# deliberate gate rather than an oversight: adding one means having checked that the query
+# still means something at five minutes.
+WINDOW_TOKEN = "$__window"
+
+WINDOWS = {
+    "5m": struct(seconds = 300, prometheus = "5m", postgres = "5 minutes"),
+    "30m": struct(seconds = 1800, prometheus = "30m", postgres = "30 minutes"),
+    "1h": struct(seconds = 3600, prometheus = "1h", postgres = "1 hour"),
+    "6h": struct(seconds = 21600, prometheus = "6h", postgres = "6 hours"),
+    "3d": struct(seconds = 259200, prometheus = "3d", postgres = "3 days"),
+}
+
+# Grafana's server-side expression pipeline answers to this instead of a real datasource.
+EXPRESSION_UID = "-100"
+
+# The CloudWatch plugin refuses a query with no statistic — "query must have either
+# statistic or statistics field" — but in Metrics Insights mode nothing reads it: the
+# aggregation is the SQL's own (MAX, AVG, SUM), and AWS takes that from the Expression,
+# while Stat belongs to a MetricStat that a Metrics Insights query never fills in. Panels
+# never hit this because the frontend supplies the default; a rule is evaluated in the
+# backend, where nothing does.
+CLOUDWATCH_STATISTIC = "Average"
+
+def windowed_query(objective, window):
+    spelling = getattr(WINDOWS[window], objective.query.datasource, None)
+    if spelling == None:
+        fail(
+            "no %s window spelling for datasource '%s', needed by objective '%s'" %
+            (window, objective.query.datasource, objective.name),
+        )
+    return objective.query.burn_query.replace(WINDOW_TOKEN, spelling)
+
+# `from` is a Starlark keyword, so the only way to name that field is through a dict, where
+# it is just a string.
+def _range(seconds):
+    return Data.RelativeTimeRange(**{"from": seconds, "to": 0})
+
+# One query stage, in whichever dialect the objective's datasource speaks — the same three
+# spellings the dashboard driver uses, because an alert that queries differently from the
+# panel above it is a second opinion nobody asked for.
+#
+# Prometheus and Postgres carry their own lookback inside the query, so they return a single
+# value and relative_time_range is only there for whoever reads the rule in the UI.
+# CloudWatch cannot: Metrics Insights has no window clause, so the range *is* the window and
+# the series it returns has to be reduced to one number by a later stage.
+def query_stage(objective, query, ref_id, seconds, uid, region):
+    kind = objective.query.datasource
+    model = {"refId": ref_id, "intervalMs": 60000, "maxDataPoints": 1}
+    if kind == "cloudwatch":
+        model.update(
+            {
+                "sqlExpression": query,
+                "region": region,
+                "queryMode": "Metrics",
+                "metricQueryType": 1,
+                "metricEditorMode": 1,
+                "maxDataPoints": 100,
+                "statistic": CLOUDWATCH_STATISTIC,
+            },
+        )
+    elif kind == "postgres":
+        # table format, not time_series: alerting wants one value, not a series
+        model.update({"rawSql": query, "format": "table", "rawQuery": True})
+    else:
+        model.update({"expr": query, "instant": True})
+    return Data(
+        ref_id = ref_id,
+        datasource_uid = uid(kind),
+        model = json.encode(model),
+        relative_time_range = _range(seconds),
+    )
+
+def expression_stage(ref_id, model, seconds):
+    model["refId"] = ref_id
+    return Data(
+        ref_id = ref_id,
+        datasource_uid = EXPRESSION_UID,
+        model = json.encode(model),
+        # the expression stages read their inputs from earlier stages rather than from a
+        # time range, but the provider requires the block on every stage
+        relative_time_range = _range(seconds),
+    )
+
+# The SLI is good/valid, so the error ratio is its complement and the budget is whatever
+# the target left over. A rule fires when the error ratio exceeds `factor` times the budget
+# in both windows, which reads more naturally the other way round: when the SLI itself
+# drops below 1 - factor * budget.
+def threshold_for(objective, burn):
+    return 1.0 - burn.factor * (1.0 - objective.query.min)
+
+def burn_rule(component, objective, burn, uid, region):
+    threshold = threshold_for(objective, burn)
+
+    # A budget big enough that `factor` times it exceeds 100% cannot produce this alert at
+    # all — every event would have to fail and then some. Dropping the row is right: a rule
+    # whose condition is unreachable is worse than no rule, because it reads as coverage.
+    if threshold <= 0.0:
+        return None
+    condition = "$A < %s && $B < %s" % (_num(threshold), _num(threshold))
+    return Rule(
+        name = "%s: %s · %s" % (component.name, objective.name, burn.name),
+        condition = "C",
+        no_data_state = "NoData",
+        exec_err_state = "Error",
+        data = [
+            query_stage(
+                objective,
+                windowed_query(objective, burn.long),
+                "A",
+                WINDOWS[burn.long].seconds,
+                uid,
+                region,
+            ),
+            query_stage(
+                objective,
+                windowed_query(objective, burn.short),
+                "B",
+                WINDOWS[burn.short].seconds,
+                uid,
+                region,
+            ),
+            expression_stage(
+                "C",
+                {"type": "math", "expression": condition},
+                WINDOWS[burn.long].seconds,
+            ),
+        ],
+        labels = {
+            "component": component.name,
+            "objective": objective.name,
+            "severity": burn.severity,
+        },
+        annotations = {
+            "summary": "%s is burning its error budget %sx faster than it can afford" %
+                       (objective.name, _num(burn.factor)),
+            "description": "About %s of the 28-day error budget is gone. The target is %s, so the budget is %s of events; both the %s and %s windows are below %s. %s" %
+                           (
+                               burn.spent,
+                               _percent(objective.query.min),
+                               _percent(1.0 - objective.query.min),
+                               burn.long,
+                               burn.short,
+                               _num(threshold),
+                               objective.description,
+                           ),
+        },
+    )
+
+# Binary floats make 1 - 14.4 * 0.02 come out as 0.7119999999999997, which lands verbatim
+# in the rule condition and the alert text. Six decimals is far finer than any SLO target
+# and reads like a number somebody chose.
+PRECISION = 1000000
+
+def _num(value):
+    # Starlark's % has no precision specifier, so the rounding is done by hand: scale, round
+    # to an integer, and reassemble. Every value here is a ratio or a percentage, so the
+    # negative case cannot arise (rule() drops thresholds at or below zero).
+    scaled = int(value * PRECISION + 0.5)
+    whole = scaled // PRECISION
+    frac = scaled % PRECISION
+    if frac == 0:
+        return str(whole)
+    digits = str(frac)
+    digits = "0" * (6 - len(digits)) + digits
+    return "%s.%s" % (whole, digits.rstrip("0"))
+
+def _percent(ratio):
+    return "%s%%" % _num(ratio * 100)
+
+# A threshold alert is the shape the workbook warns about: it fires on the metric crossing
+# a line, so it pages on a single bad minute and clears late, and it can say nothing about
+# how much of the month has been spent. It is here because some objectives have no better
+# option — a gauge has no error budget, and no arrangement of queries will give it one.
+#
+# Two things make it tolerable. It is measured as the mean over a quarter of an hour rather
+# than the latest sample, and it has to stay that way for another quarter before it fires,
+# so a spike costs nobody anything. And it is not allowed to page: an objective declaring
+# one says what severity it wants, and the answer should be "ticket" unless somebody can
+# explain what the responder would do at 3am that could not wait until morning.
+THRESHOLD_SECONDS = 900
+THRESHOLD_PENDING = "15m"
+
+# "above 50" is a worse thing to be woken by than "above 50ms". Only for the alert text —
+# Grafana's own unit ids are the dashboard driver's business, not this one's.
+Unit = component_proto.Objective.Query.Unit
+UNIT_SUFFIX = {
+    Unit.UNIT_PERCENT: "%",
+    Unit.UNIT_SECONDS: "s",
+    Unit.UNIT_MILLISECONDS: "ms",
+    Unit.UNIT_BYTES: " bytes",
+}
+
+def _bound(objective, value):
+    return "%s%s" % (_num(value), UNIT_SUFFIX.get(objective.query.unit, ""))
+
+def threshold_rule(component, objective, uid, region):
+    query = objective.query
+
+    # Which side of the bound is bad follows from which bound was set — the same reading
+    # the dashboard's threshold steps take.
+    if query.max:
+        condition, bound, direction = "$B > %s" % _num(query.max), query.max, "above"
+    elif query.min:
+        condition, bound, direction = "$B < %s" % _num(query.min), query.min, "below"
+    else:
+        fail(
+            "objective '%s' asked for a threshold alert but set neither min nor max" %
+            objective.name,
+        )
+    return Rule(
+        name = "%s: %s · over threshold" % (component.name, objective.name),
+        condition = "C",
+        no_data_state = "NoData",
+        exec_err_state = "Error",
+        data = [
+            query_stage(objective, query.query, "A", THRESHOLD_SECONDS, uid, region),
+            expression_stage(
+                "B",
+                {"type": "reduce", "reducer": "mean", "expression": "A"},
+                THRESHOLD_SECONDS,
+            ),
+            expression_stage(
+                "C",
+                {"type": "math", "expression": condition},
+                THRESHOLD_SECONDS,
+            ),
+        ],
+        labels = {
+            "component": component.name,
+            "objective": objective.name,
+            "severity": query.threshold_alert,
+        },
+        annotations = {
+            "summary": "%s has been %s %s for %s" %
+                       (objective.name, direction, _bound(objective, bound), THRESHOLD_PENDING),
+            "description": "A threshold, not an error budget: this says the number is %s %s right now, not that any share of the month has been spent. %s" %
+                           (direction, _bound(objective, bound), objective.description),
+        },
+        **{"for": THRESHOLD_PENDING}
+    )
+
+# Rules for every objective that asked for one, in whichever shape it asked for. An
+# objective that asked for neither is skipped in silence — the reason it cannot be alerted
+# on belongs next to the objective, not in the driver.
+def rules(component, objectives, uid):
+    built = []
+    region = component.domain
+    for objective in objectives:
+        if objective.query.burn_query:
+            for burn in BURN_RATES:
+                r = burn_rule(component, objective, burn, uid, region)
+                if r:
+                    built.append(r)
+        if objective.query.threshold_alert:
+            built.append(threshold_rule(component, objective, uid, region))
+    return built
+
+def folder(component):
+    return GrafanaFolder(title = "%s SLOs" % component.name, uid = component.name + "-slos")
+
+# 60s because the shortest window in play is five minutes and an alert that takes two
+# evaluations to notice a total outage is not worth the cheaper evaluation.
+EVAL_INTERVAL_SECONDS = 60
+
+def rule_group(component, built, folder_uid):
+    return GrafanaRuleGroup(
+        name = "%s SLO alerts" % component.name,
+        folder_uid = folder_uid,
+        interval_seconds = EVAL_INTERVAL_SECONDS,
+        rule = built,
+    )
+
+alerts = struct(
+    CLOUDWATCH_STATISTIC = CLOUDWATCH_STATISTIC,
+    BURN_RATES = BURN_RATES,
+    WINDOW_TOKEN = WINDOW_TOKEN,
+    WINDOWS = WINDOWS,
+    rules = rules,
+    folder = folder,
+    rule_group = rule_group,
+    threshold_for = threshold_for,
+)

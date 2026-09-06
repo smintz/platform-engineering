@@ -1,0 +1,118 @@
+load("//platform/core.pinc", "component_filter", "mutate_config")
+load("//platform/v1/platform.proto", component_proto = "Component")
+
+# The monitoring stack is its own Terraform state, one per component, separate from the
+# state that provisions the component itself. Two reasons: it talks to entirely different
+# providers (Grafana today, PagerDuty and Discord later) with their own credentials, and a
+# broken dashboard should never be able to block — or be blocked by — an infrastructure
+# apply.
+MONITORING_CONFIG = "monitoring/main.tf.json"
+MONITORING_SUFFIX = "-monitoring"
+
+# WithMonitoring adds resources to the component's monitoring state, creating the state on
+# first use. Every monitoring provider goes through here, so a component ends up with one
+# state holding its dashboard, its pager rotation and its alert channels together.
+#
+# The backend comes from the caller: where states live is not something the monitoring
+# layer should have an opinion about.
+def WithMonitoring(component, backend, *hooks):
+    return mutate_config(
+        component,
+        MONITORING_CONFIG,
+        backend.state(component.domain, component.name + MONITORING_SUFFIX),
+        *hooks
+    )
+
+Unit = component_proto.Objective.Query.Unit
+Status = component_proto.Status
+
+# WithSLO records a service level objective: a query, and the range its result has to stay
+# in. Recording it on the component rather than in a dashboard means whoever renders the
+# dashboards is a separate, replaceable concern — see Finally and grafana.pinc.
+#
+# min/max are proto floats, so an unset bound reads back as 0. Objectives that legitimately
+# bound at zero should say so explicitly on the reading side.
+def WithSLO(
+        name,
+        query,
+        description = "",
+        datasource = "prometheus",
+        min = 0.0,
+        max = 0.0,
+        unit = Unit.UNIT_UNSPECIFIED,
+        severity = component_proto.Status.STATUS_WARN,
+        burn_query = "",
+        threshold_alert = ""):
+    return objective(
+        component_proto.Objective.Type.TYPE_SLO,
+        name,
+        query,
+        description,
+        datasource,
+        min,
+        max,
+        unit,
+        severity,
+        burn_query,
+        threshold_alert,
+    )
+
+# WithDiagnostic records a signal that is not a promise: saturation, restart counts, feed
+# reconnects. They belong on the dashboard because they explain an objective that broke,
+# and they are typed apart from objectives so that nothing mistakes one for something a
+# user can feel — or pages on it.
+def WithDiagnostic(
+        name,
+        query,
+        description = "",
+        datasource = "prometheus",
+        min = 0.0,
+        max = 0.0,
+        unit = Unit.UNIT_UNSPECIFIED):
+    return objective(
+        component_proto.Objective.Type.TYPE_DIAGNOSTIC,
+        name,
+        query,
+        description,
+        datasource,
+        min,
+        max,
+        unit,
+        component_proto.Status.STATUS_UNSPECIFIED,
+        "",
+        "",
+    )
+
+def objective(
+        type,
+        name,
+        query,
+        description,
+        datasource,
+        min,
+        max,
+        unit,
+        severity,
+        burn_query,
+        threshold_alert):
+    def do(component, next):
+        component.objectives.append(
+            component_proto.Objective(
+                name = name,
+                description = description,
+                type = type,
+                query = component_proto.Objective.Query(
+                    datasource = datasource,
+                    query = query,
+                    min = min,
+                    max = max,
+                    unit = unit,
+                    burn_query = burn_query,
+                    threshold_alert = threshold_alert,
+                ),
+                severity = severity,
+            ),
+        )
+        return next(component)
+
+    return component_filter(do)
