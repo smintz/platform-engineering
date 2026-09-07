@@ -105,11 +105,12 @@ def _reads(config):
         for remote_state in config.data.terraform_remote_state.values()
     ]
 
-# dependencies maps each config key to the keys of the configs whose state it reads. A
-# state read from outside this set — a hand-written module, another repository — yields no
-# edge: there is no job here to wait for, and pretending otherwise would be a lie about
-# what the pipeline actually orders.
-def dependencies(configs):
+# _producers is the one definition of "the states this pipeline writes", and it has two
+# consumers: the ordering derivation below, which turns a read of one of these states into
+# an edge, and _check_reads_are_produced, which turns a read of anything else into a compile
+# error. Two loops answering the same question are two things that can drift apart, and the
+# drift would be invisible — the check would pass on a state the derivation then ignored.
+def _producers(configs):
     producer = {}
     for key in sorted(configs.keys()):
         state = _backend_state_id(configs[key])
@@ -126,6 +127,20 @@ def dependencies(configs):
                 (producer[state], key, state),
             )
         producer[state] = key
+    return producer
+
+# dependencies maps each config key to the keys of the configs whose state it reads. Every
+# read that reaches this function resolves to a config in the map: a state read from outside
+# this set — a hand-written module, another repository — is a compile error raised by
+# _check_reads_are_produced before this function runs.
+#
+# That was once tolerated, and the tolerance was traded away deliberately. An unorderable
+# read costs no edge, which sounds conservative and is not: the pipeline is then free to
+# apply the reader before the writer, so the order is not merely unsupported, it is
+# arbitrary. An error the contributor can fix is worth more than an apply sequence nobody
+# can predict.
+def dependencies(configs):
+    producer = _producers(configs)
 
     deps = {}
     for key, config in configs.items():
@@ -170,6 +185,64 @@ def _check_acyclic(deps):
             "terraform_remote_state cycle between: %s" %
             ", ".join(sorted([k for k, n in remaining.items() if n > 0])),
         )
+
+# Every config here gets an apply job, and an apply runs on a runner whose disk is thrown
+# away when the job ends. A local backend on such a state is not a smaller choice, it is a
+# state that never persists: each apply plans against nothing and recreates everything.
+# Terraform says nothing about it and GitHub says nothing about it, so it is said here.
+def _check_remote_backends(configs):
+    for key in sorted(configs.keys()):
+        config = configs[key]
+        backend = config.terraform.backend if config.terraform else None
+        if not backend:
+            fail(
+                ("TerraformPipeline: %s has no Terraform backend, and CI applies it on a " +
+                 "runner whose disk is discarded when the job ends. Pass BACKEND as the " +
+                 "second argument to WithState(...) for this component.") % _dir(key),
+            )
+        if backend.local:
+            fail(
+                ("TerraformPipeline: %s writes local Terraform state, and CI applies it on " +
+                 "a runner whose disk is discarded when the job ends — every apply would " +
+                 "start from an empty state. Pass BACKEND as the second argument to " +
+                 "WithState(...) for this component.") % _dir(key),
+            )
+
+        # The third case, and the only one no backend in terraform.pinc can currently
+        # produce: a backend that is set, is not local, and that _backend_state_id cannot
+        # name. Without this branch such a config passes the gate and is then skipped by
+        # _producers, which leaves it with an apply job and no state anything can order it
+        # by — the same silence, arrived at from the other side. It has to be tested here
+        # rather than in place of the local branch above, because _backend_state_id returns
+        # a perfectly good "local://" id for a local backend and would never fire on it.
+        if not _backend_state_id(config):
+            fail(
+                ("TerraformPipeline: %s has a Terraform backend this driver cannot name, " +
+                 "so nothing can order its apply against the states that read it. Pass " +
+                 "BACKEND as the second argument to WithState(...) for this component, or " +
+                 "teach _backend_state_id the backend it uses.") % _dir(key),
+            )
+
+# A terraform_remote_state pointing at a state no config here writes is invisible to the
+# ordering derivation: the read produces no edge, so the pipeline is free to apply the
+# reader before whatever writes that state. The apply order that results is not wrong by a
+# little, it is arbitrary — so the handshake has to be one this pipeline can see.
+def _check_reads_are_produced(configs):
+    producer = _producers(configs)
+    for key in sorted(configs.keys()):
+        for state in _reads(configs[key]):
+            # One branch for two failures: _remote_state_id returns None for a backend this
+            # driver cannot name, and a named state may still be one nobody here writes.
+            # Neither can be ordered, so neither is worth telling apart.
+            if state and state in producer:
+                continue
+            fail(
+                ("TerraformPipeline: %s reads the Terraform state %s, which no config in " +
+                 "this pipeline writes, so nothing orders the read after the write. Give " +
+                 "the publishing component a backend this pipeline also applies, or pass " +
+                 "the same backend to both halves of the handshake.") %
+                (_dir(key), state or "(a backend this driver cannot name)"),
+            )
 
 # Credentials are the caller's: which role a plan may assume, and whether a runner gets it
 # from OIDC or from a stored key, is an organisation's policy and not a property of any
@@ -589,6 +662,13 @@ def TerraformPipeline(
     # and would be wrong anyway.
     if paths == None:
         paths = ["%s/**" % output_root]
+
+    # Both before the ordering derivation, and in this order. A config with no usable
+    # backend corrupts the producer map that the derivation and the reads check both read
+    # from, so reporting the missing backend first hands the contributor the cause instead
+    # of a confusing consequence three steps downstream.
+    _check_remote_backends(configs)
+    _check_reads_are_produced(configs)
 
     deps = dependencies(configs)
     _check_acyclic(deps)
