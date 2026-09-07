@@ -131,10 +131,22 @@ schedule:     [{ cron: "0 3 * * *" }]
 workflow_dispatch: {}
 ```
 
-**There is no CI job that runs `protoconf compile`.** The pipeline plans and applies the
-*committed* generated Terraform; nothing verifies that `outputs/` is in sync with `src/`.
-A contributor who edits `.mpconf` without running `cd test && make test` produces a green
-build against stale output. This is the largest gap in the current setup.
+**This pipeline still does not run `protoconf compile`** — it plans and applies the
+*committed* generated Terraform. That gap is now covered by a second, separate workflow.
+
+**`.github/workflows/drift.yaml`** (hand-written, phase 01-01, FOUND-01) is the compile check:
+it triggers on `test/src/**`, `src/**`, `drivers/**`, `test/CONFIGSPACE`, `test/protoconf.lock`
+and `.github/workflows/terraform.yaml` — source paths, so it fires on the exact failure the
+generated pipeline's `test/outputs/**` filter cannot see. It installs a sha256-pinned
+`protoconf v0.2.0-rc2`, deletes the machine-local `test/protoconf.lock` (its committed
+`file:///Users/...` paths break `mod tidy` on any runner), runs `cd test && make test`, then
+`git add -A --` and `git diff --cached --exit-code --` over `test/materialized_config/`,
+`test/outputs/` and `.github/workflows/terraform.yaml`. Staging before diffing is what makes a
+*new* output directory fail rather than pass green. `test/protoconf.lock` is deliberately
+outside the assertion: CI regenerates it every run.
+
+A contributor who edits `.mpconf` without running `cd test && make test` now gets a red
+`drift` check naming the fix.
 
 **Jobs (per state, four states):**
 

@@ -204,3 +204,12 @@ No new security-relevant surface was introduced beyond the register. No threat f
 ---
 *Phase: 01-trustworthy-foundations*
 *Completed: 2026-09-07*
+
+## Self-Check: PASSED
+
+- `.github/workflows/drift.yaml` — FOUND on disk, git-tracked
+- `.planning/phases/01-trustworthy-foundations/01-01-SUMMARY.md` — FOUND on disk
+- Commit `993b988` (feat) — FOUND in git log
+- Commit `722e7ce` (chore) — FOUND in git log
+- Commit `85d1b20` (docs) — FOUND in git log
+- Root `outputs/` and `materialized_config/` — GONE, as claimed

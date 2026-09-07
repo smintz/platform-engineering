@@ -30,8 +30,6 @@ platform-engineering/
 │   ├── src/terraform/**      # generated provider schemas (grafana v4, kubernetes v3)
 │   ├── materialized_config/  # compiler output, Any-typed JSON
 │   └── outputs/              # rendered artifacts: main.tf.json, workflow yaml
-├── materialized_config/      # root-level compile artifacts (aurora example)
-├── outputs/                  # root-level rendered artifacts (aurora example)
 ├── providers.tf              # root Terraform provider stubs (kubernetes, grafana)
 ├── Makefile                  # fmt → compile -process-templates .
 └── scripts/                  # Node CLI tooling (changesets, codegen, lint helpers)
@@ -138,10 +136,12 @@ platform-engineering/
 - Purpose: Fetched driver modules and their `.fds` descriptor sets
 - Generated: Yes. Committed: No (`.gitignore`).
 
-**`materialized_config/` and `outputs/` (repo root):**
-- Purpose: Compile artifacts from the root `Makefile` for the `aurora-user-api-task` example
-- Generated: Yes. Committed: Yes.
-- No `.mpconf` or `CONFIGSPACE` exists at the repo root; the live config space is `test/`.
+**`materialized_config/` and `outputs/` (repo root): DELETED (phase 01-01, D-05).**
+- They held four `aurora-user-api-task` artifacts reachable from no source: there is no root
+  `.mpconf`, `CONFIGSPACE` or `protoconf.lock`, so the root build that would regenerate them
+  cannot run. Recoverable from git history if ever needed.
+- `test/outputs/` and `test/materialized_config/` are now the only generated trees, and the
+  only ones `.github/workflows/drift.yaml` asserts on.
 
 **`.github/workflows/`:**
 - Purpose: The Terraform plan/apply pipeline

@@ -20,7 +20,7 @@
 - Issue: `outputs/platform/core_test/us-east-1/aurora-user-api-task/**` and the matching `materialized_config/platform/...` describe an `aurora-user-api-task` component that no longer exists in any `.mpconf`. The live stack (`test/src/core_test.mpconf`) emits `api-task` and `redis` under `test/outputs/`.
 - Files: `outputs/platform/core_test/us-east-1/aurora-user-api-task/infra/main.tf.json`, `outputs/platform/core_test/us-east-1/aurora-user-api-task/aurora_endpoint.tf.json`, `materialized_config/platform/core_test/us-east-1/aurora-user-api-task/*`
 - Impact: Two output trees, one of them unreachable from any source. A reader cannot tell which is authoritative; `make clean` deletes both.
-- Fix approach: `git rm -r outputs/ materialized_config/` at the root; keep only `test/outputs/` and `test/materialized_config/`.
+- **RESOLVED (phase 01-01, commit `722e7ce`, D-05):** the four root files are deleted. `test/outputs/` and `test/materialized_config/` are the only generated trees. The root `Makefile`'s `clean` target still names the removed paths — deliberately untouched (D-06), still open below.
 
 **Root `providers.tf` is orphaned:**
 - Issue: `providers.tf` declares bare `provider "kubernetes" {}` / `provider "grafana" {}` and a `required_providers` block with no version constraint, at a repo root that is not a Terraform working directory (no state, no resources, `.terraform.lock.hcl` gitignored).
@@ -142,9 +142,9 @@
 
 ## Missing Critical Features
 
-**No CI job compiles the protoconf sources:**
-- Problem: The only workflow is the generated `terraform.yaml`, which runs `terraform` against committed `.tf.json`. Nothing runs `protoconf compile` or `protoconf fmt --check`.
-- Blocks: `test/outputs/` and `test/materialized_config/` can silently drift from `test/src/` and `drivers/`; a `.pinc` that no longer compiles merges green.
+**No CI job compiles the protoconf sources — RESOLVED (phase 01-01, commit `993b988`, FOUND-01):**
+- Was: the only workflow was the generated `terraform.yaml`, which runs `terraform` against committed `.tf.json`; nothing ran `protoconf compile`.
+- Now: `.github/workflows/drift.yaml` (hand-written on purpose, D-01) installs a sha256-pinned `protoconf v0.2.0-rc2`, runs `cd test && make test`, then stages and diffs `test/materialized_config/`, `test/outputs/` and `.github/workflows/terraform.yaml`. It triggers on the *source* trees, so it fires on the failure it guards. `protoconf fmt --check` is still not run — a smaller, separate gap.
 
 **No CI ordering for non-state dependencies:**
 - Problem: The pipeline orders jobs only by `terraform_remote_state` edges (`drivers/cicd/github_actions/src/github_actions.pinc:104-119`). `redis` reaches `api-task` through `ForDownstream` + `WithContainerEnv("REDIS_URL", ...)` — a literal string, not a remote state — so the generated workflow gives the two `infra` applies no ordering at all.
@@ -156,7 +156,7 @@
 - What's not tested: `test/Makefile`'s `test` target runs `protoconf mod tidy && protoconf compile . && cp`. It asserts nothing — a successful compile that emits different output than what is committed still "passes".
 - Files: `test/Makefile`, `test/outputs/**`, `test/materialized_config/**`
 - Risk: Every behaviour in `src/platform/core.pinc` (hook chaining, `message_filter`, `WithDeps`/`Inherit`/`ForDownstream`/`Finally` ordering, `GetConfigs` empty-config skipping) is unverified.
-- Priority: High — add `git diff --exit-code test/outputs test/materialized_config` after compile, in CI.
+- Priority: **Partly addressed** (phase 01-01) — `.github/workflows/drift.yaml` now does exactly the `git diff --exit-code` after compile, so output drift is caught. Behaviour in `src/platform/core.pinc` is still only covered transitively, by whether it changes a golden file.
 
 **Backend and CI driver logic untested:**
 - What's not tested: `_backend`'s settings/config_for symmetry (the comment at `drivers/state/terraform/src/terraform.pinc:20-23` calls a mismatch here a silent failure), the `terraform_remote_state` cycle detection, and `_remote_state_id` across all five backend kinds.
