@@ -53,6 +53,14 @@ def _backend_state_id(config):
     backend = config.terraform.backend
     if backend.s3:
         return "s3://%s/%s" % (backend.s3.bucket, backend.s3.key)
+    if backend.gcs:
+        return "gcs://%s/%s" % (backend.gcs.bucket, backend.gcs.prefix)
+    if backend.azurerm:
+        return "azurerm://%s/%s/%s" % (
+            backend.azurerm.storage_account_name,
+            backend.azurerm.container_name,
+            backend.azurerm.key,
+        )
     if backend.local:
         return "local://%s" % backend.local.path
     if backend.remote and backend.remote.workspaces:
@@ -67,6 +75,17 @@ def _remote_state_id(remote_state):
     if remote_state.backend == "s3":
         return "s3://%s/%s" % (
             settings.get("bucket", ""),
+            settings.get("key", ""),
+        )
+    if remote_state.backend == "gcs":
+        return "gcs://%s/%s" % (
+            settings.get("bucket", ""),
+            settings.get("prefix", ""),
+        )
+    if remote_state.backend == "azurerm":
+        return "azurerm://%s/%s/%s" % (
+            settings.get("storage_account_name", ""),
+            settings.get("container_name", ""),
             settings.get("key", ""),
         )
     if remote_state.backend == "local":

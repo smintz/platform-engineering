@@ -8,39 +8,125 @@ load("//terraform/v1/terraform.proto", TerraformProto = "Terraform")
 # that is the caller's to decide, because those are the parts that differ per organisation
 # while the wiring between states does not.
 
+Settings = TerraformProto.TerraformSettings
+Backend = Settings.Backend
+
+# A backend is three things, and every one of them is the same shape whichever product
+# holds the state: `state`, the hook that points a config at its own state; `remote`, the
+# data source another config reads that state through; and `key_for`, the caller's naming
+# convention, kept on the struct so WithRemoteOutput can be handed the backend alone.
+#
+# `settings` builds the backend block for one state, and `config_for` turns that same block
+# into the terraform_remote_state arguments that read it. Both halves are written from one
+# description on purpose: they are two spellings of one location, and a backend whose
+# reader disagrees with its writer fails by silently reading nothing.
+def _backend(kind, settings, config_for, key_for):
+    def state(domain, name):
+        def do(config, next):
+            # creates the terraform block if no provider has yet, so it composes in any order
+            if not config.terraform:
+                config.terraform = Settings()
+            config.terraform.backend = Backend(**{kind: settings(domain, name)})
+            return next(config)
+
+        return do
+
+    def remote(domain, name):
+        return TerraformRemoteState(
+            backend = kind,
+            config = config_for(settings(domain, name)),
+        )
+
+    return struct(state = state, remote = remote, key_for = key_for)
+
+# LocalBackend keeps state on whatever disk terraform is running on. It is the default
+# because it is the only backend that needs nothing set up first: with no path_for, each
+# config gets Terraform's own default — terraform.tfstate in the directory being applied.
+#
+# That default cannot be read across states, which is why config_for fails rather than
+# guessing: a terraform_remote_state has to name a path, and a path relative to the
+# directory that wrote the state means nothing in the directory trying to read it. Passing
+# path_for — pointing at one shared directory, absolutely — makes local state readable.
+def LocalBackend(path_for = None):
+    def settings(domain, name):
+        return Backend.BackendLocal(path = path_for(domain, name) if path_for else "")
+
+    def config_for(local):
+        if not local.path:
+            fail(
+                "LocalBackend: reading one local state from another needs an explicit " +
+                "path_for — the default state file is relative to whichever directory " +
+                "terraform ran in, which the reading state cannot resolve",
+            )
+        return {"path": local.path}
+
+    return _backend("local", settings, config_for, path_for)
+
 # S3Backend describes a family of Terraform states kept in one S3 bucket. `key_for` maps a
 # component's failure domain and state name to an object key, so the layout of the bucket
-# stays the caller's convention.
+# stays the caller's convention — as it does for every backend below.
 def S3Backend(bucket, region, key_for):
     def settings(domain, name):
-        return TerraformProto.TerraformSettings.Backend.BackendS3(
+        return Backend.BackendS3(
             region = region,
             bucket = bucket,
             key = key_for(domain, name),
         )
 
-    # A hook that points a config at its own state. It creates the terraform block if no
-    # provider has yet, so it composes in any order.
-    def state(domain, name):
-        def do(config, next):
-            if not config.terraform:
-                config.terraform = TerraformProto.TerraformSettings()
-            config.terraform.backend = TerraformProto.TerraformSettings.Backend(
-                s3 = settings(domain, name),
-            )
-            return next(config)
+    def config_for(s3):
+        return {"bucket": s3.bucket, "key": s3.key, "region": s3.region}
 
-        return do
+    return _backend("s3", settings, config_for, key_for)
 
-    # The data source that reads another state in the same family.
-    def remote(domain, name):
-        s3 = settings(domain, name)
-        return TerraformRemoteState(
-            backend = "s3",
-            config = {"bucket": s3.bucket, "key": s3.key, "region": s3.region},
+def GCSBackend(bucket, key_for):
+    def settings(domain, name):
+        return Backend.BackendGCS(bucket = bucket, prefix = key_for(domain, name))
+
+    def config_for(gcs):
+        return {"bucket": gcs.bucket, "prefix": gcs.prefix}
+
+    return _backend("gcs", settings, config_for, key_for)
+
+def AzureRMBackend(storage_account_name, container_name, key_for):
+    def settings(domain, name):
+        return Backend.BackendAzurerm(
+            storage_account_name = storage_account_name,
+            container_name = container_name,
+            key = key_for(domain, name),
         )
 
-    return struct(state = state, remote = remote, key_for = key_for)
+    def config_for(azurerm):
+        return {
+            "storage_account_name": azurerm.storage_account_name,
+            "container_name": azurerm.container_name,
+            "key": azurerm.key,
+        }
+
+    return _backend("azurerm", settings, config_for, key_for)
+
+# RemoteBackend is Terraform Cloud or Enterprise, where `key_for` names a workspace rather
+# than a path. `hostname` is left unset for Terraform Cloud itself, which is the default
+# the backend already assumes.
+def RemoteBackend(organization, key_for, hostname = ""):
+    def settings(domain, name):
+        return Backend.BackendRemote(
+            hostname = hostname,
+            organization = organization,
+            workspaces = Backend.BackendRemote.Workspace(name = key_for(domain, name)),
+        )
+
+    def config_for(remote):
+        return {
+            "organization": remote.organization,
+            "workspaces": remote.workspaces.name,
+        }
+
+    return _backend("remote", settings, config_for, key_for)
+
+# The backend a component gets when nobody chose one. Local, because a component should be
+# applyable by whoever is reading it without an account anywhere first — and because the
+# alternative default is somebody else's bucket name baked into this file.
+DEFAULT_BACKEND = LocalBackend()
 
 # RemoteOutput is how a consumer spells a value published by `component`. Keep it next to
 # WithRemoteOutput: the two agree on the data source name, and nothing else has to.
@@ -55,7 +141,8 @@ def RemoteOutput(component, output):
 # It is two hooks — the near half and the far half of one handshake — returned together so
 # a call site cannot apply one without the other. Both close over the same cell, so the
 # dependant reads the publisher's real domain and name rather than assuming its own.
-def WithRemoteOutput(backend, name, value, key = platform.MAIN_CONFIG):
+def WithRemoteOutput(name, value, backend = None, key = platform.MAIN_CONFIG):
+    backend = backend or DEFAULT_BACKEND
     publisher = []
 
     def publish(component, next):
@@ -78,9 +165,11 @@ def WithRemoteOutput(backend, name, value, key = platform.MAIN_CONFIG):
     )
 
 # WithState builds a component's config from `contents` — whatever Terraform message the
-# caller assembles, providers and all — and points it at its own state in `backend`. The
-# state name defaults to the component's name.
-def WithState(backend, contents, name = None, key = platform.MAIN_CONFIG):
+# caller assembles, providers and all — and points it at its own state. The state name
+# defaults to the component's name, and the backend to local.
+def WithState(contents, backend = None, name = None, key = platform.MAIN_CONFIG):
+    backend = backend or DEFAULT_BACKEND
+
     def do(component, next):
         platform.mutate_config(
             component,

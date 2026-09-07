@@ -47,7 +47,7 @@ BURN = "$__window"
 def RedisComponent(*hooks):
     return platform.Component(
         "redis",
-        WithState(BACKEND, lambda component: Workload("redis", "redis:7-alpine", 6379)),
+        WithState(lambda component: Workload("redis", "redis:7-alpine", 6379), BACKEND),
         platform.WithSLO(
             "availability",
             REDIS_UP % WINDOW,
@@ -76,8 +76,8 @@ def ApiTaskComponent(*hooks):
     return platform.Component(
         "api-task",
         WithState(
-            BACKEND,
             lambda component: Workload("api-task", "ghcr.io/example/api:latest", 8080),
+            BACKEND,
         ),
         platform.WithSLO(
             "availability",
