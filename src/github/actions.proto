@@ -1,0 +1,198 @@
+syntax = "proto3";
+
+package github.actions;
+
+import "google/protobuf/struct.proto";
+
+message Workflow {
+  string name = 1;
+  On on = 2;
+  string run_name = 3 [json_name = "run-name"];
+  map<string, string> env = 4;
+  map<string, string> permissions = 5;
+  Defaults defaults = 6;
+  Concurrency concurrency = 7;
+  map<string, Job> jobs = 8;
+
+  message On {
+    IssueCommentEvent issue_comment = 10 [json_name = "issue_comment"];
+    IssuesEvent issues = 11;
+    CheckSuiteEvent check_suite = 15 [json_name = "check_suite"];
+    PullRequestEvent pull_request = 20 [json_name = "pull_request"];
+    PullRequestEvent pull_request_review = 21 [json_name = "pull_request_review"];
+    PullRequestEvent pull_request_review_comment = 22 [json_name = "pull_request_review_comment"];
+    PushEvent push = 30;
+    ReleaseEvent release = 40;
+    RepositoryDispatchEvent repository_dispatch = 50 [json_name = "repository_dispatch"];
+    repeated ScheduleEvent schedule = 60;
+    WorkflowCallEvent workflow_call = 70 [json_name = "workflow_call"];
+    WorkflowDispatchEvent workflow_dispatch = 71 [json_name = "workflow_dispatch"];
+    WorkflowRunEvent workflow_run = 72 [json_name = "workflow_run"];
+  }
+
+  message CheckSuiteEvent {
+    repeated string types = 1;
+  }
+
+  message PushEvent {
+    repeated string branches = 1;
+    repeated string branches_ignore = 2 [json_name = "branches-ignore"];
+    repeated string tags = 3;
+    repeated string tags_ignore = 4 [json_name = "tags-ignore"];
+    repeated string paths = 5;
+    repeated string paths_ignore = 6 [json_name = "paths-ignore"];
+  }
+
+  message PullRequestEvent {
+    repeated string branches = 1;
+    repeated string branches_ignore = 2 [json_name = "branches-ignore"];
+    repeated string tags = 3;
+    repeated string tags_ignore = 4 [json_name = "tags-ignore"];
+    repeated string paths = 5;
+    repeated string paths_ignore = 6 [json_name = "paths-ignore"];
+    repeated string types = 7;
+    bool draft = 8;
+  }
+
+  message WorkflowDispatchEvent {
+    message Input {
+      string description = 1;
+      string default_value = 2 [json_name = "default"];
+      bool required = 3;
+      string type = 4;
+      repeated string options = 5;
+    }
+    map<string, Input> inputs = 1;
+  }
+
+  message ScheduleEvent {
+    string cron = 1;
+  }
+
+  message WorkflowCallEvent {
+    message Input {
+      string description = 1;
+      string default_value = 2 [json_name = "default"];
+      bool required = 3;
+      string type = 4;
+    }
+    message Secret {
+      string description = 1;
+      bool required = 2;
+    }
+    message Output {
+      string description = 1;
+      string value = 2;
+    }
+    map<string, Input> inputs = 1;
+    map<string, Secret> secrets = 2;
+    map<string, Output> outputs = 3;
+  }
+
+  message RepositoryDispatchEvent {
+    repeated string types = 1;
+  }
+
+  message IssuesEvent {
+    repeated string types = 1;
+  }
+
+  message IssueCommentEvent {
+    repeated string types = 1;
+  }
+
+  message WorkflowRunEvent {
+    repeated string branches = 1;
+    repeated string branches_ignore = 2 [json_name = "branches-ignore"];
+    repeated string tags = 3;
+    repeated string tags_ignore = 4 [json_name = "tags-ignore"];
+    repeated string paths = 5;
+    repeated string paths_ignore = 6 [json_name = "paths-ignore"];
+    repeated string types = 7;
+    repeated string workflows = 8;
+  }
+
+  message ReleaseEvent {
+    repeated string types = 1;
+  }
+
+  message WithArgs {
+    map<string, string> args = 1;
+  }
+
+  message Step {
+    string id = 1;
+    string if_condition = 2 [json_name = "if"];
+    string name = 3;
+    string uses = 4;
+    string run = 5;
+    string shell = 6;
+    string working_directory = 7 [json_name = "working-directory"];
+    map<string, string> env = 8;
+    bool continue_on_error = 9 [json_name = "continue-on-error"];
+    int32 timeout_minutes = 10 [json_name = "timeout-minutes"];
+    google.protobuf.Struct params = 11 [json_name = "with"];
+  }
+
+  message Matrix {
+    repeated string include = 1;
+    repeated string exclude = 2;
+    map<string, string> dimensions = 3;
+  }
+
+  message Strategy {
+    bool fail_fast = 1 [json_name = "fail-fast"];
+    int32 max_parallel = 2 [json_name = "max-parallel"];
+    Matrix matrix = 3;
+  }
+
+  message Container {
+    string image = 1;
+    repeated string env = 2;
+    repeated string ports = 3;
+    repeated string volumes = 4;
+    repeated string options = 5;
+    map<string, string> credentials = 6;
+  }
+
+  message Services {
+    map<string, Container> service_containers = 1 [json_name = "service-containers"];
+  }
+
+  message Defaults {
+    Run run = 1;
+  }
+
+  // A concurrency group. GitHub also accepts a bare string here, but the object form is
+  // the only one that can say "do not cancel a run mid-apply", which is the whole reason
+  // a Terraform pipeline wants a concurrency group in the first place.
+  message Concurrency {
+    string group = 1;
+    // false is GitHub's default, and Protoconf omits default values — so an unset field
+    // and an explicit `false` produce the same workflow.
+    bool cancel_in_progress = 2 [json_name = "cancel-in-progress"];
+  }
+
+  message Run {
+    string shell = 1;
+    string working_directory = 2 [json_name = "working-directory"];
+  }
+  message Job {
+    string name = 1;
+    repeated string needs = 2;
+    string runs_on = 3 [json_name = "runs-on"];
+    map<string, string> env = 4;
+    map<string, string> permissions = 5;
+    Defaults defaults = 6;
+    string if_condition = 7 [json_name = "if"];
+    string timeout_minutes = 8 [json_name = "timeout-minutes"];
+    Strategy strategy = 9;
+    Container container = 10;
+    Services services = 11;
+    repeated Step steps = 12;
+    map<string, string> outputs = 13;
+    // The name of a GitHub deployment environment. Attaching required reviewers to it is
+    // how a job becomes a manual gate.
+    string environment = 14;
+  }
+}

@@ -4,6 +4,8 @@ package terraform.v1;
 
 import "google/protobuf/struct.proto";
 
+import "terraform/builtin/datasources/v1/remote_state.proto";
+
 import "terraform/grafana/datasources/v4/cloud.proto";
 
 import "terraform/grafana/datasources/v4/connections.proto";
@@ -909,6 +911,8 @@ message Terraform {
     map<string, terraform.kubernetes.datasources.v3.KubernetesStorageClass> kubernetes_storage_class = 76 [json_name = "kubernetes_storage_class"];
 
     map<string, terraform.kubernetes.datasources.v3.KubernetesStorageClassV1> kubernetes_storage_class_v1 = 77 [json_name = "kubernetes_storage_class_v1"];
+
+    map<string, .terraform.builtin.datasources.v1.TerraformRemoteState> terraform_remote_state = 10000 [json_name = "terraform_remote_state"];
   }
 
   message Providers {

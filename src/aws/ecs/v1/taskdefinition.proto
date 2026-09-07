@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package aws.ecs.v1;
+
+message ContainerDefinition {
+  repeated string command = 1; // The command that is passed to the container
+  int32 cpu = 2; // Number of cpu units reserved for the container
+  bool disable_networking = 3; // When disabled, networking is disabled within the container
+  repeated string dns_search_domains = 4; // DNS search domains for the container
+  repeated string dns_servers = 5; // DNS servers for the container
+  map<string, string> docker_labels = 6; // Docker labels for the container
+  repeated string docker_security_options = 7; // Security options for the container
+  string entry_point = 8; // Entry point that is passed to the container
+  repeated Env environment = 9; // Environment variables
+  repeated string extra_hosts = 10; // Hostname:IP mappings to add to /etc/hosts
+  bool essential = 11; // If true, all other containers that are part of the task must stop if this container fails
+  repeated FirelensConfiguration firelens_configuration = 12; // FireLens configuration
+  repeated HealthCheck health_check = 13; // Container health check command and parameters
+  string hostname = 14; // Hostname to use for the container
+  string image = 15; // The image used to start a container
+  bool interactive = 16; // When enabled, you can deploy containerized applications that require stdin or tty
+  repeated LinuxParameters linux_parameters = 17; // Linux-specific options that are applied to the container
+  LogConfiguration log_configuration = 18; // Log configuration options
+  int32 memory = 19; // Amount (in MiB) of memory to present to the container
+  int32 memory_reservation = 20; // Soft limit (in MiB) of memory to reserve for the container
+  repeated MountPoint mount_points = 21; // Mount points for data volumes in your container
+  string name = 22; // Name of the container
+  repeated PortMapping port_mappings = 23; // Port mappings for the container
+  bool privileged = 24; // When true, the container is given elevated privileges
+  bool readonly_root_filesystem = 25; // When true, the root filesystem is mounted read-only
+  repeated string system_controls = 26; // A list of namespaced kernel parameters to set in the container
+  repeated Ulimit ulimits = 27; // A list of ulimits to set in the container
+  string user = 28; // The user to use inside the container
+  repeated VolumeFrom volumes_from = 29; // Data volumes to mount from another container
+  string working_directory = 30; // The working directory in which to run commands inside the container
+  repeated Secret secrets = 31; // The secrets to pass to the container
+
+  message Secret {
+    string name = 1; // The name of the secret
+    string value_from = 2; // The secret to expose to the container
+  }
+  message Env {
+    string name = 1; // The name of the environment var
+    string value = 2; // The environment value to expose to the container
+  }
+  message FirelensConfiguration {
+    string type = 1; // The log router to use
+    map<string, string> options = 2; // Options to configure the log router
+  }
+
+  message HealthCheck {
+    string command = 1; // The command to run to determine if a container is healthy
+    int32 interval = 2; // The time period in seconds between each health check
+    int32 timeout = 3; // The time period in seconds to wait for a health check to succeed
+    int32 retries = 4; // The number of times to retry a failed health check
+    int32 start_period = 5; // The grace period within which to provide containers time to bootstrap
+  }
+
+  message LinuxParameters {
+    repeated Capability capabilities = 1; // The Linux capabilities for the container
+    repeated Device devices = 2; // Any host devices to expose to the container
+    bool init_process_enabled = 3; // Run an init process inside the container
+    int64 shared_memory_size = 4; // Size (in MiB) of /dev/shm
+    repeated TmpfsMount tmpfs = 5; // The container path, mount options, and size of the tmpfs mount
+  }
+
+  message Capability {
+    repeated string add = 1; // Added capabilities
+    repeated string drop = 2; // Dropped capabilities
+  }
+
+  message Device {
+    string host_path = 1; // The path for the device on the host container instance
+    string container_path = 2; // The path inside the container at which to expose the host device
+    repeated string permissions = 3; // The explicit permissions to provide to the container for the device
+  }
+
+  message TmpfsMount {
+    string container_path = 1; // The absolute file path where the tmpfs volume is to be mounted
+    int32 size = 2; // The size (in MiB) of the tmpfs volume
+    repeated string mount_options = 3; // The list of tmpfs volume mount options
+  }
+
+  message LogConfiguration {
+    string log_driver = 1; // The log driver to use for the container
+    map<string, string> options = 2; // The configuration options to send to the log driver
+  }
+
+  message MountPoint {
+    string source_volume = 1; // The name of the volume to mount
+    string container_path = 2; // The path on the container to mount the volume at
+    bool read_only = 3; // If true, the container has read-only access to the volume
+  }
+
+  message PortMapping {
+    int32 container_port = 1; // The port number on the container
+    int32 host_port = 2; // The port number on the container instance to reserve for your container
+    string protocol = 3; // The protocol used for the port mapping
+  }
+
+  message Ulimit {
+    string name = 1; // The type of the ulimit
+    int32 soft_limit = 2; // The soft limit for the ulimit type
+    int32 hard_limit = 3; // The hard limit for the ulimit type
+  }
+
+  message VolumeFrom {
+    string source_container = 1; // The name of another container within the same task definition to mount volumes from
+    bool read_only = 2; // If true, the container has read-only access to the volume
+  }
+}
+
+// TaskSpec is what a component knows about its tasks before any of them is rendered into
+// Terraform: containers a dependency contributed, and the managed policies those
+// containers need. Drivers keep it on the component and consume it at render time — it is
+// working state, not a file.
+message TaskSpec {
+  repeated ContainerDefinition containers = 1;       // Containers added to every task of the component
+  repeated string policy_arns = 2;                   // Managed policies to attach to every task role
+  repeated ContainerDefinition.Secret secrets = 3;   // Secrets injected into every task's main container
+  repeated ContainerDefinition.Env environment = 4;  // Environment injected into every task's main container
+}
