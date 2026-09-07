@@ -1,5 +1,9 @@
 platform=remote_repo(
   label="platform",
-  url="..",
-  checksum="abc"
+  url=".."
+)
+
+drivers=remote_repo(
+  label="drivers",
+  url="../drivers"
 )

@@ -1,4 +1,4 @@
-load("//github/lib.pinc", "lib")
+load("@platform//github/lib.pinc", "lib")
 load("encoding/json.star", "json")
 load("re.star", "re")
 

@@ -1,7 +1,7 @@
-load("//platform/platform.pinc", "platform")
+load("@platform//platform/platform.pinc", "platform")
 load("//terraform/builtin/datasources/v1/remote_state.proto", "TerraformRemoteState")
 load("//terraform/v1/terraform.proto", TerraformProto = "Terraform")
-load("//terraform/v1/util.pinc", tf = "util")
+load("@platform//terraform/v1/util.pinc", tf = "util")
 
 # Terraform driver: how a component's config becomes a state, and how one state reads a
 # value out of another. Nothing here knows which bucket, which region or which provider —

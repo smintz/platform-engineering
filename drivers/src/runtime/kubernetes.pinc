@@ -1,7 +1,7 @@
 load("//terraform/kubernetes/provider/v3/kubernetes.proto", "Kubernetes")
 load("//terraform/kubernetes/resources/v3/deployment.proto", "KubernetesDeployment")
 load("//terraform/kubernetes/resources/v3/service.proto", "KubernetesService")
-load("//terraform/v1/util.pinc", "util")
+load("@platform//terraform/v1/util.pinc", "util")
 
 # Kubernetes runtime driver: how a component's process is deployed and addressed.
 #

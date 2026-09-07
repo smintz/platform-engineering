@@ -1,7 +1,7 @@
-load("@platform//drivers/cicd/github_actions.pinc", "actions")
-load("@platform//drivers/monitoring/grafana.pinc", "WithGrafanaDashboard")
-load("@platform//drivers/runtime/kubernetes.pinc", "WithContainerEnv", "Workload")
-load("@platform//drivers/state/terraform.pinc", "S3Backend", "WithState")
+load("@drivers//cicd/github_actions.pinc", "actions")
+load("@drivers//monitoring/grafana.pinc", "WithGrafanaDashboard")
+load("@drivers//runtime/kubernetes.pinc", "WithContainerEnv", "Workload")
+load("@drivers//state/terraform.pinc", "S3Backend", "WithState")
 load("@platform//platform/platform.pinc", "platform")
 
 # Where every state in this stack lives. One bucket, keyed by failure domain and state
