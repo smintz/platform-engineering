@@ -1,0 +1,10 @@
+{
+  "permission": {
+    "read": {
+      "/Users/smintz/git/platform-engineering/.kilo/gsd-core/*": "allow"
+    },
+    "external_directory": {
+      "/Users/smintz/git/platform-engineering/.kilo/gsd-core/*": "allow"
+    }
+  }
+}
