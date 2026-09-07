@@ -1,0 +1,38 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": null,
+  "phases": [
+    {
+      "number": "1",
+      "name": "Trustworthy Foundations",
+      "status": "pending"
+    },
+    {
+      "number": "2",
+      "name": "FinOps Cost Attribution",
+      "status": "pending"
+    },
+    {
+      "number": "3",
+      "name": "Database Dependency Fan-Out",
+      "status": "pending"
+    },
+    {
+      "number": "4",
+      "name": "Service Mesh Authorization",
+      "status": "pending"
+    },
+    {
+      "number": "5",
+      "name": "Security-Authored Cross-Cutting Policy",
+      "status": "pending"
+    }
+  ],
+  "next": {
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step",
+    "reason": "Phase 1 of 5 · 0% · executing"
+  },
+  "updated_at": "2026-09-07T17:19:19.769Z"
+}
