@@ -11,7 +11,7 @@ load(
     "AwsIamRolePolicy",
     "AwsIamRolePolicyAttachment",
 )
-load("//terraform/v1/util.pinc", "ChainWithLast", "util")
+load("@platform//terraform/v1/util.pinc", "ChainWithLast", "util")
 load("encoding/json.star", "json")
 load("re.star", "re")
 

@@ -1,9 +1,9 @@
-platform=remote_repo(
-  label="platform",
-  url=".."
-)
+platform=remote_repo(label="platform", url="..")
 
-drivers=remote_repo(
-  label="drivers",
-  url="../drivers"
-)
+# One module per driver: importing Grafana should not drag in ECS, and a second
+# monitoring or CI driver is a new repo rather than a change to an existing one.
+github_actions=remote_repo(label="github_actions", url="../drivers/cicd/github_actions")
+grafana=remote_repo(label="grafana", url="../drivers/monitoring/grafana")
+ecs=remote_repo(label="ecs", url="../drivers/runtime/ecs")
+kubernetes=remote_repo(label="kubernetes", url="../drivers/runtime/kubernetes")
+terraform_state=remote_repo(label="terraform_state", url="../drivers/state/terraform")

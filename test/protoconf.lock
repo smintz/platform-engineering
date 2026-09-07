@@ -1,19 +1,47 @@
 {
   "url":  ".",
   "deps":  {
-    "drivers":  {
-      "label":  "drivers",
-      "url":  "../drivers",
+    "ecs":  {
+      "label":  "ecs",
+      "url":  "../drivers/runtime/ecs",
       "sourcePath":  "src",
-      "getterUrl":  "file:///Users/smintz/git/platform-engineering/drivers",
-      "fileDescriptorSetSum":  "e9734cbe30c2494d5c7f885b50908426"
+      "getterUrl":  "file:///Users/smintz/git/platform-engineering/drivers/runtime/ecs",
+      "fileDescriptorSetSum":  "5d7c33883c926b26d39f1509a98316e4"
+    },
+    "github_actions":  {
+      "label":  "github_actions",
+      "url":  "../drivers/cicd/github_actions",
+      "sourcePath":  "src",
+      "getterUrl":  "file:///Users/smintz/git/platform-engineering/drivers/cicd/github_actions",
+      "fileDescriptorSetSum":  "1129996250fc7b951c8e0477098b35c6"
+    },
+    "grafana":  {
+      "label":  "grafana",
+      "url":  "../drivers/monitoring/grafana",
+      "sourcePath":  "src",
+      "getterUrl":  "file:///Users/smintz/git/platform-engineering/drivers/monitoring/grafana",
+      "fileDescriptorSetSum":  "0152cdd7ff3e034e8474651280e4638d"
+    },
+    "kubernetes":  {
+      "label":  "kubernetes",
+      "url":  "../drivers/runtime/kubernetes",
+      "sourcePath":  "src",
+      "getterUrl":  "file:///Users/smintz/git/platform-engineering/drivers/runtime/kubernetes",
+      "fileDescriptorSetSum":  "99914b932bd37a50b983c5e7c90ae93b"
     },
     "platform":  {
       "label":  "platform",
       "url":  "..",
       "sourcePath":  "src",
       "getterUrl":  "file:///Users/smintz/git/platform-engineering",
-      "fileDescriptorSetSum":  "c0b1d1093ef493b6993596a317d24cf3"
+      "fileDescriptorSetSum":  "968beb8d557939298dc44c5a7ec9131c"
+    },
+    "terraform_state":  {
+      "label":  "terraform_state",
+      "url":  "../drivers/state/terraform",
+      "sourcePath":  "src",
+      "getterUrl":  "file:///Users/smintz/git/platform-engineering/drivers/state/terraform",
+      "fileDescriptorSetSum":  "99914b932bd37a50b983c5e7c90ae93b"
     }
   }
 }

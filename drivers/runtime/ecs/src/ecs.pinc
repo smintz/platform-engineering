@@ -1,5 +1,5 @@
 load("//aws/ecs/v1/taskdefinition.proto", "ContainerDefinition", "TaskSpec")
-load("@platform//lib/ecs/ecs.pinc", lib = "ecs")
+load("//lib/ecs/ecs.pinc", lib = "ecs")
 load("@platform//platform/platform.pinc", "platform")
 load("//terraform/aws/resources/v5/iam.proto", "AwsIamRolePolicyAttachment")
 load("@platform//terraform/v1/util.pinc", "util")
