@@ -125,6 +125,25 @@ def WithFailureDomain(domain):
 
     return Inherit(component_filter(do))
 
+# WithLabels declares the shape of a component: the keys a policy, a cost centre or a
+# hardening rule selects on later. It writes Metadata.labels rather than Metadata.tags
+# because one keyed vocabulary can answer "which components matched, and on what value";
+# a bare tag set cannot, and two vocabularies answering the same question can disagree.
+# Ordinary component_filter, not Inherit: whether a label should reach a component's whole
+# dependency subtree is a question about that label, not about labelling, and an inheriting
+# variant is a one-word change the day something needs one.
+def WithLabels(**labels):
+    def do(component, next):
+        # proto3 nested messages are unset until assigned, the same reason Component
+        # constructs Upstreams before appending to it
+        if not component.metadata:
+            component.metadata = component_proto.Metadata()
+        for key, value in labels.items():
+            component.metadata.labels[key] = value
+        return next(component)
+
+    return component_filter(do)
+
 MAIN_CONFIG = "infra/main.tf.json"
 
 # config type_url -> prototype, for unpacking in GetConfigs
@@ -177,6 +196,38 @@ def Component(slug, *hooks):
         RunForDownstream = RunForDownstream,
     )
 
+# walk_upstreams visits every component in the graph depth-first, upstreams before the
+# component that declared them, and hands each one to `next`. It lives at module level
+# rather than nested inside GetConfigs because SelectComponents needs exactly this order
+# over exactly this graph: two traversals are two things that can disagree about what the
+# graph is, and the one that disagrees silently is the selector nobody is checking.
+def walk_upstreams(component, next):
+    if not component.upstreams:
+        return next(component)
+    for upstream in component.upstreams.components:
+        walk_upstreams(upstream, next)
+    return next(component)
+
+# SelectComponents returns every component in the graph rooted at `component` that
+# `predicate` accepts, in the post-order walk_upstreams produces, de-duplicated. The
+# de-duplication is the point: a component reached down two arms of a diamond is one
+# component, and a policy hook applied to it twice is applied once too often. Component
+# builds each dependency once per parent, so those two arms hold two distinct objects —
+# they compare and hash by value here, which is why a dict collapses them and identity
+# comparison would collapse nothing. Keying on "<domain>/<name>" instead would also work
+# and would silently assert a uniqueness the schema does not enforce.
+# No match returns an empty list rather than failing: a caller that needs a zero match to
+# be an error knows what it was asking for and can say so; this one does not.
+def SelectComponents(component, predicate):
+    found = {}
+
+    def collect(c):
+        if predicate(c):
+            found[c] = True
+
+    walk_upstreams(component, collect)
+    return found.keys()
+
 # GetConfigs walks a Component and its upstreams, and returns a map of all the Terraform
 # configs keyed by "<domain>/<name>/<config name>". Components store their configs under
 # the bare config name; the prefix is only applied here, once the whole component chain
@@ -201,13 +252,6 @@ def GetConfigs(component):
             if str(cfg) == str(proto()):
                 continue
             configs[prefix + "/" + key] = cfg
-
-    def walk_upstreams(component, next):
-        if not component.upstreams:
-            return next(component)
-        for upstream in component.upstreams.components:
-            walk_upstreams(upstream, next)
-        return next(component)
 
     walk_upstreams(component, collect_configs)
 

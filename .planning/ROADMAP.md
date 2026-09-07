@@ -12,8 +12,8 @@ pattern generalizes with the shallowest possible surface area. The database depe
 the thesis-defining requirement and carries the milestone's one genuine infrastructure unknown
 (can CI actually reach the database), resolved as that phase's first plan rather than a separate
 phase. Service mesh reuses the same near/far hook-pair convention the database phase validates.
-Security-authored cross-cutting policy comes last on purpose — it needs `Component.tags` to exist
-*and* needs real drivers already populating meaningful tags, which only phases 3 and 4 provide.
+Security-authored cross-cutting policy comes last on purpose — it needs `Component.Metadata.labels` to be populated
+*and* needs real drivers already populating meaningful labels, which only phases 3 and 4 provide.
 
 ## Phases
 
@@ -41,7 +41,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Success Criteria** (what must be TRUE):
 
   1. CI fails the build when a fresh `protoconf compile` of the source produces output that differs from what's committed — a source edit without a local rebuild can no longer pass CI green
-  2. A platform author can write a predicate over `Component.tags` and call the exported `SelectComponents` to retrieve every component in a dependency graph matching it
+  2. A platform author can write a predicate over `Component.Metadata.labels` and call the exported `SelectComponents` to retrieve every component in a dependency graph matching it
   3. Compiling a component whose state CI will apply, but that has no remote backend configured, fails with a message naming the missing backend — it does not silently fall back to local state
   4. Compiling a cross-state value handshake that CI's apply-ordering derivation cannot see fails with a message naming the fix, rather than producing a wrong or partial apply order
 
