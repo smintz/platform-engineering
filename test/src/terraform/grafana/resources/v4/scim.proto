@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.resources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaScimConfig version is 0
+message GrafanaScimConfig {
+  // Whether group synchronization is enabled.
+  bool enable_group_sync = 1 [json_name = "enable_group_sync"];
+
+  // Whether user synchronization is enabled.
+  bool enable_user_sync = 2 [json_name = "enable_user_sync"];
+
+  // The ID of this resource.
+  string id = 3;
+
+  // The Organization ID. If not set, the default organization is used for basic
+  // authentication, or the one that owns your service account for token
+  // authentication.
+  string org_id = 4 [json_name = "org_id"];
+
+  // Whether to block non-provisioned user access to Grafana. Cloud Portal users will
+  // always be able to access Grafana, regardless of this setting.
+  bool reject_non_provisioned_users = 5 [json_name = "reject_non_provisioned_users"];
+
+  google.protobuf.Value for_each = 6 [json_name = "for_each"];
+
+  repeated string depends_on = 7 [json_name = "depends_on"];
+
+  int32 count = 8;
+
+  string provider = 9;
+
+  terraform.v1.Lifecycle lifecycle = 10;
+}

@@ -1,0 +1,4 @@
+platform=remote_repo(
+  label="platform",
+  url=".."
+)

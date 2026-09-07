@@ -1,0 +1,930 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.resources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaContactPoint version is 0
+message GrafanaContactPoint {
+  // Allow modifying the contact point from other sources than Terraform or the
+  // Grafana API. Defaults to `false`.
+  bool disable_provenance = 1 [json_name = "disable_provenance"];
+
+  string id = 2;
+
+  // The name of the contact point.
+  string name = 3;
+
+  // The Organization ID. If not set, the Org ID defined in the provider block will be
+  // used.
+  string org_id = 4 [json_name = "org_id"];
+
+  repeated Alertmanager alertmanager = 5;
+
+  repeated Dingding dingding = 6;
+
+  repeated Discord discord = 7;
+
+  repeated Email email = 8;
+
+  repeated Googlechat googlechat = 9;
+
+  repeated Jira jira = 10;
+
+  repeated Kafka kafka = 11;
+
+  repeated Line line = 12;
+
+  repeated Oncall oncall = 13;
+
+  repeated Opsgenie opsgenie = 14;
+
+  repeated Pagerduty pagerduty = 15;
+
+  repeated Pushover pushover = 16;
+
+  repeated Sensugo sensugo = 17;
+
+  repeated Slack slack = 18;
+
+  repeated Sns sns = 19;
+
+  repeated Teams teams = 20;
+
+  repeated Telegram telegram = 21;
+
+  repeated Threema threema = 22;
+
+  repeated Victorops victorops = 23;
+
+  repeated Webex webex = 24;
+
+  repeated Webhook webhook = 25;
+
+  repeated Wecom wecom = 26;
+
+  google.protobuf.Value for_each = 27 [json_name = "for_each"];
+
+  repeated string depends_on = 28 [json_name = "depends_on"];
+
+  int32 count = 29;
+
+  string provider = 30;
+
+  terraform.v1.Lifecycle lifecycle = 31;
+
+  message Alertmanager {
+    // The password component of the basic auth credentials to use.
+    string basic_auth_password = 1 [json_name = "basic_auth_password"];
+
+    // The username component of the basic auth credentials to use.
+    string basic_auth_user = 2 [json_name = "basic_auth_user"];
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 3 [json_name = "disable_resolve_message"];
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 4;
+
+    // The UID of the contact point.
+    string uid = 5;
+
+    // The URL of the Alertmanager instance.
+    string url = 6;
+  }
+
+  message Dingding {
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 1 [json_name = "disable_resolve_message"];
+
+    // The templated content of the message.
+    string message = 2;
+
+    // The format of message to send - either 'link' or 'actionCard'
+    string message_type = 3 [json_name = "message_type"];
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 4;
+
+    // The templated title of the message.
+    string title = 5;
+
+    // The UID of the contact point.
+    string uid = 6;
+
+    // The DingDing webhook URL.
+    string url = 7;
+  }
+
+  message Discord {
+    // The URL of a custom avatar image to use. Defaults to ``.
+    string avatar_url = 1 [json_name = "avatar_url"];
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 2 [json_name = "disable_resolve_message"];
+
+    // The templated content of the message. Defaults to ``.
+    string message = 3;
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 4;
+
+    // The templated content of the title.
+    string title = 5;
+
+    // The UID of the contact point.
+    string uid = 6;
+
+    // The discord webhook URL.
+    string url = 7;
+
+    // Whether to use the bot account's plain username instead of "Grafana." Defaults to
+    // `false`.
+    bool use_discord_username = 8 [json_name = "use_discord_username"];
+  }
+
+  message Email {
+    // The addresses to send emails to.
+    repeated string addresses = 1;
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 2 [json_name = "disable_resolve_message"];
+
+    // The templated content of the email. Defaults to ``.
+    string message = 3;
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 4;
+
+    // Whether to send a single email CC'ing all addresses, rather than a separate email
+    // to each address. Defaults to `false`.
+    bool single_email = 5 [json_name = "single_email"];
+
+    // The templated subject line of the email. Defaults to ``.
+    string subject = 6;
+
+    // The UID of the contact point.
+    string uid = 7;
+  }
+
+  message Googlechat {
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 1 [json_name = "disable_resolve_message"];
+
+    // Whether to hide the Open URL button in the message. This feature requires Grafana
+    // 12.4.0 or later.
+    bool hide_open_button = 2 [json_name = "hide_open_button"];
+
+    // Whether to hide the version info in the message. This feature requires Grafana
+    // 12.4.0 or later. Defaults to `false`.
+    bool hide_version_info = 3 [json_name = "hide_version_info"];
+
+    // The templated content of the message.
+    string message = 4;
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 5;
+
+    // The templated content of the title.
+    string title = 6;
+
+    // The UID of the contact point.
+    string uid = 7;
+
+    // The Google Chat webhook URL.
+    string url = 8;
+  }
+
+  message Jira {
+    // Personal Access Token that is used as a bearer authorization header.
+    string api_token = 1 [json_name = "api_token"];
+
+    // The URL of the Jira REST API (v2 or v3).
+    string api_url = 2 [json_name = "api_url"];
+
+    // Custom field ID for storing deduplication keys. Must be numeric.
+    string dedup_key_field = 3 [json_name = "dedup_key_field"];
+
+    // The templated description of the Jira issue. Maximum length is 32767 characters.
+    string description = 4;
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 5 [json_name = "disable_resolve_message"];
+
+    // Custom Jira issue fields.
+    map<string, string> fields = 6;
+
+    // The type of issue to create (e.g., Bug, Task, Story).
+    string issue_type = 7 [json_name = "issue_type"];
+
+    // Labels to assign to the Jira issue.
+    repeated string labels = 8;
+
+    // Password to use for Jira authentication.
+    string password = 9;
+
+    // The priority level of the issue (e.g., High, Medium, Low).
+    string priority = 10;
+
+    // The project key in Jira.
+    string project = 11;
+
+    // Duration to consider reopening issues (e.g., '10m').
+    string reopen_duration = 12 [json_name = "reopen_duration"];
+
+    // The name of the workflow transition to reopen an issue.
+    string reopen_transition = 13 [json_name = "reopen_transition"];
+
+    // The name of the workflow transition to resolve an issue.
+    string resolve_transition = 14 [json_name = "resolve_transition"];
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 15;
+
+    // The templated summary of the Jira issue. Maximum length is 255 characters.
+    string summary = 16;
+
+    // The UID of the contact point.
+    string uid = 17;
+
+    // Username to use for Jira authentication.
+    string user = 18;
+
+    // Resolution status to exclude from reopening/updating.
+    string wont_fix_resolution = 19 [json_name = "wont_fix_resolution"];
+  }
+
+  message Kafka {
+    // The API version to use when contacting the Kafka REST Server. Supported: v2
+    // (default) and v3. Defaults to `v2`.
+    string api_version = 1 [json_name = "api_version"];
+
+    // The Id of cluster to use when contacting the Kafka REST Server. Required
+    // api_version to be 'v3'
+    string cluster_id = 2 [json_name = "cluster_id"];
+
+    // The templated description of the Kafka message.
+    string description = 3;
+
+    // The templated details to include with the message.
+    string details = 4;
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 5 [json_name = "disable_resolve_message"];
+
+    // The password to use when making a call to the Kafka REST Proxy
+    string password = 6;
+
+    // The URL of the Kafka REST proxy to send requests to.
+    string rest_proxy_url = 7 [json_name = "rest_proxy_url"];
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 8;
+
+    // The name of the Kafka topic to publish to.
+    string topic = 9;
+
+    // The UID of the contact point.
+    string uid = 10;
+
+    // The user name to use when making a call to the Kafka REST Proxy
+    string username = 11;
+  }
+
+  message Line {
+    // The templated description of the message.
+    string description = 1;
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 2 [json_name = "disable_resolve_message"];
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 3;
+
+    // The templated title of the message.
+    string title = 4;
+
+    // The bearer token used to authorize the client.
+    string token = 5;
+
+    // The UID of the contact point.
+    string uid = 6;
+  }
+
+  message Oncall {
+    // Allows a custom authorization scheme - attaches an auth header with this value.
+    // Do not use in conjunction with basic auth parameters.
+    string authorization_credentials = 1 [json_name = "authorization_credentials"];
+
+    // Allows a custom authorization scheme - attaches an auth header with this name. Do
+    // not use in conjunction with basic auth parameters.
+    string authorization_scheme = 2 [json_name = "authorization_scheme"];
+
+    // The username to use in basic auth headers attached to the request. If omitted,
+    // basic auth will not be used.
+    string basic_auth_password = 3 [json_name = "basic_auth_password"];
+
+    // The username to use in basic auth headers attached to the request. If omitted,
+    // basic auth will not be used.
+    string basic_auth_user = 4 [json_name = "basic_auth_user"];
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 5 [json_name = "disable_resolve_message"];
+
+    // The HTTP method to use in the request. Defaults to `POST`.
+    string http_method = 6 [json_name = "http_method"];
+
+    // The maximum number of alerts to send in a single request. This can be helpful in
+    // limiting the size of the request body. The default is 0, which indicates no
+    // limit.
+    int64 max_alerts = 7 [json_name = "max_alerts"];
+
+    // Custom message. You can use template variables.
+    string message = 8;
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 9;
+
+    // Templated title of the message.
+    string title = 10;
+
+    // The UID of the contact point.
+    string uid = 11;
+
+    // The URL to send webhook requests to.
+    string url = 12;
+  }
+
+  message Opsgenie {
+    // The OpsGenie API key to use.
+    string api_key = 1 [json_name = "api_key"];
+
+    // Whether to auto-close alerts in OpsGenie when they resolve in the Alertmanager.
+    bool auto_close = 2 [json_name = "auto_close"];
+
+    // A templated high-level description to use for the alert.
+    string description = 3;
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 4 [json_name = "disable_resolve_message"];
+
+    // The templated content of the message.
+    string message = 5;
+
+    // Whether to allow the alert priority to be configured via the value of the
+    // `og_priority` annotation on the alert.
+    bool override_priority = 6 [json_name = "override_priority"];
+
+    // Whether to send annotations to OpsGenie as Tags, Details, or both. Supported
+    // values are `tags`, `details`, `both`, or empty to use the default behavior of
+    // Tags.
+    string send_tags_as = 7 [json_name = "send_tags_as"];
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 8;
+
+    // The UID of the contact point.
+    string uid = 9;
+
+    // Allows customization of the OpsGenie API URL.
+    string url = 10;
+
+    repeated Responders responders = 11;
+
+    message Responders {
+      // ID of the responder. Must be specified if name and username are empty.
+      string id = 1;
+
+      // Name of the responder. Must be specified if username and id are empty.
+      string name = 2;
+
+      // Type of the responder. Supported: team, teams, user, escalation, schedule or a
+      // template that is expanded to one of these values.
+      string type = 3;
+
+      // User name of the responder. Must be specified if name and id are empty.
+      string username = 4;
+    }
+  }
+
+  message Pagerduty {
+    // The class or type of event, for example `ping failure`.
+    string class = 1;
+
+    // The name of the monitoring client that is triggering this event.
+    string client = 2;
+
+    // The URL of the monitoring client that is triggering this event.
+    string client_url = 3 [json_name = "client_url"];
+
+    // The component being affected by the event.
+    string component = 4;
+
+    // A set of arbitrary key/value pairs that provide further detail about the
+    // incident.
+    map<string, string> details = 5;
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 6 [json_name = "disable_resolve_message"];
+
+    // The group to which the provided component belongs to.
+    string group = 7;
+
+    // The PagerDuty API key.
+    string integration_key = 8 [json_name = "integration_key"];
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 9;
+
+    // The PagerDuty event severity level. Default is `critical`.
+    string severity = 10;
+
+    // The unique location of the affected system.
+    string source = 11;
+
+    // The templated summary message of the event.
+    string summary = 12;
+
+    // The UID of the contact point.
+    string uid = 13;
+
+    // The URL to send API requests to
+    string url = 14;
+  }
+
+  message Pushover {
+    // The Pushover API token.
+    string api_token = 1 [json_name = "api_token"];
+
+    // Comma-separated list of devices to which the event is associated.
+    string device = 2;
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 3 [json_name = "disable_resolve_message"];
+
+    // How many seconds for which the notification will continue to be retried by
+    // Pushover.
+    int64 expire = 4;
+
+    // The templated notification message content.
+    string message = 5;
+
+    // The priority level of the resolved event.
+    int64 ok_priority = 6 [json_name = "ok_priority"];
+
+    // The sound associated with the resolved notification.
+    string ok_sound = 7 [json_name = "ok_sound"];
+
+    // The priority level of the event.
+    int64 priority = 8;
+
+    // How often, in seconds, the Pushover servers will send the same notification to
+    // the user.
+    int64 retry = 9;
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 10;
+
+    // The sound associated with the notification.
+    string sound = 11;
+
+    // The templated title of the message.
+    string title = 12;
+
+    // The UID of the contact point.
+    string uid = 13;
+
+    // Whether to send images in the notification or not. Default is true. Requires
+    // Grafana to be configured to send images in notifications.
+    bool upload_image = 14 [json_name = "upload_image"];
+
+    // The Pushover user key.
+    string user_key = 15 [json_name = "user_key"];
+  }
+
+  message Sensugo {
+    // The SensuGo API key.
+    string api_key = 1 [json_name = "api_key"];
+
+    // The SensuGo check to which the event should be routed.
+    string check = 2;
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 3 [json_name = "disable_resolve_message"];
+
+    // The entity being monitored.
+    string entity = 4;
+
+    // A custom handler to execute in addition to the check.
+    string handler = 5;
+
+    // Templated message content describing the alert.
+    string message = 6;
+
+    // The namespace in which the check resides.
+    string namespace = 7;
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 8;
+
+    // The UID of the contact point.
+    string uid = 9;
+
+    // The SensuGo URL to send requests to.
+    string url = 10;
+  }
+
+  message Slack {
+    // Templated color of the slack message.
+    string color = 1;
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 2 [json_name = "disable_resolve_message"];
+
+    // Use this to override the Slack API endpoint URL to send requests to.
+    string endpoint_url = 3 [json_name = "endpoint_url"];
+
+    // The name of a Slack workspace emoji to use as the bot icon.
+    string icon_emoji = 4 [json_name = "icon_emoji"];
+
+    // A URL of an image to use as the bot icon.
+    string icon_url = 5 [json_name = "icon_url"];
+
+    // Describes how to ping the slack channel that messages are being sent to. Options
+    // are `here` for an @here ping, `channel` for @channel, or empty for no ping.
+    string mention_channel = 6 [json_name = "mention_channel"];
+
+    // Comma-separated list of groups to mention in the message.
+    string mention_groups = 7 [json_name = "mention_groups"];
+
+    // Comma-separated list of users to mention in the message.
+    string mention_users = 8 [json_name = "mention_users"];
+
+    // Channel, private group, or IM channel (can be an encoded ID or a name) to send
+    // messages to.
+    string recipient = 9;
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 10;
+
+    // Templated content of the message.
+    string text = 11;
+
+    // Templated title of the message.
+    string title = 12;
+
+    // A Slack API token,for sending messages directly without the webhook method.
+    string token = 13;
+
+    // The UID of the contact point.
+    string uid = 14;
+
+    // A Slack webhook URL,for sending messages via the webhook method.
+    string url = 15;
+
+    // Username for the bot to use.
+    string username = 16;
+  }
+
+  message Sns {
+    // AWS access key ID used to authenticate with Amazon SNS.
+    string access_key = 1 [json_name = "access_key"];
+
+    // The Amazon Resource Name (ARN) of the role to assume to send notifications to
+    // Amazon SNS.
+    string assume_role_arn = 2 [json_name = "assume_role_arn"];
+
+    // The authentication provider to use. Valid values are `default`, `arn` and `keys`.
+    // Default is `default`. Defaults to `default`.
+    string auth_provider = 3 [json_name = "auth_provider"];
+
+    string body = 4;
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 5 [json_name = "disable_resolve_message"];
+
+    // The external ID to use when assuming the role.
+    string external_id = 6 [json_name = "external_id"];
+
+    // The format of the message to send. Valid values are `text`, `body` and `json`.
+    // Default is `text`. Defaults to `text`.
+    string message_format = 7 [json_name = "message_format"];
+
+    // AWS secret access key used to authenticate with Amazon SNS.
+    string secret_key = 8 [json_name = "secret_key"];
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 9;
+
+    string subject = 10;
+
+    // The Amazon SNS topic to send notifications to.
+    string topic = 11;
+
+    // The UID of the contact point.
+    string uid = 12;
+  }
+
+  message Teams {
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 1 [json_name = "disable_resolve_message"];
+
+    // The templated message content to send.
+    string message = 2;
+
+    // The templated subtitle for each message section.
+    string section_title = 3 [json_name = "section_title"];
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 4;
+
+    // The templated title of the message.
+    string title = 5;
+
+    // The UID of the contact point.
+    string uid = 6;
+
+    // A Teams webhook URL.
+    string url = 7;
+  }
+
+  message Telegram {
+    // The chat ID to send messages to.
+    string chat_id = 1 [json_name = "chat_id"];
+
+    // When set users will receive a notification with no sound.
+    bool disable_notifications = 2 [json_name = "disable_notifications"];
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 3 [json_name = "disable_resolve_message"];
+
+    // When set it disables link previews for links in the message.
+    bool disable_web_page_preview = 4 [json_name = "disable_web_page_preview"];
+
+    // The templated content of the message.
+    string message = 5;
+
+    // The ID of the message thread to send the message to.
+    string message_thread_id = 6 [json_name = "message_thread_id"];
+
+    // Mode for parsing entities in the message text. Supported: None, Markdown,
+    // MarkdownV2, and HTML. HTML is the default.
+    string parse_mode = 7 [json_name = "parse_mode"];
+
+    // When set it protects the contents of the message from forwarding and saving.
+    bool protect_content = 8 [json_name = "protect_content"];
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 9;
+
+    // The Telegram bot token.
+    string token = 10;
+
+    // The UID of the contact point.
+    string uid = 11;
+  }
+
+  message Threema {
+    // The Threema API key.
+    string api_secret = 1 [json_name = "api_secret"];
+
+    // The templated description of the message.
+    string description = 2;
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 3 [json_name = "disable_resolve_message"];
+
+    // The Threema gateway ID.
+    string gateway_id = 4 [json_name = "gateway_id"];
+
+    // The ID of the recipient of the message.
+    string recipient_id = 5 [json_name = "recipient_id"];
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 6;
+
+    // The templated title of the message.
+    string title = 7;
+
+    // The UID of the contact point.
+    string uid = 8;
+  }
+
+  message Victorops {
+    // Templated description of the message.
+    string description = 1;
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 2 [json_name = "disable_resolve_message"];
+
+    // The VictorOps alert state - typically either `CRITICAL` or `RECOVERY`.
+    string message_type = 3 [json_name = "message_type"];
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 4;
+
+    // Templated title to display.
+    string title = 5;
+
+    // The UID of the contact point.
+    string uid = 6;
+
+    // The VictorOps webhook URL.
+    string url = 7;
+  }
+
+  message Webex {
+    // The URL to send webhook requests to.
+    string api_url = 1 [json_name = "api_url"];
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 2 [json_name = "disable_resolve_message"];
+
+    // The templated title of the message to send.
+    string message = 3;
+
+    // ID of the Webex Teams room where to send the messages.
+    string room_id = 4 [json_name = "room_id"];
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 5;
+
+    // The bearer token used to authorize the client.
+    string token = 6;
+
+    // The UID of the contact point.
+    string uid = 7;
+  }
+
+  message Webhook {
+    // Allows a custom authorization scheme - attaches an auth header with this value.
+    // Do not use in conjunction with basic auth parameters.
+    string authorization_credentials = 1 [json_name = "authorization_credentials"];
+
+    // Allows a custom authorization scheme - attaches an auth header with this name. Do
+    // not use in conjunction with basic auth parameters.
+    string authorization_scheme = 2 [json_name = "authorization_scheme"];
+
+    // The username to use in basic auth headers attached to the request. If omitted,
+    // basic auth will not be used.
+    string basic_auth_password = 3 [json_name = "basic_auth_password"];
+
+    // The username to use in basic auth headers attached to the request. If omitted,
+    // basic auth will not be used.
+    string basic_auth_user = 4 [json_name = "basic_auth_user"];
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 5 [json_name = "disable_resolve_message"];
+
+    // Custom headers to attach to the request.
+    map<string, string> headers = 6;
+
+    // The HTTP method to use in the request. Defaults to `POST`.
+    string http_method = 7 [json_name = "http_method"];
+
+    // The maximum number of alerts to send in a single request. This can be helpful in
+    // limiting the size of the request body. The default is 0, which indicates no
+    // limit.
+    int64 max_alerts = 8 [json_name = "max_alerts"];
+
+    // Custom message. You can use template variables.
+    string message = 9;
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 10;
+
+    // Templated title of the message.
+    string title = 11;
+
+    // Allows configuring TLS for the webhook notifier.
+    map<string, string> tls_config = 12 [json_name = "tls_config"];
+
+    // The UID of the contact point.
+    string uid = 13;
+
+    // The URL to send webhook requests to.
+    string url = 14;
+
+    HmacConfig hmac_config = 15 [json_name = "hmac_config"];
+
+    HttpConfig http_config = 16 [json_name = "http_config"];
+
+    Payload payload = 17;
+
+    message HmacConfig {
+      // The header in which the HMAC signature will be included. Defaults to
+      // `X-Grafana-Alerting-Signature`.
+      string header = 1;
+
+      // The secret key used to generate the HMAC signature.
+      string secret = 2;
+
+      // If set, the timestamp will be included in the HMAC signature. The value should be
+      // the name of the header to use.
+      string timestamp_header = 3 [json_name = "timestamp_header"];
+    }
+
+    message HttpConfig {
+      Oauth2 oauth2 = 1;
+
+      message Oauth2 {
+        // Client ID to use when authenticating.
+        string client_id = 1 [json_name = "client_id"];
+
+        // Client secret to use when authenticating.
+        string client_secret = 2 [json_name = "client_secret"];
+
+        // Optional parameters to append to the access token request.
+        map<string, string> endpoint_params = 3 [json_name = "endpoint_params"];
+
+        // Optional scopes to request when obtaining an access token.
+        repeated string scopes = 4;
+
+        // URL for the access token endpoint.
+        string token_url = 5 [json_name = "token_url"];
+
+        ProxyConfig proxy_config = 6 [json_name = "proxy_config"];
+
+        TlsConfig tls_config = 7 [json_name = "tls_config"];
+
+        message ProxyConfig {
+          // Comma-separated list of addresses that should not use a proxy.
+          string no_proxy = 1 [json_name = "no_proxy"];
+
+          // Optional headers to send to proxies during CONNECT requests.
+          map<string, string> proxy_connect_header = 2 [json_name = "proxy_connect_header"];
+
+          // Use environment HTTP_PROXY, HTTPS_PROXY and NO_PROXY to determine proxies.
+          // Defaults to `false`.
+          bool proxy_from_environment = 3 [json_name = "proxy_from_environment"];
+
+          // HTTP proxy server to use to connect to the targets.
+          string proxy_url = 4 [json_name = "proxy_url"];
+        }
+
+        message TlsConfig {
+          // Certificate in PEM format to use when verifying the server's certificate chain.
+          string ca_certificate = 1 [json_name = "ca_certificate"];
+
+          // Client certificate in PEM format to use when connecting to the server.
+          string client_certificate = 2 [json_name = "client_certificate"];
+
+          // Client key in PEM format to use when connecting to the server.
+          string client_key = 3 [json_name = "client_key"];
+
+          // Do not verify the server's certificate chain and host name. Defaults to `false`.
+          bool insecure_skip_verify = 4 [json_name = "insecure_skip_verify"];
+        }
+      }
+    }
+
+    message Payload {
+      // Custom payload template.
+      string template = 1;
+
+      // Optionally provide a variables to be used in the payload template. They will be
+      // available in the template as `.Vars.<variable_name>`.
+      map<string, string> vars = 2;
+    }
+  }
+
+  message Wecom {
+    // Agent ID added to the request payload when using APIAPP.
+    string agent_id = 1 [json_name = "agent_id"];
+
+    // Corp ID used to get token when using APIAPP.
+    string corp_id = 2 [json_name = "corp_id"];
+
+    // Whether to disable sending resolve messages. Defaults to `false`.
+    bool disable_resolve_message = 3 [json_name = "disable_resolve_message"];
+
+    // The templated content of the message to send.
+    string message = 4;
+
+    // The type of them message. Supported: markdown, text. Default: text.
+    string msg_type = 5 [json_name = "msg_type"];
+
+    // The secret key required to obtain access token when using APIAPP. See
+    // https://work.weixin.qq.com/wework_admin/frame#apps to create APIAPP.
+    string secret = 6;
+
+    // Additional custom properties to attach to the notifier. Defaults to `map[]`.
+    map<string, string> settings = 7;
+
+    // The templated title of the message to send.
+    string title = 8;
+
+    // The ID of user that should receive the message. Multiple entries should be
+    // separated by '|'. Default: @all.
+    string to_user = 9 [json_name = "to_user"];
+
+    // The UID of the contact point.
+    string uid = 10;
+
+    // The WeCom webhook URL. Required if using GroupRobot.
+    string url = 11;
+  }
+}

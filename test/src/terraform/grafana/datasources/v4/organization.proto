@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.datasources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaOrganization version is 0
+message GrafanaOrganization {
+  // A list of email addresses corresponding to users given admin access to the
+  // organization.
+  repeated string admins = 1;
+
+  // A list of email addresses corresponding to users given editor access to the
+  // organization.
+  repeated string editors = 2;
+
+  string id = 3;
+
+  // The name of the Organization.
+  string name = 4;
+
+  // A list of email addresses corresponding to users given viewer access to the
+  // organization.
+  repeated string viewers = 5;
+
+  google.protobuf.Value for_each = 6 [json_name = "for_each"];
+
+  repeated string depends_on = 7 [json_name = "depends_on"];
+
+  int32 count = 8;
+
+  string provider = 9;
+
+  terraform.v1.Lifecycle lifecycle = 10;
+}
+
+// GrafanaOrganizationPreferences version is 0
+message GrafanaOrganizationPreferences {
+  // The Organization home dashboard UID. This is only available in Grafana 9.0+.
+  string home_dashboard_uid = 1 [json_name = "home_dashboard_uid"];
+
+  string id = 2;
+
+  // The Organization ID. If not set, the Org ID defined in the provider block will be
+  // used.
+  string org_id = 3 [json_name = "org_id"];
+
+  // The Organization theme. Any string value is supported, including custom themes.
+  // Common values are `light`, `dark`, `system`, or an empty string for the default.
+  string theme = 4;
+
+  // The Organization timezone. Any string value is supported, including IANA timezone
+  // names. Common values are `utc`, `browser`, or an empty string for the default.
+  string timezone = 5;
+
+  // The Organization week start day. Available values are `sunday`, `monday`,
+  // `saturday`, or an empty string for the default.
+  string week_start = 6 [json_name = "week_start"];
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  int32 count = 9;
+
+  string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+}
+
+// GrafanaOrganizationUser version is 0
+message GrafanaOrganizationUser {
+  // The email address of the Grafana user. Defaults to ``.
+  string email = 1;
+
+  string id = 2;
+
+  // The username of the Grafana user. Defaults to ``.
+  string login = 3;
+
+  // The Organization ID. If not set, the Org ID defined in the provider block will be
+  // used.
+  string org_id = 4 [json_name = "org_id"];
+
+  // The numerical ID of the Grafana user.
+  int64 user_id = 5 [json_name = "user_id"];
+
+  google.protobuf.Value for_each = 6 [json_name = "for_each"];
+
+  repeated string depends_on = 7 [json_name = "depends_on"];
+
+  int32 count = 8;
+
+  string provider = 9;
+
+  terraform.v1.Lifecycle lifecycle = 10;
+}

@@ -1,19 +1,16 @@
 load("//platform/platform.pinc", "platform")
 load("//terraform/v1/util.pinc", tf = "util")
-
-def described(desc):
-    # component-typed hook: skipped when the chain is running over a Terraform message
-    def do(component, next):
-        component.description = desc
-        return next(component)
-
-    return platform.component_filter(do)
+load("//terraform/kubernetes/")
 
 # no WithFailureDomain here: it is inherited from whatever depends on aurora
 def AuroraComponent(*hooks):
     return platform.Component(
         "aurora",
-        described("aurora cluster"),
+        platform.WithTerraform(
+            util.Terraform(
+                util.Provider()
+            )
+        ),
         # runs on the downstream component, writing into its own main.tf.json
         platform.ForDownstream(
             platform.WithConfig(None, tf.Output("aurora_endpoint", "aurora.internal")),
@@ -25,13 +22,6 @@ def AuroraComponent(*hooks):
         *hooks
     )
 
-def AuroraUserComponent(user):
-    return lambda *hooks: platform.Component(
-        "aurora-user-" + user,
-        described("aurora user:" + user),
-        platform.WithDeps(AuroraComponent),
-        *hooks
-    )
 
 def ApiTaskComponent(*hooks):
     return platform.Component(

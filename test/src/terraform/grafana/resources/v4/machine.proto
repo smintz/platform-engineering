@@ -1,0 +1,213 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.resources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaMachineLearningAlert version is 0
+message GrafanaMachineLearningAlert {
+  // Annotations to add to the alert generated in Grafana.
+  map<string, string> annotations = 1;
+
+  // The condition for when to consider a point as anomalous.
+  string anomaly_condition = 2 [json_name = "anomaly_condition"];
+
+  // How long values must be anomalous before firing an alert.
+  string for = 3;
+
+  // The ID of the alert.
+  string id = 4;
+
+  // The forecast this alert belongs to.
+  string job_id = 5 [json_name = "job_id"];
+
+  // Labels to add to the alert generated in Grafana.
+  map<string, string> labels = 6;
+
+  // How the alert should be processed when no data is returned by the underlying
+  // series
+  string no_data_state = 7 [json_name = "no_data_state"];
+
+  // The forecast this alert belongs to.
+  string outlier_id = 8 [json_name = "outlier_id"];
+
+  // The threshold of points over the window that need to be anomalous to alert.
+  string threshold = 9;
+
+  // The title of the alert.
+  string title = 10;
+
+  // How much time to average values over
+  string window = 11;
+
+  google.protobuf.Value for_each = 12 [json_name = "for_each"];
+
+  repeated string depends_on = 13 [json_name = "depends_on"];
+
+  int32 count = 14;
+
+  string provider = 15;
+
+  terraform.v1.Lifecycle lifecycle = 16;
+}
+
+// GrafanaMachineLearningHoliday version is 0
+message GrafanaMachineLearningHoliday {
+  // A description of the holiday.
+  string description = 1;
+
+  // The timezone to use for events in the iCal file pointed to by ical_url.
+  string ical_timezone = 2 [json_name = "ical_timezone"];
+
+  // A URL to an iCal file containing all occurrences of the holiday.
+  string ical_url = 3 [json_name = "ical_url"];
+
+  // The ID of the holiday.
+  string id = 4;
+
+  // The name of the holiday.
+  string name = 5;
+
+  repeated CustomPeriods custom_periods = 6 [json_name = "custom_periods"];
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  int32 count = 9;
+
+  string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+
+  message CustomPeriods {
+    string end_time = 1 [json_name = "end_time"];
+
+    // The name of the custom period.
+    string name = 2;
+
+    string start_time = 3 [json_name = "start_time"];
+  }
+}
+
+// GrafanaMachineLearningJob version is 0
+message GrafanaMachineLearningJob {
+  // An object representing the custom labels added on the forecast.
+  map<string, string> custom_labels = 1 [json_name = "custom_labels"];
+
+  // The type of datasource being queried. Currently allowed values are prometheus,
+  // grafana-prometheus-datasource, grafana-amazonprometheus-datasource, loki,
+  // grafana-loki-datasource, graphite, grafana-graphite-datasource,
+  // grafana-datadog-datasource, postgres, grafana-postgresql-datasource,
+  // doitintl-bigquery-datasource, grafana-bigquery-datasource,
+  // grafana-snowflake-datasource, influxdb, grafana-influxdb-datasource,
+  // grafana-splunk-datasource, elasticsearch, grafana-elasticsearch-datasource, and
+  // grafana-mongodb-datasource.
+  string datasource_type = 2 [json_name = "datasource_type"];
+
+  // The uid of the datasource to query.
+  string datasource_uid = 3 [json_name = "datasource_uid"];
+
+  // A description of the job.
+  string description = 4;
+
+  // A list of holiday IDs or names to take into account when training the model.
+  repeated string holidays = 5;
+
+  // The hyperparameters used to fine tune the algorithm. See
+  // rafana.com/docs/grafana-cloud/alerting-and-irm/machine-learning/forecasts/models/
+  // for the full list of available hyperparameters. Defaults to `map[]`.
+  map<string, string> hyper_params = 6 [json_name = "hyper_params"];
+
+  // The ID of the job.
+  string id = 7;
+
+  // The data interval in seconds to train the data on. Defaults to `300`.
+  int64 interval = 8;
+
+  // The metric used to query the job results.
+  string metric = 9;
+
+  // The name of the job.
+  string name = 10;
+
+  // An object representing the query params to query Grafana with.
+  map<string, string> query_params = 11 [json_name = "query_params"];
+
+  // The data interval in seconds to train the data on. Defaults to `7776000`.
+  int64 training_window = 12 [json_name = "training_window"];
+
+  google.protobuf.Value for_each = 13 [json_name = "for_each"];
+
+  repeated string depends_on = 14 [json_name = "depends_on"];
+
+  int32 count = 15;
+
+  string provider = 16;
+
+  terraform.v1.Lifecycle lifecycle = 17;
+}
+
+// GrafanaMachineLearningOutlierDetector version is 0
+message GrafanaMachineLearningOutlierDetector {
+  // The type of datasource being queried. Currently allowed values are prometheus,
+  // grafana-prometheus-datasource, grafana-amazonprometheus-datasource, loki,
+  // grafana-loki-datasource, graphite, grafana-graphite-datasource,
+  // grafana-datadog-datasource, postgres, grafana-postgresql-datasource,
+  // doitintl-bigquery-datasource, grafana-bigquery-datasource,
+  // grafana-snowflake-datasource, influxdb, grafana-influxdb-datasource,
+  // grafana-splunk-datasource, elasticsearch, grafana-elasticsearch-datasource, and
+  // grafana-mongodb-datasource.
+  string datasource_type = 1 [json_name = "datasource_type"];
+
+  // The uid of the datasource to query.
+  string datasource_uid = 2 [json_name = "datasource_uid"];
+
+  // A description of the outlier detector.
+  string description = 3;
+
+  // The ID of the outlier detector.
+  string id = 4;
+
+  // The data interval in seconds to monitor. Defaults to `300`.
+  int64 interval = 5;
+
+  // The metric used to query the outlier detector results.
+  string metric = 6;
+
+  // The name of the outlier detector.
+  string name = 7;
+
+  // An object representing the query params to query Grafana with.
+  map<string, string> query_params = 8 [json_name = "query_params"];
+
+  Algorithm algorithm = 9;
+
+  google.protobuf.Value for_each = 10 [json_name = "for_each"];
+
+  repeated string depends_on = 11 [json_name = "depends_on"];
+
+  int32 count = 12;
+
+  string provider = 13;
+
+  terraform.v1.Lifecycle lifecycle = 14;
+
+  message Algorithm {
+    // The name of the algorithm to use ('mad' or 'dbscan').
+    string name = 1;
+
+    // Specify the sensitivity of the detector (in range [0,1]).
+    int64 sensitivity = 2;
+
+    Config config = 3;
+
+    message Config {
+      // Specify the epsilon parameter (positive float)
+      int64 epsilon = 1;
+    }
+  }
+}

@@ -1,0 +1,259 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.resources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaDataSource version is 1
+message GrafanaDataSource {
+  // The method by which Grafana will access the data source: `proxy` or `direct`.
+  // Defaults to `proxy`.
+  string access_mode = 1 [json_name = "access_mode"];
+
+  // Whether to enable basic auth for the data source. Defaults to `false`.
+  bool basic_auth_enabled = 2 [json_name = "basic_auth_enabled"];
+
+  // Basic auth username. Defaults to ``.
+  string basic_auth_username = 3 [json_name = "basic_auth_username"];
+
+  // (Required by some data source types) The name of the database to use on the
+  // selected data source server. Defaults to ``.
+  string database_name = 4 [json_name = "database_name"];
+
+  // Custom HTTP headers
+  map<string, string> http_headers = 5 [json_name = "http_headers"];
+
+  string id = 6;
+
+  // Whether to set the data source as default. This should only be `true` to a single
+  // data source. Defaults to `false`.
+  bool is_default = 7 [json_name = "is_default"];
+
+  // Serialized JSON string containing the json data. This attribute can be used to
+  // pass configuration options to the data source. To figure out what options a
+  // datasource has available, see its docs or inspect the network data when saving it
+  // from the Grafana UI. Note that keys in this map are usually camelCased.
+  string json_data_encoded = 8 [json_name = "json_data_encoded"];
+
+  // A unique name for the data source.
+  string name = 9;
+
+  // The Organization ID. If not set, the Org ID defined in the provider block will be
+  // used.
+  string org_id = 10 [json_name = "org_id"];
+
+  // (Can only be used with data sources in Grafana Cloud) The ID of the Private Data
+  // source Connect network to use with this data source. Defaults to ``.
+  string private_data_source_connect_network_id = 11 [
+    json_name = "private_data_source_connect_network_id"
+  ];
+
+  // Serialized JSON string containing the secure json data. This attribute can be
+  // used to pass secure configuration options to the data source. To figure out what
+  // options a datasource has available, see its docs or inspect the network data when
+  // saving it from the Grafana UI. Note that keys in this map are usually camelCased.
+  string secure_json_data_encoded = 12 [json_name = "secure_json_data_encoded"];
+
+  // The data source type. Must be one of the supported data source keywords.
+  string type = 13;
+
+  // Unique identifier. If unset, this will be automatically generated.
+  string uid = 14;
+
+  // The URL for the data source. The type of URL required varies depending on the
+  // chosen data source type.
+  string url = 15;
+
+  // (Required by some data source types) The username to use to authenticate to the
+  // data source. Defaults to ``.
+  string username = 16;
+
+  google.protobuf.Value for_each = 17 [json_name = "for_each"];
+
+  repeated string depends_on = 18 [json_name = "depends_on"];
+
+  int32 count = 19;
+
+  string provider = 20;
+
+  terraform.v1.Lifecycle lifecycle = 21;
+}
+
+// GrafanaDataSourceCacheConfig version is 0
+message GrafanaDataSourceCacheConfig {
+  // UID of the data source to configure.
+  string datasource_uid = 1 [json_name = "datasource_uid"];
+
+  // Whether caching is enabled for this data source.
+  bool enabled = 2;
+
+  string id = 3;
+
+  // The Organization ID. If not set, the Org ID defined in the provider block will be
+  // used.
+  string org_id = 4 [json_name = "org_id"];
+
+  // TTL for query caching, in milliseconds. Ignored if use_default_ttl is true.
+  int64 ttl_queries_ms = 5 [json_name = "ttl_queries_ms"];
+
+  // TTL for resource caching, in milliseconds. Ignored if use_default_ttl is true.
+  int64 ttl_resources_ms = 6 [json_name = "ttl_resources_ms"];
+
+  // If true, use Grafana's default TTLs instead of custom values. Defaults to `true`.
+  bool use_default_ttl = 7 [json_name = "use_default_ttl"];
+
+  google.protobuf.Value for_each = 8 [json_name = "for_each"];
+
+  repeated string depends_on = 9 [json_name = "depends_on"];
+
+  int32 count = 10;
+
+  string provider = 11;
+
+  terraform.v1.Lifecycle lifecycle = 12;
+}
+
+// GrafanaDataSourceConfig version is 0
+message GrafanaDataSourceConfig {
+  // Custom HTTP headers
+  map<string, string> http_headers = 1 [json_name = "http_headers"];
+
+  string id = 2;
+
+  // Serialized JSON string containing the json data. This attribute can be used to
+  // pass configuration options to the data source. To figure out what options a
+  // datasource has available, see its docs or inspect the network data when saving it
+  // from the Grafana UI. Note that keys in this map are usually camelCased.
+  string json_data_encoded = 3 [json_name = "json_data_encoded"];
+
+  // The Organization ID. If not set, the Org ID defined in the provider block will be
+  // used.
+  string org_id = 4 [json_name = "org_id"];
+
+  // Serialized JSON string containing the secure json data. This attribute can be
+  // used to pass secure configuration options to the data source. To figure out what
+  // options a datasource has available, see its docs or inspect the network data when
+  // saving it from the Grafana UI. Note that keys in this map are usually camelCased.
+  string secure_json_data_encoded = 5 [json_name = "secure_json_data_encoded"];
+
+  // Unique identifier. If unset, this will be automatically generated.
+  string uid = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  int32 count = 9;
+
+  string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+}
+
+// GrafanaDataSourceConfigLbacRules version is 0
+message GrafanaDataSourceConfigLbacRules {
+  // The UID of the datasource.
+  string datasource_uid = 1 [json_name = "datasource_uid"];
+
+  string id = 2;
+
+  // JSON-encoded LBAC rules for the data source. Map of team UIDs to lists of rule
+  // strings.
+  string rules = 3;
+
+  google.protobuf.Value for_each = 4 [json_name = "for_each"];
+
+  repeated string depends_on = 5 [json_name = "depends_on"];
+
+  int32 count = 6;
+
+  string provider = 7;
+
+  terraform.v1.Lifecycle lifecycle = 8;
+}
+
+// GrafanaDataSourcePermission version is 0
+message GrafanaDataSourcePermission {
+  // The plugin type of the datasource (e.g. "prometheus"). If set, skips the lookup
+  // of the datasource type from the API.
+  string datasource_type = 1 [json_name = "datasource_type"];
+
+  // UID of the datasource to apply permissions to.
+  string datasource_uid = 2 [json_name = "datasource_uid"];
+
+  string id = 3;
+
+  // The Organization ID. If not set, the Org ID defined in the provider block will be
+  // used.
+  string org_id = 4 [json_name = "org_id"];
+
+  repeated Permissions permissions = 5;
+
+  google.protobuf.Value for_each = 6 [json_name = "for_each"];
+
+  repeated string depends_on = 7 [json_name = "depends_on"];
+
+  int32 count = 8;
+
+  string provider = 9;
+
+  terraform.v1.Lifecycle lifecycle = 10;
+
+  message Permissions {
+    // Name of the basic role to manage permissions for. Options: `Viewer`, `Editor` or
+    // `Admin`.
+    string built_in_role = 1 [json_name = "built_in_role"];
+
+    // Permission to associate with item. Options: `Query`, `Edit` or `Admin` (`Admin`
+    // can only be used with Grafana v10.3.0+).
+    string permission = 2;
+
+    // ID of the team to manage permissions for. Defaults to `0`.
+    string team_id = 3 [json_name = "team_id"];
+
+    // ID of the user or service account to manage permissions for. Defaults to `0`.
+    string user_id = 4 [json_name = "user_id"];
+  }
+}
+
+// GrafanaDataSourcePermissionItem version is 0
+message GrafanaDataSourcePermissionItem {
+  // The plugin type of the datasource (e.g. "prometheus"). If set, skips the lookup
+  // of the datasource type from the API.
+  string datasource_type = 1 [json_name = "datasource_type"];
+
+  // The UID of the datasource.
+  string datasource_uid = 2 [json_name = "datasource_uid"];
+
+  string id = 3;
+
+  // The Organization ID. If not set, the default organization is used for basic
+  // authentication, or the one that owns your service account for token
+  // authentication.
+  string org_id = 4 [json_name = "org_id"];
+
+  // the permission to be assigned
+  string permission = 5;
+
+  // the role onto which the permission is to be assigned
+  string role = 6;
+
+  // the team onto which the permission is to be assigned
+  string team = 7;
+
+  // the user or service account onto which the permission is to be assigned
+  string user = 8;
+
+  google.protobuf.Value for_each = 9 [json_name = "for_each"];
+
+  repeated string depends_on = 10 [json_name = "depends_on"];
+
+  int32 count = 11;
+
+  string provider = 12;
+
+  terraform.v1.Lifecycle lifecycle = 13;
+}

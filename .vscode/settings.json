@@ -1,0 +1,16 @@
+{
+  "protoc": {
+    "options": ["--proto_path=${workspaceDir}/src"]
+  },
+  "files.associations": {
+    "*.pconf": "starlark",
+    "*.mpconf": "starlark",
+    "*.pinc": "starlark",
+    "*.proto-validator": "starlark",
+    "*.materialized_JSON": "json"
+  },
+  "[starlark]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "editor.formatOnSave": true
+}

@@ -1,0 +1,193 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.resources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaServiceAccount version is 0
+message GrafanaServiceAccount {
+  // The ID of this resource.
+  string id = 1;
+
+  // The disabled status for the service account. Defaults to `false`.
+  bool is_disabled = 2 [json_name = "is_disabled"];
+
+  // The name of the service account.
+  string name = 3;
+
+  // The Organization ID. If not set, the Org ID defined in the provider block will be
+  // used.
+  string org_id = 4 [json_name = "org_id"];
+
+  // The basic role of the service account in the organization.
+  string role = 5;
+
+  google.protobuf.Value for_each = 6 [json_name = "for_each"];
+
+  repeated string depends_on = 7 [json_name = "depends_on"];
+
+  int32 count = 8;
+
+  string provider = 9;
+
+  terraform.v1.Lifecycle lifecycle = 10;
+}
+
+// GrafanaServiceAccountPermission version is 0
+message GrafanaServiceAccountPermission {
+  string id = 1;
+
+  // The Organization ID. If not set, the Org ID defined in the provider block will be
+  // used.
+  string org_id = 2 [json_name = "org_id"];
+
+  // The id of the service account.
+  string service_account_id = 3 [json_name = "service_account_id"];
+
+  repeated Permissions permissions = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Permissions {
+    // Permission to associate with item. Must be one of `View`, `Edit`, or `Admin`.
+    string permission = 1;
+
+    // ID of the team to manage permissions for. Defaults to `0`.
+    string team_id = 2 [json_name = "team_id"];
+
+    // ID of the user or service account to manage permissions for. Defaults to `0`.
+    string user_id = 3 [json_name = "user_id"];
+  }
+}
+
+// GrafanaServiceAccountPermissionItem version is 0
+message GrafanaServiceAccountPermissionItem {
+  string id = 1;
+
+  // The Organization ID. If not set, the default organization is used for basic
+  // authentication, or the one that owns your service account for token
+  // authentication.
+  string org_id = 2 [json_name = "org_id"];
+
+  // the permission to be assigned
+  string permission = 3;
+
+  // The ID of the service account.
+  string service_account_id = 4 [json_name = "service_account_id"];
+
+  // the team onto which the permission is to be assigned
+  string team = 5;
+
+  // the user or service account onto which the permission is to be assigned
+  string user = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  int32 count = 9;
+
+  string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+}
+
+// GrafanaServiceAccountRotatingToken version is 0
+message GrafanaServiceAccountRotatingToken {
+  // Deletes the service account token in Grafana when the resource is destroyed in
+  // Terraform, instead of leaving it to expire at its `expiration` time. Use it with
+  // `lifecycle { create_before_destroy = true }` to make sure that the new token is
+  // created before the old one is deleted. Defaults to `false`.
+  bool delete_on_destroy = 1 [json_name = "delete_on_destroy"];
+
+  // Duration of the time window before expiring where the token can be rotated, in
+  // seconds.
+  int64 early_rotation_window_seconds = 2 [json_name = "early_rotation_window_seconds"];
+
+  // The expiration date of the service account token.
+  string expiration = 3;
+
+  // The status of the service account token.
+  bool has_expired = 4 [json_name = "has_expired"];
+
+  string id = 5;
+
+  // The key of the service account token.
+  string key = 6;
+
+  // The name of the service account token. It will start with `<name_prefix>-` and
+  // will have characters appended to it to make the name unique.
+  string name = 7;
+
+  // Prefix for the name of the service account tokens created by this resource. The
+  // actual name will be stored in the computed field `name`, which will be in the
+  // format `<name_prefix>-<additional_characters>`.
+  string name_prefix = 8 [json_name = "name_prefix"];
+
+  // Signals that the service account token is expired or within the period to be
+  // early rotated.
+  bool ready_for_rotation = 9 [json_name = "ready_for_rotation"];
+
+  // The token expiration in seconds.
+  int64 seconds_to_live = 10 [json_name = "seconds_to_live"];
+
+  // The ID of the service account to which the token belongs.
+  string service_account_id = 11 [json_name = "service_account_id"];
+
+  google.protobuf.Value for_each = 12 [json_name = "for_each"];
+
+  repeated string depends_on = 13 [json_name = "depends_on"];
+
+  int32 count = 14;
+
+  string provider = 15;
+
+  terraform.v1.Lifecycle lifecycle = 16;
+}
+
+// GrafanaServiceAccountToken version is 0
+message GrafanaServiceAccountToken {
+  // The expiration date of the service account token.
+  string expiration = 1;
+
+  // The status of the service account token.
+  bool has_expired = 2 [json_name = "has_expired"];
+
+  string id = 3;
+
+  // The key of the service account token.
+  string key = 4;
+
+  // The name of the service account token.
+  string name = 5;
+
+  // The key expiration in seconds. It is optional. If it is a positive number an
+  // expiration date for the key is set. If it is null, zero or is omitted completely
+  // (unless `api_key_max_seconds_to_live` configuration option is set) the key will
+  // never expire.
+  int64 seconds_to_live = 6 [json_name = "seconds_to_live"];
+
+  // The ID of the service account to which the token belongs.
+  string service_account_id = 7 [json_name = "service_account_id"];
+
+  google.protobuf.Value for_each = 8 [json_name = "for_each"];
+
+  repeated string depends_on = 9 [json_name = "depends_on"];
+
+  int32 count = 10;
+
+  string provider = 11;
+
+  terraform.v1.Lifecycle lifecycle = 12;
+}

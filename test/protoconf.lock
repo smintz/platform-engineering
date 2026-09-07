@@ -1,0 +1,11 @@
+{
+  "url":  ".",
+  "deps":  {
+    "platform":  {
+      "label":  "platform",
+      "url":  "..",
+      "sourcePath":  "src",
+      "getterUrl":  "file:///Users/smintz/git/platform-engineering"
+    }
+  }
+}

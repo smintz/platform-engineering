@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.datasources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaTeam version is 0
+message GrafanaTeam {
+  // A set of email addresses corresponding to users who are administrators of the
+  // team.
+  repeated string admins = 1;
+
+  // An email address for the team.
+  string email = 2;
+
+  string id = 3;
+
+  // A set of email addresses corresponding to users who are ordinary members of the
+  // team.
+  repeated string members = 4;
+
+  // The name of the Grafana team.
+  string name = 5;
+
+  // The Organization ID. If not set, the default organization is used for basic
+  // authentication, or the one that owns your service account for token
+  // authentication.
+  string org_id = 6 [json_name = "org_id"];
+
+  // Whether to read the team sync settings. This is only available in Grafana
+  // Enterprise.
+  bool read_team_sync = 7 [json_name = "read_team_sync"];
+
+  // The team id assigned to this team by Grafana.
+  int64 team_id = 8 [json_name = "team_id"];
+
+  // The team uid assigned to this team by Grafana.
+  string team_uid = 9 [json_name = "team_uid"];
+
+  repeated Preferences preferences = 10;
+
+  repeated TeamSync team_sync = 11 [json_name = "team_sync"];
+
+  google.protobuf.Value for_each = 12 [json_name = "for_each"];
+
+  repeated string depends_on = 13 [json_name = "depends_on"];
+
+  int32 count = 14;
+
+  string provider = 15;
+
+  terraform.v1.Lifecycle lifecycle = 16;
+
+  message Preferences {
+    // The UID of the dashboard to display when a team member logs in.
+    string home_dashboard_uid = 1 [json_name = "home_dashboard_uid"];
+
+    // The default theme for this team.
+    string theme = 2;
+
+    // The default timezone for this team.
+    string timezone = 3;
+
+    // The default week start day for this team.
+    string week_start = 4 [json_name = "week_start"];
+  }
+
+  message TeamSync {
+    repeated string groups = 1;
+  }
+}

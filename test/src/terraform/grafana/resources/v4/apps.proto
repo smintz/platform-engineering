@@ -1,0 +1,2575 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.resources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaAppsAlertenrichmentAlertenrichmentV1beta1 version is 0
+message GrafanaAppsAlertenrichmentAlertenrichmentV1beta1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Spec {
+    // UIDs of alert rules this enrichment applies to. If empty, applies to all alert
+    // rules.
+    repeated string alert_rule_uids = 1 [json_name = "alert_rule_uids"];
+
+    // Annotation matchers that an alert must satisfy for this enrichment to apply. Each
+    // matcher is an object with: 'type' (string, one of: =, !=, =~, !~), 'name'
+    // (string, annotation key to match), 'value' (string, annotation value to compare
+    // against, supports regex for =~/!~ operators).
+    repeated AnnotationMatchers annotation_matchers = 2 [json_name = "annotation_matchers"];
+
+    // Description of the alert enrichment.
+    string description = 3;
+
+    // Allow modifying alert enrichment outside of Terraform
+    bool disable_provenance = 4 [json_name = "disable_provenance"];
+
+    // Label matchers that an alert must satisfy for this enrichment to apply. Each
+    // matcher is an object with: 'type' (string, one of: =, !=, =~, !~), 'name'
+    // (string, label key to match), 'value' (string, label value to compare against,
+    // supports regex for =~/!~ operators).
+    repeated LabelMatchers label_matchers = 5 [json_name = "label_matchers"];
+
+    // Receiver names to match. If empty, applies to all receivers.
+    repeated string receivers = 6;
+
+    // The title of the alert enrichment.
+    string title = 7;
+
+    repeated Step step = 8;
+
+    message AnnotationMatchers {
+      // name: string
+      string name = 1;
+
+      // type: string
+      string type = 2;
+
+      // value: string
+      string value = 3;
+    }
+
+    message LabelMatchers {
+      // name: string
+      string name = 1;
+
+      // type: string
+      string type = 2;
+
+      // value: string
+      string value = 3;
+    }
+
+    message Step {
+      repeated Asserts asserts = 1;
+
+      repeated Assign assign = 2;
+
+      repeated AssistantInvestigations assistant_investigations = 3 [json_name = "assistant_investigations"];
+
+      repeated Conditional conditional = 4;
+
+      repeated DataSource data_source = 5 [json_name = "data_source"];
+
+      repeated Explain explain = 6;
+
+      repeated External external = 7;
+
+      repeated Sift sift = 8;
+
+      message Asserts {
+        // Maximum execution time (e.g., '30s', '1m')
+        string timeout = 1;
+      }
+
+      message Assign {
+        // Map of annotation names to values to set on matching alerts.
+        map<string, string> annotations = 1;
+
+        // Maximum execution time (e.g., '30s', '1m')
+        string timeout = 2;
+      }
+
+      message AssistantInvestigations {
+        // Maximum execution time (e.g., '30s', '1m')
+        string timeout = 1;
+      }
+
+      message Conditional {
+        // Maximum execution time (e.g., '30s', '1m')
+        string timeout = 1;
+
+        repeated Else else = 2;
+
+        repeated If if = 3;
+
+        repeated Then then = 4;
+
+        message Else {
+          repeated Step step = 1;
+
+          message Step {
+            repeated Asserts asserts = 1;
+
+            repeated Assign assign = 2;
+
+            repeated AssistantInvestigations assistant_investigations = 3 [json_name = "assistant_investigations"];
+
+            repeated DataSource data_source = 4 [json_name = "data_source"];
+
+            repeated Explain explain = 5;
+
+            repeated External external = 6;
+
+            repeated Sift sift = 7;
+
+            message Asserts {
+              // Maximum execution time (e.g., '30s', '1m')
+              string timeout = 1;
+            }
+
+            message Assign {
+              // Map of annotation names to values to set on matching alerts.
+              map<string, string> annotations = 1;
+
+              // Maximum execution time (e.g., '30s', '1m')
+              string timeout = 2;
+            }
+
+            message AssistantInvestigations {
+              // Maximum execution time (e.g., '30s', '1m')
+              string timeout = 1;
+            }
+
+            message DataSource {
+              // Maximum execution time (e.g., '30s', '1m')
+              string timeout = 1;
+
+              repeated LogsQuery logs_query = 2 [json_name = "logs_query"];
+
+              repeated RawQuery raw_query = 3 [json_name = "raw_query"];
+
+              message LogsQuery {
+                // Data source type (e.g., 'loki').
+                string data_source_type = 1 [json_name = "data_source_type"];
+
+                // UID of the data source to query.
+                string data_source_uid = 2 [json_name = "data_source_uid"];
+
+                // Log query expression to execute.
+                string expr = 3;
+
+                // Maximum number of log lines to include. Defaults to 3.
+                int64 max_lines = 4 [json_name = "max_lines"];
+              }
+
+              message RawQuery {
+                // Reference ID for correlating queries.
+                string ref_id = 1 [json_name = "ref_id"];
+
+                // Raw request payload for the data source query.
+                string request = 2;
+              }
+            }
+
+            message Explain {
+              // Annotation name to set the explanation in. Defaults to 'ai_explanation'.
+              string annotation = 1;
+
+              // Maximum execution time (e.g., '30s', '1m')
+              string timeout = 2;
+            }
+
+            message External {
+              // Maximum execution time (e.g., '30s', '1m')
+              string timeout = 1;
+
+              // HTTP endpoint URL to call for enrichment
+              string url = 2;
+            }
+
+            message Sift {
+              // Maximum execution time (e.g., '30s', '1m')
+              string timeout = 1;
+            }
+          }
+        }
+
+        message If {
+          // Annotation matchers for the condition.
+          repeated AnnotationMatchers annotation_matchers = 1 [json_name = "annotation_matchers"];
+
+          // Label matchers for the condition.
+          repeated LabelMatchers label_matchers = 2 [json_name = "label_matchers"];
+
+          repeated DataSourceCondition data_source_condition = 3 [json_name = "data_source_condition"];
+
+          message AnnotationMatchers {
+            // name: string
+            string name = 1;
+
+            // type: string
+            string type = 2;
+
+            // value: string
+            string value = 3;
+          }
+
+          message LabelMatchers {
+            // name: string
+            string name = 1;
+
+            // type: string
+            string type = 2;
+
+            // value: string
+            string value = 3;
+          }
+
+          message DataSourceCondition {
+            // Data source request payload.
+            string request = 1;
+          }
+        }
+
+        message Then {
+          repeated Step step = 1;
+
+          message Step {
+            repeated Asserts asserts = 1;
+
+            repeated Assign assign = 2;
+
+            repeated AssistantInvestigations assistant_investigations = 3 [json_name = "assistant_investigations"];
+
+            repeated DataSource data_source = 4 [json_name = "data_source"];
+
+            repeated Explain explain = 5;
+
+            repeated External external = 6;
+
+            repeated Sift sift = 7;
+
+            message Asserts {
+              // Maximum execution time (e.g., '30s', '1m')
+              string timeout = 1;
+            }
+
+            message Assign {
+              // Map of annotation names to values to set on matching alerts.
+              map<string, string> annotations = 1;
+
+              // Maximum execution time (e.g., '30s', '1m')
+              string timeout = 2;
+            }
+
+            message AssistantInvestigations {
+              // Maximum execution time (e.g., '30s', '1m')
+              string timeout = 1;
+            }
+
+            message DataSource {
+              // Maximum execution time (e.g., '30s', '1m')
+              string timeout = 1;
+
+              repeated LogsQuery logs_query = 2 [json_name = "logs_query"];
+
+              repeated RawQuery raw_query = 3 [json_name = "raw_query"];
+
+              message LogsQuery {
+                // Data source type (e.g., 'loki').
+                string data_source_type = 1 [json_name = "data_source_type"];
+
+                // UID of the data source to query.
+                string data_source_uid = 2 [json_name = "data_source_uid"];
+
+                // Log query expression to execute.
+                string expr = 3;
+
+                // Maximum number of log lines to include. Defaults to 3.
+                int64 max_lines = 4 [json_name = "max_lines"];
+              }
+
+              message RawQuery {
+                // Reference ID for correlating queries.
+                string ref_id = 1 [json_name = "ref_id"];
+
+                // Raw request payload for the data source query.
+                string request = 2;
+              }
+            }
+
+            message Explain {
+              // Annotation name to set the explanation in. Defaults to 'ai_explanation'.
+              string annotation = 1;
+
+              // Maximum execution time (e.g., '30s', '1m')
+              string timeout = 2;
+            }
+
+            message External {
+              // Maximum execution time (e.g., '30s', '1m')
+              string timeout = 1;
+
+              // HTTP endpoint URL to call for enrichment
+              string url = 2;
+            }
+
+            message Sift {
+              // Maximum execution time (e.g., '30s', '1m')
+              string timeout = 1;
+            }
+          }
+        }
+      }
+
+      message DataSource {
+        // Maximum execution time (e.g., '30s', '1m')
+        string timeout = 1;
+
+        repeated LogsQuery logs_query = 2 [json_name = "logs_query"];
+
+        repeated RawQuery raw_query = 3 [json_name = "raw_query"];
+
+        message LogsQuery {
+          // Data source type (e.g., 'loki').
+          string data_source_type = 1 [json_name = "data_source_type"];
+
+          // UID of the data source to query.
+          string data_source_uid = 2 [json_name = "data_source_uid"];
+
+          // Log query expression to execute.
+          string expr = 3;
+
+          // Maximum number of log lines to include. Defaults to 3.
+          int64 max_lines = 4 [json_name = "max_lines"];
+        }
+
+        message RawQuery {
+          // Reference ID for correlating queries.
+          string ref_id = 1 [json_name = "ref_id"];
+
+          // Raw request payload for the data source query.
+          string request = 2;
+        }
+      }
+
+      message Explain {
+        // Annotation name to set the explanation in. Defaults to 'ai_explanation'.
+        string annotation = 1;
+
+        // Maximum execution time (e.g., '30s', '1m')
+        string timeout = 2;
+      }
+
+      message External {
+        // Maximum execution time (e.g., '30s', '1m')
+        string timeout = 1;
+
+        // HTTP endpoint URL to call for enrichment
+        string url = 2;
+      }
+
+      message Sift {
+        // Maximum execution time (e.g., '30s', '1m')
+        string timeout = 1;
+      }
+    }
+  }
+}
+
+// GrafanaAppsDashboardDashboardV1beta1 version is 0
+message GrafanaAppsDashboardDashboardV1beta1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Set to true to allow editing the resource from the Grafana UI. By default,
+    // resources managed by Terraform cannot be edited in the UI. Enabling this option
+    // will cause divergence between the Terraform configuration and the resource in
+    // Grafana.
+    bool allow_ui_updates = 1 [json_name = "allow_ui_updates"];
+
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 2 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 3;
+  }
+
+  message Spec {
+    // The JSON representation of the dashboard spec.
+    string json = 1;
+
+    // The tags of the dashboard. If not set, the tags will be derived from the JSON
+    // spec.
+    repeated string tags = 2;
+
+    // The title of the dashboard. If not set, the title will be derived from the JSON
+    // spec.
+    string title = 3;
+  }
+}
+
+// GrafanaAppsDashboardDashboardV2 version is 0
+message GrafanaAppsDashboardDashboardV2 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Set to true to allow editing the resource from the Grafana UI. By default,
+    // resources managed by Terraform cannot be edited in the UI. Enabling this option
+    // will cause divergence between the Terraform configuration and the resource in
+    // Grafana.
+    bool allow_ui_updates = 1 [json_name = "allow_ui_updates"];
+
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 2 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 3;
+  }
+
+  message Spec {
+    // The JSON representation of the dashboard v2 spec. Must be the spec object only —
+    // not the full Kubernetes envelope. Use: json =
+    // jsonencode(jsondecode(file("dashboard.json")).spec)
+    string json = 1;
+
+    // The tags of the dashboard. If not set, the tags will be derived from the JSON
+    // spec.
+    repeated string tags = 2;
+
+    // The title of the dashboard. If not set, the title will be derived from the JSON
+    // spec.
+    string title = 3;
+  }
+}
+
+// GrafanaAppsDashboardDashboardV2beta1 version is 0
+message GrafanaAppsDashboardDashboardV2beta1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Set to true to allow editing the resource from the Grafana UI. By default,
+    // resources managed by Terraform cannot be edited in the UI. Enabling this option
+    // will cause divergence between the Terraform configuration and the resource in
+    // Grafana.
+    bool allow_ui_updates = 1 [json_name = "allow_ui_updates"];
+
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 2 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 3;
+  }
+
+  message Spec {
+    // The JSON representation of the dashboard v2beta1 spec. Must be the spec object
+    // only — not the full Kubernetes envelope. Use: json =
+    // jsonencode(jsondecode(file("dashboard.json")).spec)
+    string json = 1;
+
+    // The tags of the dashboard. If not set, the tags will be derived from the JSON
+    // spec.
+    repeated string tags = 2;
+
+    // The title of the dashboard. If not set, the title will be derived from the JSON
+    // spec.
+    string title = 3;
+  }
+}
+
+// GrafanaAppsGenericResource version is 0
+message GrafanaAppsGenericResource {
+  // Whether the resource can be edited from the Grafana UI. Defaults to `false` —
+  // Terraform-managed resources are locked from UI edits unless you opt in. Set to
+  // `true` to allow UI modifications; not supported by all resources.
+  bool allow_ui_updates = 1 [json_name = "allow_ui_updates"];
+
+  // The API resource UUID assigned by Grafana. This is not used for import; import
+  // uses the object name stored in `metadata.uid`.
+  string id = 2;
+
+  // Override the identity stamped on this resource's manager metadata. Defaults to
+  // "grafana-terraform-provider". Use this to distinguish resources managed by
+  // different Terraform workspaces targeting the same Grafana instance.
+  string manager_identity = 3 [json_name = "manager_identity"];
+
+  // Kubernetes-style manifest, typically from `yamldecode(file(...))` or
+  // `jsondecode(file(...))`. Must contain `apiVersion`, `kind`, `metadata` (with
+  // `name` or `uid`), and `spec`. Use HCL `merge()` to inject Terraform variables. If
+  // you start from an exported manifest, remove noisy server-managed metadata such as
+  // `resourceVersion`, `generation`, and `managedFields`, or import the resource
+  // first and use the normalized state shape. If `metadata.namespace` is set, it must
+  // match the namespace selected from provider `org_id` or `stack_id` /
+  // autodiscovery. Top-level manifest fields are limited to `apiVersion`, `kind`,
+  // `metadata`, `spec`, and the ignored `status` field. The `secure` field must not
+  // be set here; use the top-level `secure` argument instead.
+  google.protobuf.Value manifest = 4;
+
+  // Write-only secure values map. Each key must contain exactly one of `create` or
+  // `name`; empty objects are invalid.
+  google.protobuf.Value secure = 5;
+
+  // Set this to 1 when using `secure`, then increment it whenever you want Terraform
+  // to re-apply secure values.
+  int64 secure_version = 6 [json_name = "secure_version"];
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  int32 count = 9;
+
+  string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+}
+
+// GrafanaAppsNotificationsInhibitionruleV1beta1 version is 0
+message GrafanaAppsNotificationsInhibitionruleV1beta1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Spec {
+    // Labels that must have equal values in source and target alerts for the inhibition
+    // to take effect.
+    repeated string equal = 1;
+
+    // Matchers that must be satisfied for an alert to be a source of inhibition.
+    repeated SourceMatchers source_matchers = 2 [json_name = "source_matchers"];
+
+    // Matchers that must be satisfied for an alert to be inhibited.
+    repeated TargetMatchers target_matchers = 3 [json_name = "target_matchers"];
+
+    message SourceMatchers {
+      // label: string
+      string label = 1;
+
+      // type: string
+      string type = 2;
+
+      // value: string
+      string value = 3;
+    }
+
+    message TargetMatchers {
+      // label: string
+      string label = 1;
+
+      // type: string
+      string type = 2;
+
+      // value: string
+      string value = 3;
+    }
+  }
+}
+
+// GrafanaAppsNotificationsRoutingtreeV1beta1 version is 0
+message GrafanaAppsNotificationsRoutingtreeV1beta1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Spec {
+    // Set to `true` to allow editing this resource from other sources (UI, API).
+    // Defaults to `false`, which locks the resource to Terraform management only.
+    bool disable_provenance = 1 [json_name = "disable_provenance"];
+
+    repeated Defaults defaults = 2;
+
+    repeated Routes routes = 3;
+
+    message Defaults {
+      // A list of alert labels to group alerts into notifications by. Use the special
+      // label `...` to group by all labels.
+      repeated string group_by = 1 [json_name = "group_by"];
+
+      // Minimum time interval between two notifications for the same group. Default is 5
+      // minutes.
+      string group_interval = 2 [json_name = "group_interval"];
+
+      // Time to wait to buffer alerts of the same group before sending a notification.
+      // Default is 30 seconds.
+      string group_wait = 3 [json_name = "group_wait"];
+
+      // The default contact point to route all unmatched notifications to.
+      string receiver = 4;
+
+      // Minimum time interval for re-sending a notification if an alert is still firing.
+      // Default is 4 hours.
+      string repeat_interval = 5 [json_name = "repeat_interval"];
+    }
+
+    message Routes {
+      // A list of time interval names that activate this route only during the specified
+      // times.
+      repeated string active_time_intervals = 1 [json_name = "active_time_intervals"];
+
+      // Whether to continue matching subsequent sibling routes if an alert matches this
+      // route. Defaults to false.
+      bool continue = 2;
+
+      // A list of alert labels to group alerts into notifications by. Use the special
+      // label `...` to group by all labels. If not set, inherits from the nearest
+      // ancestor route that has it configured, ultimately falling back to
+      // `spec.defaults`.
+      repeated string group_by = 3 [json_name = "group_by"];
+
+      // Minimum time interval between two notifications for the same group. If not set,
+      // inherits from the nearest ancestor route that has it configured, ultimately
+      // falling back to `spec.defaults`.
+      string group_interval = 4 [json_name = "group_interval"];
+
+      // Time to wait to buffer alerts of the same group before sending a notification. If
+      // not set, inherits from the nearest ancestor route that has it configured,
+      // ultimately falling back to `spec.defaults`.
+      string group_wait = 5 [json_name = "group_wait"];
+
+      // Matchers that an alert has to fulfill to match this route. When multiple matchers
+      // are supplied, an alert must match ALL of them.
+      repeated Matchers matchers = 6;
+
+      // A list of time interval names that mute this route during the specified times.
+      repeated string mute_time_intervals = 7 [json_name = "mute_time_intervals"];
+
+      // The contact point to route notifications that match this rule to. If not set,
+      // inherits from the nearest ancestor route that has it configured, ultimately
+      // falling back to `spec.defaults`.
+      string receiver = 8;
+
+      // Minimum time interval for re-sending a notification if an alert is still firing.
+      // If not set, inherits from the nearest ancestor route that has it configured,
+      // ultimately falling back to `spec.defaults`.
+      string repeat_interval = 9 [json_name = "repeat_interval"];
+
+      repeated Routes routes = 10;
+
+      message Matchers {
+        // label: string
+        string label = 1;
+
+        // type: string
+        string type = 2;
+
+        // value: string
+        string value = 3;
+      }
+
+      message Routes {
+        // A list of time interval names that activate this route only during the specified
+        // times.
+        repeated string active_time_intervals = 1 [json_name = "active_time_intervals"];
+
+        // Whether to continue matching subsequent sibling routes if an alert matches this
+        // route. Defaults to false.
+        bool continue = 2;
+
+        // A list of alert labels to group alerts into notifications by. Use the special
+        // label `...` to group by all labels. If not set, inherits from the nearest
+        // ancestor route that has it configured, ultimately falling back to
+        // `spec.defaults`.
+        repeated string group_by = 3 [json_name = "group_by"];
+
+        // Minimum time interval between two notifications for the same group. If not set,
+        // inherits from the nearest ancestor route that has it configured, ultimately
+        // falling back to `spec.defaults`.
+        string group_interval = 4 [json_name = "group_interval"];
+
+        // Time to wait to buffer alerts of the same group before sending a notification. If
+        // not set, inherits from the nearest ancestor route that has it configured,
+        // ultimately falling back to `spec.defaults`.
+        string group_wait = 5 [json_name = "group_wait"];
+
+        // Matchers that an alert has to fulfill to match this route. When multiple matchers
+        // are supplied, an alert must match ALL of them.
+        repeated Matchers matchers = 6;
+
+        // A list of time interval names that mute this route during the specified times.
+        repeated string mute_time_intervals = 7 [json_name = "mute_time_intervals"];
+
+        // The contact point to route notifications that match this rule to. If not set,
+        // inherits from the nearest ancestor route that has it configured, ultimately
+        // falling back to `spec.defaults`.
+        string receiver = 8;
+
+        // Minimum time interval for re-sending a notification if an alert is still firing.
+        // If not set, inherits from the nearest ancestor route that has it configured,
+        // ultimately falling back to `spec.defaults`.
+        string repeat_interval = 9 [json_name = "repeat_interval"];
+
+        repeated Routes routes = 10;
+
+        message Matchers {
+          // label: string
+          string label = 1;
+
+          // type: string
+          string type = 2;
+
+          // value: string
+          string value = 3;
+        }
+
+        message Routes {
+          // A list of time interval names that activate this route only during the specified
+          // times.
+          repeated string active_time_intervals = 1 [json_name = "active_time_intervals"];
+
+          // Whether to continue matching subsequent sibling routes if an alert matches this
+          // route. Defaults to false.
+          bool continue = 2;
+
+          // A list of alert labels to group alerts into notifications by. Use the special
+          // label `...` to group by all labels. If not set, inherits from the nearest
+          // ancestor route that has it configured, ultimately falling back to
+          // `spec.defaults`.
+          repeated string group_by = 3 [json_name = "group_by"];
+
+          // Minimum time interval between two notifications for the same group. If not set,
+          // inherits from the nearest ancestor route that has it configured, ultimately
+          // falling back to `spec.defaults`.
+          string group_interval = 4 [json_name = "group_interval"];
+
+          // Time to wait to buffer alerts of the same group before sending a notification. If
+          // not set, inherits from the nearest ancestor route that has it configured,
+          // ultimately falling back to `spec.defaults`.
+          string group_wait = 5 [json_name = "group_wait"];
+
+          // Matchers that an alert has to fulfill to match this route. When multiple matchers
+          // are supplied, an alert must match ALL of them.
+          repeated Matchers matchers = 6;
+
+          // A list of time interval names that mute this route during the specified times.
+          repeated string mute_time_intervals = 7 [json_name = "mute_time_intervals"];
+
+          // The contact point to route notifications that match this rule to. If not set,
+          // inherits from the nearest ancestor route that has it configured, ultimately
+          // falling back to `spec.defaults`.
+          string receiver = 8;
+
+          // Minimum time interval for re-sending a notification if an alert is still firing.
+          // If not set, inherits from the nearest ancestor route that has it configured,
+          // ultimately falling back to `spec.defaults`.
+          string repeat_interval = 9 [json_name = "repeat_interval"];
+
+          repeated Routes routes = 10;
+
+          message Matchers {
+            // label: string
+            string label = 1;
+
+            // type: string
+            string type = 2;
+
+            // value: string
+            string value = 3;
+          }
+
+          message Routes {
+            // A list of time interval names that activate this route only during the specified
+            // times.
+            repeated string active_time_intervals = 1 [json_name = "active_time_intervals"];
+
+            // Whether to continue matching subsequent sibling routes if an alert matches this
+            // route. Defaults to false.
+            bool continue = 2;
+
+            // A list of alert labels to group alerts into notifications by. Use the special
+            // label `...` to group by all labels. If not set, inherits from the nearest
+            // ancestor route that has it configured, ultimately falling back to
+            // `spec.defaults`.
+            repeated string group_by = 3 [json_name = "group_by"];
+
+            // Minimum time interval between two notifications for the same group. If not set,
+            // inherits from the nearest ancestor route that has it configured, ultimately
+            // falling back to `spec.defaults`.
+            string group_interval = 4 [json_name = "group_interval"];
+
+            // Time to wait to buffer alerts of the same group before sending a notification. If
+            // not set, inherits from the nearest ancestor route that has it configured,
+            // ultimately falling back to `spec.defaults`.
+            string group_wait = 5 [json_name = "group_wait"];
+
+            // Matchers that an alert has to fulfill to match this route. When multiple matchers
+            // are supplied, an alert must match ALL of them.
+            repeated Matchers matchers = 6;
+
+            // A list of time interval names that mute this route during the specified times.
+            repeated string mute_time_intervals = 7 [json_name = "mute_time_intervals"];
+
+            // The contact point to route notifications that match this rule to. If not set,
+            // inherits from the nearest ancestor route that has it configured, ultimately
+            // falling back to `spec.defaults`.
+            string receiver = 8;
+
+            // Minimum time interval for re-sending a notification if an alert is still firing.
+            // If not set, inherits from the nearest ancestor route that has it configured,
+            // ultimately falling back to `spec.defaults`.
+            string repeat_interval = 9 [json_name = "repeat_interval"];
+
+            repeated Routes routes = 10;
+
+            message Matchers {
+              // label: string
+              string label = 1;
+
+              // type: string
+              string type = 2;
+
+              // value: string
+              string value = 3;
+            }
+
+            message Routes {
+              // A list of time interval names that activate this route only during the specified
+              // times.
+              repeated string active_time_intervals = 1 [json_name = "active_time_intervals"];
+
+              // Whether to continue matching subsequent sibling routes if an alert matches this
+              // route. Defaults to false.
+              bool continue = 2;
+
+              // A list of alert labels to group alerts into notifications by. Use the special
+              // label `...` to group by all labels. If not set, inherits from the nearest
+              // ancestor route that has it configured, ultimately falling back to
+              // `spec.defaults`.
+              repeated string group_by = 3 [json_name = "group_by"];
+
+              // Minimum time interval between two notifications for the same group. If not set,
+              // inherits from the nearest ancestor route that has it configured, ultimately
+              // falling back to `spec.defaults`.
+              string group_interval = 4 [json_name = "group_interval"];
+
+              // Time to wait to buffer alerts of the same group before sending a notification. If
+              // not set, inherits from the nearest ancestor route that has it configured,
+              // ultimately falling back to `spec.defaults`.
+              string group_wait = 5 [json_name = "group_wait"];
+
+              // Matchers that an alert has to fulfill to match this route. When multiple matchers
+              // are supplied, an alert must match ALL of them.
+              repeated Matchers matchers = 6;
+
+              // A list of time interval names that mute this route during the specified times.
+              repeated string mute_time_intervals = 7 [json_name = "mute_time_intervals"];
+
+              // The contact point to route notifications that match this rule to. If not set,
+              // inherits from the nearest ancestor route that has it configured, ultimately
+              // falling back to `spec.defaults`.
+              string receiver = 8;
+
+              // Minimum time interval for re-sending a notification if an alert is still firing.
+              // If not set, inherits from the nearest ancestor route that has it configured,
+              // ultimately falling back to `spec.defaults`.
+              string repeat_interval = 9 [json_name = "repeat_interval"];
+
+              message Matchers {
+                // label: string
+                string label = 1;
+
+                // type: string
+                string type = 2;
+
+                // value: string
+                string value = 3;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// GrafanaAppsPlaylistPlaylistV0alpha1 version is 0
+message GrafanaAppsPlaylistPlaylistV0alpha1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Spec {
+    // The interval of the playlist.
+    string interval = 1;
+
+    // The items of the playlist.
+    repeated Items items = 2;
+
+    // The title of the playlist.
+    string title = 3;
+
+    message Items {
+      // type: string
+      string type = 1;
+
+      // value: string
+      string value = 2;
+    }
+  }
+}
+
+// GrafanaAppsPlaylistPlaylistV1 version is 0
+message GrafanaAppsPlaylistPlaylistV1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Spec {
+    // The interval of the playlist.
+    string interval = 1;
+
+    // The items of the playlist.
+    repeated Items items = 2;
+
+    // The title of the playlist.
+    string title = 3;
+
+    message Items {
+      // type: string
+      string type = 1;
+
+      // value: string
+      string value = 2;
+    }
+  }
+}
+
+// GrafanaAppsProductactivationAppo11yconfigV1alpha1 version is 0
+message GrafanaAppsProductactivationAppo11yconfigV1alpha1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Spec {
+    // Whether application observability is enabled.
+    bool enabled = 1;
+  }
+}
+
+// GrafanaAppsProductactivationDbo11yconfigV1alpha1 version is 0
+message GrafanaAppsProductactivationDbo11yconfigV1alpha1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Spec {
+    // Whether database observability is enabled.
+    bool enabled = 1;
+  }
+}
+
+// GrafanaAppsProductactivationK8so11yconfigV1alpha1 version is 0
+message GrafanaAppsProductactivationK8so11yconfigV1alpha1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Spec {
+    // Whether Kubernetes observability is enabled.
+    bool enabled = 1;
+  }
+}
+
+// GrafanaAppsProvisioningConnectionV0alpha1 version is 0
+message GrafanaAppsProvisioningConnectionV0alpha1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  // Set this to 1 when using `secure`, then increment it to trigger re-application of
+  // secure values.
+  int64 secure_version = 2 [json_name = "secure_version"];
+
+  repeated Metadata metadata = 3;
+
+  repeated Options options = 4;
+
+  repeated Secure secure = 5;
+
+  repeated Spec spec = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  int32 count = 9;
+
+  string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Secure {
+    // Private key for GitHub App authentication.
+    map<string, string> private_key = 1 [json_name = "private_key"];
+
+    // Access token.
+    map<string, string> token = 2;
+  }
+
+  message Spec {
+    // Connection description.
+    string description = 1;
+
+    // Display name shown in the UI.
+    string title = 2;
+
+    // Connection provider type.
+    string type = 3;
+
+    // Provider URL.
+    string url = 4;
+
+    repeated Github github = 5;
+
+    message Github {
+      // GitHub App ID.
+      string app_id = 1 [json_name = "app_id"];
+
+      // GitHub App installation ID.
+      string installation_id = 2 [json_name = "installation_id"];
+    }
+  }
+}
+
+// GrafanaAppsProvisioningRepositoryV0alpha1 version is 0
+message GrafanaAppsProvisioningRepositoryV0alpha1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  // Set this to 1 when using `secure`, then increment it to trigger re-application of
+  // secure values.
+  int64 secure_version = 2 [json_name = "secure_version"];
+
+  repeated Metadata metadata = 3;
+
+  repeated Options options = 4;
+
+  repeated Secure secure = 5;
+
+  repeated Spec spec = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  int32 count = 9;
+
+  string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Secure {
+    // Private key used to sign commits the repository writes back. The format is
+    // selected by `spec.commit.signing_method`.
+    map<string, string> commit_signing_key = 1 [json_name = "commit_signing_key"];
+
+    // Token for repository authentication.
+    map<string, string> token = 2;
+
+    // Webhook secret.
+    map<string, string> webhook_secret = 3 [json_name = "webhook_secret"];
+  }
+
+  message Spec {
+    // Repository description.
+    string description = 1;
+
+    // Display name shown in the UI.
+    string title = 2;
+
+    // Repository provider type: local, github, githubEnterprise, git, bitbucket, or
+    // gitlab.
+    string type = 3;
+
+    // Allowed change workflows: write, branch.
+    repeated string workflows = 4;
+
+    repeated Bitbucket bitbucket = 5;
+
+    repeated Branch branch = 6;
+
+    repeated Commit commit = 7;
+
+    repeated Connection connection = 8;
+
+    repeated Git git = 9;
+
+    repeated Github github = 10;
+
+    repeated GithubEnterprise github_enterprise = 11 [json_name = "github_enterprise"];
+
+    repeated Gitlab gitlab = 12;
+
+    repeated Local local = 13;
+
+    repeated PullRequest pull_request = 14 [json_name = "pull_request"];
+
+    repeated Sync sync = 15;
+
+    repeated Webhook webhook = 16;
+
+    message Bitbucket {
+      // Branch to sync.
+      string branch = 1;
+
+      // Optional subdirectory path.
+      string path = 2;
+
+      // Username for PAT auth.
+      string token_user = 3 [json_name = "token_user"];
+
+      // Repository URL.
+      string url = 4;
+    }
+
+    message Branch {
+      // When true, the branch name field in Save drawers is read-only.
+      bool enforce_template = 1 [json_name = "enforce_template"];
+
+      // Template for the branch name created in the branch workflow.
+      string name_template = 2 [json_name = "name_template"];
+    }
+
+    message Commit {
+      // When true, the commit message field in Save drawers is pre-filled from the
+      // template and rendered read-only.
+      bool enforce_template = 1 [json_name = "enforce_template"];
+
+      // Email used as the commit signer. Defaults to "noreply@grafana.com" when empty.
+      string signer_email = 2 [json_name = "signer_email"];
+
+      // Name used as the commit signer. Defaults to "Grafana" when empty.
+      string signer_name = 3 [json_name = "signer_name"];
+
+      // Method used to sign commits with the key in `secure.commit_signing_key`: gpg,
+      // ssh, or smime. When empty, commits are not signed.
+      string signing_method = 4 [json_name = "signing_method"];
+
+      // Template for commit messages produced by single-resource UI operations.
+      string single_resource_message_template = 5 [json_name = "single_resource_message_template"];
+
+      // PEM-encoded X.509 certificate paired with `secure.commit_signing_key` when
+      // `signing_method` is smime. This is public, not a secret.
+      string smime_certificate = 6 [json_name = "smime_certificate"];
+    }
+
+    message Connection {
+      // Connection resource name.
+      string name = 1;
+    }
+
+    message Git {
+      // Branch to sync.
+      string branch = 1;
+
+      // Optional subdirectory path.
+      string path = 2;
+
+      // Username for PAT auth.
+      string token_user = 3 [json_name = "token_user"];
+
+      // Repository URL.
+      string url = 4;
+    }
+
+    message Github {
+      // Branch to sync.
+      string branch = 1;
+
+      // Whether to generate dashboard previews.
+      bool generate_dashboard_previews = 2 [json_name = "generate_dashboard_previews"];
+
+      // Optional subdirectory path.
+      string path = 3;
+
+      // Repository URL.
+      string url = 4;
+    }
+
+    message GithubEnterprise {
+      // Branch to sync.
+      string branch = 1;
+
+      // Whether to generate dashboard previews.
+      bool generate_dashboard_previews = 2 [json_name = "generate_dashboard_previews"];
+
+      // Optional subdirectory path.
+      string path = 3;
+
+      // Base URL of the self-managed GitHub Enterprise Server instance.
+      string server_url = 4 [json_name = "server_url"];
+
+      // Repository URL.
+      string url = 5;
+    }
+
+    message Gitlab {
+      // Branch to sync.
+      string branch = 1;
+
+      // Optional subdirectory path.
+      string path = 2;
+
+      // Repository URL.
+      string url = 3;
+    }
+
+    message Local {
+      // Filesystem path.
+      string path = 1;
+    }
+
+    message PullRequest {
+      // When true, the pull request title field in Save drawers is read-only.
+      bool enforce_template = 1 [json_name = "enforce_template"];
+
+      // Template for pull request titles.
+      string title_template = 2 [json_name = "title_template"];
+    }
+
+    message Sync {
+      // Whether sync is enabled.
+      bool enabled = 1;
+
+      // Sync interval in seconds.
+      int64 interval_seconds = 2 [json_name = "interval_seconds"];
+
+      // Sync target: instance, folder, or folderless.
+      string target = 3;
+    }
+
+    message Webhook {
+      // Optional public webhook base URL override used when incoming webhook delivery
+      // must target a different host than the Grafana UI URL.
+      string base_url = 1 [json_name = "base_url"];
+    }
+  }
+}
+
+// GrafanaAppsQueriesQueryV1 version is 0
+message GrafanaAppsQueriesQueryV1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Spec {
+    // A longer description of the saved query.
+    string description = 1;
+
+    // Whether the saved query is locked and cannot be edited in the UI. This is purely
+    // for UI display purposes and not for security.
+    bool is_locked = 2 [json_name = "is_locked"];
+
+    // Whether the saved query is visible in the query library.
+    bool is_visible = 3 [json_name = "is_visible"];
+
+    // The tags used to filter the saved query.
+    repeated string tags = 4;
+
+    // The display name of the saved query.
+    string title = 5;
+
+    repeated Targets targets = 6;
+
+    repeated Vars vars = 7;
+
+    message Targets {
+      // The returned Dataplane frame type for the target.
+      string data_type = 1 [json_name = "data_type"];
+
+      // The datasource query for the target, as a JSON string (use jsonencode()).
+      string properties_json = 2 [json_name = "properties_json"];
+
+      // The variable replacements to apply to the target, as a JSON string (use
+      // jsonencode()).
+      string variables_json = 3 [json_name = "variables_json"];
+    }
+
+    message Vars {
+      // The values used when no value is selected during render.
+      repeated string default_values = 1 [json_name = "default_values"];
+
+      // The name of the variable.
+      string key = 2;
+
+      // The definition (as a JSON string) used by the frontend to fetch the list of
+      // selectable values.
+      string value_list_definition_json = 3 [json_name = "value_list_definition_json"];
+    }
+  }
+}
+
+// GrafanaAppsRulesAlertruleV0alpha1 version is 0
+message GrafanaAppsRulesAlertruleV0alpha1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Spec {
+    // Key-value pairs of metadata to attach to the alert rule. They add additional
+    // information, such as a `summary` or `runbook_url`, to help identify and
+    // investigate alerts.
+    map<string, string> annotations = 1;
+
+    // Describes what state to enter when the rule's query is invalid and the rule
+    // cannot be executed. Options are OK, Error, KeepLast, and Alerting.
+    string exec_err_state = 2 [json_name = "exec_err_state"];
+
+    // A sequence of stages that describe the contents of the rule. Each value is a JSON
+    // string representing an expression object.
+    map<string, string> expressions = 3;
+
+    // The amount of time for which the rule must be breached for the rule to be
+    // considered to be Firing. Before this time has elapsed, the rule is only
+    // considered to be Pending.
+    string for = 4;
+
+    // The amount of time for which the rule will considered to be Recovering after
+    // initially Firing. Before this time has elapsed, the rule will continue to fire
+    // once it's been triggered.
+    string keep_firing_for = 5 [json_name = "keep_firing_for"];
+
+    // Key-value pairs to attach to the alert rule that can be used in matching,
+    // grouping, and routing.
+    map<string, string> labels = 6;
+
+    // The number of missing series evaluations that must occur before the rule is
+    // considered to be resolved.
+    int64 missing_series_evals_to_resolve = 7 [json_name = "missing_series_evals_to_resolve"];
+
+    // Describes what state to enter when the rule's query returns No Data. Options are
+    // OK, NoData, KeepLast, and Alerting.
+    string no_data_state = 8 [json_name = "no_data_state"];
+
+    // Reference to a panel that this alert rule is associated with. Should be an object
+    // with 'dashboard_uid' (string) and 'panel_id' (number) fields.
+    map<string, string> panel_ref = 9 [json_name = "panel_ref"];
+
+    // Sets whether the rule should be paused or not.
+    bool paused = 10;
+
+    // The title of the alert rule.
+    string title = 11;
+
+    repeated NotificationSettings notification_settings = 12 [json_name = "notification_settings"];
+
+    repeated Trigger trigger = 13;
+
+    message NotificationSettings {
+      // Deprecated. A list of time interval names to apply to alerts that match this
+      // policy.
+      repeated string active_timings = 1 [json_name = "active_timings"];
+
+      // Deprecated. The contact point to route notifications that match this rule to.
+      string contact_point = 2 [json_name = "contact_point"];
+
+      // Deprecated. A list of alert labels to group alerts into notifications by.
+      repeated string group_by = 3 [json_name = "group_by"];
+
+      // Deprecated. Minimum time interval between two notifications for the same group.
+      string group_interval = 4 [json_name = "group_interval"];
+
+      // Deprecated. Time to wait to buffer alerts of the same group before sending a
+      // notification.
+      string group_wait = 5 [json_name = "group_wait"];
+
+      // Deprecated. A list of mute timing names to apply to alerts that match this
+      // policy.
+      repeated string mute_timings = 6 [json_name = "mute_timings"];
+
+      // Deprecated. Minimum time interval for re-sending a notification if an alert is
+      // still firing.
+      string repeat_interval = 7 [json_name = "repeat_interval"];
+
+      repeated NamedRoutingTree named_routing_tree = 8 [json_name = "named_routing_tree"];
+
+      repeated SimplifiedRouting simplified_routing = 9 [json_name = "simplified_routing"];
+
+      message NamedRoutingTree {
+        // The name of the routing tree to use.
+        string routing_tree = 1 [json_name = "routing_tree"];
+      }
+
+      message SimplifiedRouting {
+        // A list of time interval names to apply to alerts that match this policy to
+        // suppress them unless they are sent at the specified time.
+        repeated string active_timings = 1 [json_name = "active_timings"];
+
+        // The contact point to route notifications that match this rule to.
+        string contact_point = 2 [json_name = "contact_point"];
+
+        // A list of alert labels to group alerts into notifications by.
+        repeated string group_by = 3 [json_name = "group_by"];
+
+        // Minimum time interval between two notifications for the same group.
+        string group_interval = 4 [json_name = "group_interval"];
+
+        // Time to wait to buffer alerts of the same group before sending a notification.
+        string group_wait = 5 [json_name = "group_wait"];
+
+        // A list of mute timing names to apply to alerts that match this policy.
+        repeated string mute_timings = 6 [json_name = "mute_timings"];
+
+        // Minimum time interval for re-sending a notification if an alert is still firing.
+        string repeat_interval = 7 [json_name = "repeat_interval"];
+      }
+    }
+
+    message Trigger {
+      // The interval at which the alert rule should be evaluated.
+      string interval = 1;
+    }
+  }
+}
+
+// GrafanaAppsRulesRecordingruleV0alpha1 version is 0
+message GrafanaAppsRulesRecordingruleV0alpha1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Spec {
+    // A sequence of stages that describe the contents of the rule. Each value is a JSON
+    // string representing an expression object.
+    map<string, string> expressions = 1;
+
+    // Key-value pairs to attach to the recorded metric.
+    map<string, string> labels = 2;
+
+    // The name of the metric to write to.
+    string metric = 3;
+
+    // Sets whether the recording rule should be paused or not.
+    bool paused = 4;
+
+    // The UID of the datasource to write the metric to.
+    string target_datasource_uid = 5 [json_name = "target_datasource_uid"];
+
+    // The title of the recording rule.
+    string title = 6;
+
+    repeated Trigger trigger = 7;
+
+    message Trigger {
+      // The interval at which the recording rule should be evaluated.
+      string interval = 1;
+    }
+  }
+}
+
+// GrafanaAppsRulesRulesequenceV0alpha1 version is 0
+message GrafanaAppsRulesRulesequenceV0alpha1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Spec {
+    // The alert rules that belong to this sequence, evaluated in the order listed. Each
+    // entry references an alert rule by its `name` (the rule's UID).
+    repeated AlertingRules alerting_rules = 1 [json_name = "alerting_rules"];
+
+    // The recording rules that belong to this sequence, evaluated in the order listed.
+    // At least one recording rule is required. Each entry references a recording rule
+    // by its `name` (the rule's UID).
+    repeated RecordingRules recording_rules = 2 [json_name = "recording_rules"];
+
+    repeated Trigger trigger = 3;
+
+    message AlertingRules {
+      // name: string
+      string name = 1;
+    }
+
+    message RecordingRules {
+      // name: string
+      string name = 1;
+    }
+
+    message Trigger {
+      // The interval at which the rules in the sequence should be evaluated.
+      string interval = 1;
+    }
+  }
+}
+
+// GrafanaAppsSecretKeeperActivationV1beta1 version is 0
+message GrafanaAppsSecretKeeperActivationV1beta1 {
+  // The ID of the resource derived from the keeper name.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  google.protobuf.Value for_each = 3 [json_name = "for_each"];
+
+  repeated string depends_on = 4 [json_name = "depends_on"];
+
+  int32 count = 5;
+
+  string provider = 6;
+
+  terraform.v1.Lifecycle lifecycle = 7;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+}
+
+// GrafanaAppsSecretKeeperV1beta1 version is 0
+message GrafanaAppsSecretKeeperV1beta1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Spec {
+    // Keeper description.
+    string description = 1;
+
+    repeated Aws aws = 2;
+
+    message Aws {
+      // AWS region.
+      string region = 1;
+
+      repeated AssumeRole assume_role = 2 [json_name = "assume_role"];
+
+      message AssumeRole {
+        // Assume role ARN.
+        string assume_role_arn = 1 [json_name = "assume_role_arn"];
+
+        // Assume role external ID.
+        string external_id = 2 [json_name = "external_id"];
+      }
+    }
+  }
+}
+
+// GrafanaAppsSecretSecurevalueV1beta1 version is 0
+message GrafanaAppsSecretSecurevalueV1beta1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Spec {
+    // List of decrypters allowed to read this secure value.
+    repeated string decrypters = 1;
+
+    // Secure value description.
+    string description = 2;
+
+    // Reference to an existing secret managed by the keeper.
+    string ref = 3;
+
+    // Plaintext value to store. This value is write-only.
+    string value = 4;
+
+    // Hash of the stored plaintext value.
+    string value_hash = 5 [json_name = "value_hash"];
+  }
+}
+
+// GrafanaAppsServicemodelComponentV1alpha1 version is 0
+message GrafanaAppsServicemodelComponentV1alpha1 {
+  // The ID of the resource derived from UUID.
+  string id = 1;
+
+  repeated Metadata metadata = 2;
+
+  repeated Options options = 3;
+
+  repeated Spec spec = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Metadata {
+    // Annotations of the resource.
+    map<string, string> annotations = 1;
+
+    // The UID of the folder to save the resource in. For example, it's supported for
+    // dashboards and folders. To know if it's supported for the specific resource
+    // you're using check the documentation.
+    string folder_uid = 2 [json_name = "folder_uid"];
+
+    // The unique identifier of the resource.
+    string uid = 3;
+
+    // The full URL of the resource.
+    string url = 4;
+
+    // The globally unique identifier of a resource, used by the API for tracking.
+    string uuid = 5;
+
+    // The version of the resource.
+    string version = 6;
+  }
+
+  message Options {
+    // Override the identity stamped on this resource's manager metadata. Defaults to
+    // "grafana-terraform-provider". Use this to distinguish resources managed by
+    // different Terraform workspaces targeting the same Grafana instance.
+    string manager_identity = 1 [json_name = "manager_identity"];
+
+    // Set to true if you want to overwrite existing resource with newer version, same
+    // resource title in folder or same resource uid.
+    bool overwrite = 2;
+  }
+
+  message Spec {
+    // Description of the service.
+    string description = 1;
+
+    // Display name of the service.
+    string title = 2;
+
+    // Component type. Defaults to `service`, the only type currently displayed by
+    // Service Center.
+    string type = 3;
+
+    repeated DependsOnRefs depends_on_refs = 4 [json_name = "depends_on_refs"];
+
+    repeated Identifiers identifiers = 5;
+
+    repeated Links links = 6;
+
+    repeated OwnerRef owner_ref = 7 [json_name = "owner_ref"];
+
+    message DependsOnRefs {
+      // API version of the referenced object. Defaults to
+      // `servicemodel.ext.grafana.com/v1alpha1`.
+      string api_version = 1 [json_name = "api_version"];
+
+      // Kind of the referenced object. Defaults to `Component`.
+      string kind = 2;
+
+      // Name (`metadata.uid`) of the component this service depends on.
+      string name = 3;
+    }
+
+    message Identifiers {
+      // Identifier key.
+      string key = 1;
+
+      // Identifier value.
+      string value = 2;
+    }
+
+    message Links {
+      // Icon of the link.
+      string icon = 1;
+
+      // Display title of the link.
+      string title = 2;
+
+      // Type of the link. The Service Center UI uses `documentation`, `repository`,
+      // `backlog` and `custom`.
+      string type = 3;
+
+      // URL of the link.
+      string url = 4;
+    }
+
+    message OwnerRef {
+      // API version of the referenced object. Defaults to `iam.grafana.app/v0alpha1`.
+      string api_version = 1 [json_name = "api_version"];
+
+      // Kind of the referenced object. Defaults to `Team`.
+      string kind = 2;
+
+      // Name of the referenced object. For the default team reference, this is the
+      // Grafana team UID.
+      string name = 3;
+    }
+  }
+}

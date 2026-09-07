@@ -1,0 +1,576 @@
+syntax = "proto3";
+
+// Provider: kubernetes 3
+package terraform.kubernetes.resources.v3;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// KubernetesNetworkPolicy version is 0
+message KubernetesNetworkPolicy {
+  string id = 1;
+
+  Metadata metadata = 2;
+
+  Spec spec = 3;
+
+  google.protobuf.Value for_each = 4 [json_name = "for_each"];
+
+  repeated string depends_on = 5 [json_name = "depends_on"];
+
+  int32 count = 6;
+
+  string provider = 7;
+
+  terraform.v1.Lifecycle lifecycle = 8;
+
+  message Metadata {
+    // An unstructured key value map stored with the network policy that may be used to
+    // store arbitrary metadata. More info:
+    // https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+    map<string, string> annotations = 1;
+
+    // Prefix, used by the server, to generate a unique name ONLY IF the `name` field
+    // has not been provided. This value will also be combined with a unique suffix.
+    // More info:
+    // ty/blob/master/contributors/devel/sig-architecture/api-conventions.md#idempotency
+    string generate_name = 2 [json_name = "generate_name"];
+
+    // A sequence number representing a specific generation of the desired state.
+    int64 generation = 3;
+
+    // Map of string keys and values that can be used to organize and categorize (scope
+    // and select) the network policy. May match selectors of replication controllers
+    // and services. More info:
+    // https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+    map<string, string> labels = 4;
+
+    // Name of the network policy, must be unique. Cannot be updated. More info:
+    // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    string name = 5;
+
+    // Namespace defines the space within which name of the network policy must be
+    // unique.
+    string namespace = 6;
+
+    // An opaque value that represents the internal version of this network policy that
+    // can be used by clients to determine when network policy has changed. More info:
+    // ors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+    string resource_version = 7 [json_name = "resource_version"];
+
+    // The unique in time and space value for this network policy. More info:
+    // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
+    string uid = 8;
+  }
+
+  message Spec {
+    // policyTypes is a list of rule types that the NetworkPolicy relates to. Valid
+    // options are ["Ingress"], ["Egress"], or ["Ingress", "Egress"]. If this field is
+    // not specified, it will default based on the existence of ingress or egress rules;
+    // policies that contain an egress section are assumed to affect egress, and all
+    // policies (whether or not they contain an ingress section) are assumed to affect
+    // ingress. If you want to write an egress-only policy, you must explicitly specify
+    // policyTypes [ "Egress" ]. Likewise, if you want to write a policy that specifies
+    // that no egress is allowed, you must specify a policyTypes value that include
+    // "Egress" (since such a policy would not include an egress section and would
+    // otherwise default to just [ "Ingress" ]). This field is beta-level in 1.8
+    repeated string policy_types = 1 [json_name = "policy_types"];
+
+    repeated Egress egress = 2;
+
+    repeated Ingress ingress = 3;
+
+    PodSelector pod_selector = 4 [json_name = "pod_selector"];
+
+    message Egress {
+      repeated Ports ports = 1;
+
+      repeated To to = 2;
+
+      message Ports {
+        // endPort indicates that the range of ports from port to endPort if set, inclusive,
+        // should be allowed by the policy. This field cannot be defined if the port field
+        // is not defined or if the port field is defined as a named (string) port. The
+        // endPort must be equal or greater than port.
+        int64 end_port = 1 [json_name = "end_port"];
+
+        // port represents the port on the given protocol. This can either be a numerical or
+        // named port on a pod. If this field is not provided, this matches all port names
+        // and numbers. If present, only traffic on the specified protocol AND port will be
+        // matched.
+        string port = 2;
+
+        // protocol represents the protocol (TCP, UDP, or SCTP) which traffic must match. If
+        // not specified, this field defaults to TCP.
+        string protocol = 3;
+      }
+
+      message To {
+        IpBlock ip_block = 1 [json_name = "ip_block"];
+
+        NamespaceSelector namespace_selector = 2 [json_name = "namespace_selector"];
+
+        PodSelector pod_selector = 3 [json_name = "pod_selector"];
+
+        message IpBlock {
+          // cidr is a string representing the IPBlock Valid examples are "192.168.1.0/24" or
+          // "2001:db8::/64"
+          string cidr = 1;
+
+          // except is a slice of CIDRs that should not be included within an IPBlock Valid
+          // examples are "192.168.1.0/24" or "2001:db8::/64" Except values will be rejected
+          // if they are outside the cidr range
+          repeated string except = 2;
+        }
+
+        message NamespaceSelector {
+          // A map of {key,value} pairs. A single {key,value} in the matchLabels map is
+          // equivalent to an element of `match_expressions`, whose key field is "key", the
+          // operator is "In", and the values array contains only "value". The requirements
+          // are ANDed.
+          map<string, string> match_labels = 1 [json_name = "match_labels"];
+
+          repeated MatchExpressions match_expressions = 2 [json_name = "match_expressions"];
+
+          message MatchExpressions {
+            // The label key that the selector applies to.
+            string key = 1;
+
+            // A key's relationship to a set of values. Valid operators ard `In`, `NotIn`,
+            // `Exists` and `DoesNotExist`.
+            string operator = 2;
+
+            // An array of string values. If the operator is `In` or `NotIn`, the values array
+            // must be non-empty. If the operator is `Exists` or `DoesNotExist`, the values
+            // array must be empty. This array is replaced during a strategic merge patch.
+            repeated string values = 3;
+          }
+        }
+
+        message PodSelector {
+          // A map of {key,value} pairs. A single {key,value} in the matchLabels map is
+          // equivalent to an element of `match_expressions`, whose key field is "key", the
+          // operator is "In", and the values array contains only "value". The requirements
+          // are ANDed.
+          map<string, string> match_labels = 1 [json_name = "match_labels"];
+
+          repeated MatchExpressions match_expressions = 2 [json_name = "match_expressions"];
+
+          message MatchExpressions {
+            // The label key that the selector applies to.
+            string key = 1;
+
+            // A key's relationship to a set of values. Valid operators ard `In`, `NotIn`,
+            // `Exists` and `DoesNotExist`.
+            string operator = 2;
+
+            // An array of string values. If the operator is `In` or `NotIn`, the values array
+            // must be non-empty. If the operator is `Exists` or `DoesNotExist`, the values
+            // array must be empty. This array is replaced during a strategic merge patch.
+            repeated string values = 3;
+          }
+        }
+      }
+    }
+
+    message Ingress {
+      repeated From from = 1;
+
+      repeated Ports ports = 2;
+
+      message From {
+        IpBlock ip_block = 1 [json_name = "ip_block"];
+
+        NamespaceSelector namespace_selector = 2 [json_name = "namespace_selector"];
+
+        PodSelector pod_selector = 3 [json_name = "pod_selector"];
+
+        message IpBlock {
+          // cidr is a string representing the IPBlock Valid examples are "192.168.1.0/24" or
+          // "2001:db8::/64"
+          string cidr = 1;
+
+          // except is a slice of CIDRs that should not be included within an IPBlock Valid
+          // examples are "192.168.1.0/24" or "2001:db8::/64" Except values will be rejected
+          // if they are outside the cidr range
+          repeated string except = 2;
+        }
+
+        message NamespaceSelector {
+          // A map of {key,value} pairs. A single {key,value} in the matchLabels map is
+          // equivalent to an element of `match_expressions`, whose key field is "key", the
+          // operator is "In", and the values array contains only "value". The requirements
+          // are ANDed.
+          map<string, string> match_labels = 1 [json_name = "match_labels"];
+
+          repeated MatchExpressions match_expressions = 2 [json_name = "match_expressions"];
+
+          message MatchExpressions {
+            // The label key that the selector applies to.
+            string key = 1;
+
+            // A key's relationship to a set of values. Valid operators ard `In`, `NotIn`,
+            // `Exists` and `DoesNotExist`.
+            string operator = 2;
+
+            // An array of string values. If the operator is `In` or `NotIn`, the values array
+            // must be non-empty. If the operator is `Exists` or `DoesNotExist`, the values
+            // array must be empty. This array is replaced during a strategic merge patch.
+            repeated string values = 3;
+          }
+        }
+
+        message PodSelector {
+          // A map of {key,value} pairs. A single {key,value} in the matchLabels map is
+          // equivalent to an element of `match_expressions`, whose key field is "key", the
+          // operator is "In", and the values array contains only "value". The requirements
+          // are ANDed.
+          map<string, string> match_labels = 1 [json_name = "match_labels"];
+
+          repeated MatchExpressions match_expressions = 2 [json_name = "match_expressions"];
+
+          message MatchExpressions {
+            // The label key that the selector applies to.
+            string key = 1;
+
+            // A key's relationship to a set of values. Valid operators ard `In`, `NotIn`,
+            // `Exists` and `DoesNotExist`.
+            string operator = 2;
+
+            // An array of string values. If the operator is `In` or `NotIn`, the values array
+            // must be non-empty. If the operator is `Exists` or `DoesNotExist`, the values
+            // array must be empty. This array is replaced during a strategic merge patch.
+            repeated string values = 3;
+          }
+        }
+      }
+
+      message Ports {
+        // endPort indicates that the range of ports from port to endPort if set, inclusive,
+        // should be allowed by the policy. This field cannot be defined if the port field
+        // is not defined or if the port field is defined as a named (string) port. The
+        // endPort must be equal or greater than port.
+        int64 end_port = 1 [json_name = "end_port"];
+
+        // port represents the port on the given protocol. This can either be a numerical or
+        // named port on a pod. If this field is not provided, this matches all port names
+        // and numbers. If present, only traffic on the specified protocol AND port will be
+        // matched.
+        string port = 2;
+
+        // protocol represents the protocol (TCP, UDP, or SCTP) which traffic must match. If
+        // not specified, this field defaults to TCP.
+        string protocol = 3;
+      }
+    }
+
+    message PodSelector {
+      // A map of {key,value} pairs. A single {key,value} in the matchLabels map is
+      // equivalent to an element of `match_expressions`, whose key field is "key", the
+      // operator is "In", and the values array contains only "value". The requirements
+      // are ANDed.
+      map<string, string> match_labels = 1 [json_name = "match_labels"];
+
+      repeated MatchExpressions match_expressions = 2 [json_name = "match_expressions"];
+
+      message MatchExpressions {
+        // The label key that the selector applies to.
+        string key = 1;
+
+        // A key's relationship to a set of values. Valid operators ard `In`, `NotIn`,
+        // `Exists` and `DoesNotExist`.
+        string operator = 2;
+
+        // An array of string values. If the operator is `In` or `NotIn`, the values array
+        // must be non-empty. If the operator is `Exists` or `DoesNotExist`, the values
+        // array must be empty. This array is replaced during a strategic merge patch.
+        repeated string values = 3;
+      }
+    }
+  }
+}
+
+// KubernetesNetworkPolicyV1 version is 0
+message KubernetesNetworkPolicyV1 {
+  string id = 1;
+
+  Metadata metadata = 2;
+
+  Spec spec = 3;
+
+  google.protobuf.Value for_each = 4 [json_name = "for_each"];
+
+  repeated string depends_on = 5 [json_name = "depends_on"];
+
+  int32 count = 6;
+
+  string provider = 7;
+
+  terraform.v1.Lifecycle lifecycle = 8;
+
+  message Metadata {
+    // An unstructured key value map stored with the network policy that may be used to
+    // store arbitrary metadata. More info:
+    // https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+    map<string, string> annotations = 1;
+
+    // Prefix, used by the server, to generate a unique name ONLY IF the `name` field
+    // has not been provided. This value will also be combined with a unique suffix.
+    // More info:
+    // ty/blob/master/contributors/devel/sig-architecture/api-conventions.md#idempotency
+    string generate_name = 2 [json_name = "generate_name"];
+
+    // A sequence number representing a specific generation of the desired state.
+    int64 generation = 3;
+
+    // Map of string keys and values that can be used to organize and categorize (scope
+    // and select) the network policy. May match selectors of replication controllers
+    // and services. More info:
+    // https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+    map<string, string> labels = 4;
+
+    // Name of the network policy, must be unique. Cannot be updated. More info:
+    // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    string name = 5;
+
+    // Namespace defines the space within which name of the network policy must be
+    // unique.
+    string namespace = 6;
+
+    // An opaque value that represents the internal version of this network policy that
+    // can be used by clients to determine when network policy has changed. More info:
+    // ors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+    string resource_version = 7 [json_name = "resource_version"];
+
+    // The unique in time and space value for this network policy. More info:
+    // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
+    string uid = 8;
+  }
+
+  message Spec {
+    // policyTypes is a list of rule types that the NetworkPolicy relates to. Valid
+    // options are ["Ingress"], ["Egress"], or ["Ingress", "Egress"]. If this field is
+    // not specified, it will default based on the existence of ingress or egress rules;
+    // policies that contain an egress section are assumed to affect egress, and all
+    // policies (whether or not they contain an ingress section) are assumed to affect
+    // ingress. If you want to write an egress-only policy, you must explicitly specify
+    // policyTypes [ "Egress" ]. Likewise, if you want to write a policy that specifies
+    // that no egress is allowed, you must specify a policyTypes value that include
+    // "Egress" (since such a policy would not include an egress section and would
+    // otherwise default to just [ "Ingress" ]). This field is beta-level in 1.8
+    repeated string policy_types = 1 [json_name = "policy_types"];
+
+    repeated Egress egress = 2;
+
+    repeated Ingress ingress = 3;
+
+    PodSelector pod_selector = 4 [json_name = "pod_selector"];
+
+    message Egress {
+      repeated Ports ports = 1;
+
+      repeated To to = 2;
+
+      message Ports {
+        // endPort indicates that the range of ports from port to endPort if set, inclusive,
+        // should be allowed by the policy. This field cannot be defined if the port field
+        // is not defined or if the port field is defined as a named (string) port. The
+        // endPort must be equal or greater than port.
+        int64 end_port = 1 [json_name = "end_port"];
+
+        // port represents the port on the given protocol. This can either be a numerical or
+        // named port on a pod. If this field is not provided, this matches all port names
+        // and numbers. If present, only traffic on the specified protocol AND port will be
+        // matched.
+        string port = 2;
+
+        // protocol represents the protocol (TCP, UDP, or SCTP) which traffic must match. If
+        // not specified, this field defaults to TCP.
+        string protocol = 3;
+      }
+
+      message To {
+        IpBlock ip_block = 1 [json_name = "ip_block"];
+
+        NamespaceSelector namespace_selector = 2 [json_name = "namespace_selector"];
+
+        PodSelector pod_selector = 3 [json_name = "pod_selector"];
+
+        message IpBlock {
+          // cidr is a string representing the IPBlock Valid examples are "192.168.1.0/24" or
+          // "2001:db8::/64"
+          string cidr = 1;
+
+          // except is a slice of CIDRs that should not be included within an IPBlock Valid
+          // examples are "192.168.1.0/24" or "2001:db8::/64" Except values will be rejected
+          // if they are outside the cidr range
+          repeated string except = 2;
+        }
+
+        message NamespaceSelector {
+          // A map of {key,value} pairs. A single {key,value} in the matchLabels map is
+          // equivalent to an element of `match_expressions`, whose key field is "key", the
+          // operator is "In", and the values array contains only "value". The requirements
+          // are ANDed.
+          map<string, string> match_labels = 1 [json_name = "match_labels"];
+
+          repeated MatchExpressions match_expressions = 2 [json_name = "match_expressions"];
+
+          message MatchExpressions {
+            // The label key that the selector applies to.
+            string key = 1;
+
+            // A key's relationship to a set of values. Valid operators ard `In`, `NotIn`,
+            // `Exists` and `DoesNotExist`.
+            string operator = 2;
+
+            // An array of string values. If the operator is `In` or `NotIn`, the values array
+            // must be non-empty. If the operator is `Exists` or `DoesNotExist`, the values
+            // array must be empty. This array is replaced during a strategic merge patch.
+            repeated string values = 3;
+          }
+        }
+
+        message PodSelector {
+          // A map of {key,value} pairs. A single {key,value} in the matchLabels map is
+          // equivalent to an element of `match_expressions`, whose key field is "key", the
+          // operator is "In", and the values array contains only "value". The requirements
+          // are ANDed.
+          map<string, string> match_labels = 1 [json_name = "match_labels"];
+
+          repeated MatchExpressions match_expressions = 2 [json_name = "match_expressions"];
+
+          message MatchExpressions {
+            // The label key that the selector applies to.
+            string key = 1;
+
+            // A key's relationship to a set of values. Valid operators ard `In`, `NotIn`,
+            // `Exists` and `DoesNotExist`.
+            string operator = 2;
+
+            // An array of string values. If the operator is `In` or `NotIn`, the values array
+            // must be non-empty. If the operator is `Exists` or `DoesNotExist`, the values
+            // array must be empty. This array is replaced during a strategic merge patch.
+            repeated string values = 3;
+          }
+        }
+      }
+    }
+
+    message Ingress {
+      repeated From from = 1;
+
+      repeated Ports ports = 2;
+
+      message From {
+        IpBlock ip_block = 1 [json_name = "ip_block"];
+
+        NamespaceSelector namespace_selector = 2 [json_name = "namespace_selector"];
+
+        PodSelector pod_selector = 3 [json_name = "pod_selector"];
+
+        message IpBlock {
+          // cidr is a string representing the IPBlock Valid examples are "192.168.1.0/24" or
+          // "2001:db8::/64"
+          string cidr = 1;
+
+          // except is a slice of CIDRs that should not be included within an IPBlock Valid
+          // examples are "192.168.1.0/24" or "2001:db8::/64" Except values will be rejected
+          // if they are outside the cidr range
+          repeated string except = 2;
+        }
+
+        message NamespaceSelector {
+          // A map of {key,value} pairs. A single {key,value} in the matchLabels map is
+          // equivalent to an element of `match_expressions`, whose key field is "key", the
+          // operator is "In", and the values array contains only "value". The requirements
+          // are ANDed.
+          map<string, string> match_labels = 1 [json_name = "match_labels"];
+
+          repeated MatchExpressions match_expressions = 2 [json_name = "match_expressions"];
+
+          message MatchExpressions {
+            // The label key that the selector applies to.
+            string key = 1;
+
+            // A key's relationship to a set of values. Valid operators ard `In`, `NotIn`,
+            // `Exists` and `DoesNotExist`.
+            string operator = 2;
+
+            // An array of string values. If the operator is `In` or `NotIn`, the values array
+            // must be non-empty. If the operator is `Exists` or `DoesNotExist`, the values
+            // array must be empty. This array is replaced during a strategic merge patch.
+            repeated string values = 3;
+          }
+        }
+
+        message PodSelector {
+          // A map of {key,value} pairs. A single {key,value} in the matchLabels map is
+          // equivalent to an element of `match_expressions`, whose key field is "key", the
+          // operator is "In", and the values array contains only "value". The requirements
+          // are ANDed.
+          map<string, string> match_labels = 1 [json_name = "match_labels"];
+
+          repeated MatchExpressions match_expressions = 2 [json_name = "match_expressions"];
+
+          message MatchExpressions {
+            // The label key that the selector applies to.
+            string key = 1;
+
+            // A key's relationship to a set of values. Valid operators ard `In`, `NotIn`,
+            // `Exists` and `DoesNotExist`.
+            string operator = 2;
+
+            // An array of string values. If the operator is `In` or `NotIn`, the values array
+            // must be non-empty. If the operator is `Exists` or `DoesNotExist`, the values
+            // array must be empty. This array is replaced during a strategic merge patch.
+            repeated string values = 3;
+          }
+        }
+      }
+
+      message Ports {
+        // endPort indicates that the range of ports from port to endPort if set, inclusive,
+        // should be allowed by the policy. This field cannot be defined if the port field
+        // is not defined or if the port field is defined as a named (string) port. The
+        // endPort must be equal or greater than port.
+        int64 end_port = 1 [json_name = "end_port"];
+
+        // port represents the port on the given protocol. This can either be a numerical or
+        // named port on a pod. If this field is not provided, this matches all port names
+        // and numbers. If present, only traffic on the specified protocol AND port will be
+        // matched.
+        string port = 2;
+
+        // protocol represents the protocol (TCP, UDP, or SCTP) which traffic must match. If
+        // not specified, this field defaults to TCP.
+        string protocol = 3;
+      }
+    }
+
+    message PodSelector {
+      // A map of {key,value} pairs. A single {key,value} in the matchLabels map is
+      // equivalent to an element of `match_expressions`, whose key field is "key", the
+      // operator is "In", and the values array contains only "value". The requirements
+      // are ANDed.
+      map<string, string> match_labels = 1 [json_name = "match_labels"];
+
+      repeated MatchExpressions match_expressions = 2 [json_name = "match_expressions"];
+
+      message MatchExpressions {
+        // The label key that the selector applies to.
+        string key = 1;
+
+        // A key's relationship to a set of values. Valid operators ard `In`, `NotIn`,
+        // `Exists` and `DoesNotExist`.
+        string operator = 2;
+
+        // An array of string values. If the operator is `In` or `NotIn`, the values array
+        // must be non-empty. If the operator is `Exists` or `DoesNotExist`, the values
+        // array must be empty. This array is replaced during a strategic merge patch.
+        repeated string values = 3;
+      }
+    }
+  }
+}

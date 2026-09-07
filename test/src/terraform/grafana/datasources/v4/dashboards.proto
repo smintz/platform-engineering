@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.datasources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaDashboards version is 0
+message GrafanaDashboards {
+  repeated Dashboards dashboards = 1;
+
+  // UIDs of Grafana folders containing dashboards. Specify to filter for dashboards
+  // by folder (eg. `["General"]` for General folder), or leave blank to get all
+  // dashboards in all folders.
+  repeated string folder_uids = 2 [json_name = "folder_uids"];
+
+  string id = 3;
+
+  // Maximum number of dashboard search results to return. Defaults to `5000`.
+  int64 limit = 4;
+
+  // The Organization ID. If not set, the Org ID defined in the provider block will be
+  // used.
+  string org_id = 5 [json_name = "org_id"];
+
+  // List of string Grafana dashboard tags to search for, eg. `["prod"]`. Used only as
+  // search input, i.e., attribute value will remain unchanged.
+  repeated string tags = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  int32 count = 9;
+
+  string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+
+  message Dashboards {
+    // folder_title: string
+    string folder_title = 1 [json_name = "folder_title"];
+
+    // title: string
+    string title = 2;
+
+    // uid: string
+    string uid = 3;
+  }
+}
