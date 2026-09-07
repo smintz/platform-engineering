@@ -45,7 +45,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Compiling a component whose state CI will apply, but that has no remote backend configured, fails with a message naming the missing backend — it does not silently fall back to local state
   4. Compiling a cross-state value handshake that CI's apply-ordering derivation cannot see fails with a message naming the fix, rather than producing a wrong or partial apply order
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans executed
 
 Plans:
 **Wave 1**
@@ -58,7 +58,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-03-PLAN.md — Compile-time state guards: redis gets a real backend, and a local backend or an unorderable cross-state read becomes a compile error naming the fix (FOUND-04, FOUND-05)
+- [x] 01-03-PLAN.md — Compile-time state guards: redis gets a real backend, and a local backend or an unorderable cross-state read becomes a compile error naming the fix (FOUND-04, FOUND-05)
 
 ### Phase 2: FinOps Cost Attribution
 
@@ -125,7 +125,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Trustworthy Foundations | 2/3 | In Progress|  |
+| 1. Trustworthy Foundations | 3/3 | In Progress|  |
 | 2. FinOps Cost Attribution | 0/? | Not started | - |
 | 3. Database Dependency Fan-Out | 0/? | Not started | - |
 | 4. Service Mesh Authorization | 0/? | Not started | - |
