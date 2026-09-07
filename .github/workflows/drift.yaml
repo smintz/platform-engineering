@@ -1,0 +1,76 @@
+# .github/workflows/drift.yaml — hand-written on purpose (D-01): the artifact this check
+# guards IS the generated pipeline, so a generated checker could be silently omitted by the
+# very staleness it exists to catch. This is the one file under .github/workflows/ that is
+# not a build output; terraform.yaml next to it is, and is never hand-edited.
+name: drift
+
+# Trigger on SOURCE paths, never on test/outputs/**. The generated pipeline filters on
+# test/outputs/core_test/**, which by construction cannot fire for a source edit committed
+# without a rebuild — the exact failure being guarded against. The last entry is not a source
+# tree and is deliberate: .github/workflows/terraform.yaml is one of the three trees asserted
+# below, so a pull request whose only change is a hand-edit of it must still land here rather
+# than match no trigger and ship green.
+on:
+  pull_request:
+    paths: [test/src/**, src/**, drivers/**, test/CONFIGSPACE, test/protoconf.lock, .github/workflows/terraform.yaml]
+  push:
+    branches: [main]
+    paths: [test/src/**, src/**, drivers/**, test/CONFIGSPACE, test/protoconf.lock, .github/workflows/terraform.yaml]
+  workflow_dispatch: {}
+
+# Compiles and diffs; touches no cloud and needs no secret. Every remote_repo in
+# test/CONFIGSPACE is a local relative path, so the build is hermetic and offline apart from
+# the one pinned download below. This job runs contributor-authored Starlark through a
+# compiler, so it must never hold a write-scoped token.
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    env:
+      PROTOCONF_VERSION: 0.2.0-rc2
+      PROTOCONF_SHA256: eeb8415960567e23f1a3a4acb8eb28a07cb68a544c4c2e3fd41fb7ebdfde9f3a
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pinned by version AND by sha256 of the artifact (D-04). An unpinned compiler makes
+      # every drift result a moving target, and an unverified download makes the thing that
+      # decides "is this output correct?" tamperable. The checksum is the publisher's own
+      # value from the v0.2.0-rc2 checksums.txt.
+      - name: install protoconf
+        run: |
+          curl -fsSL -o /tmp/protoconf.tar.gz \
+            "https://github.com/protoconf/protoconf/releases/download/v${PROTOCONF_VERSION}/protoconf_${PROTOCONF_VERSION}_linux_amd64.tar.gz"
+          echo "${PROTOCONF_SHA256}  /tmp/protoconf.tar.gz" | sha256sum -c -
+          sudo tar -xzf /tmp/protoconf.tar.gz -C /usr/local/bin protoconf
+          protoconf --version
+
+      # Mandatory — the workflow cannot run on a runner without it. The committed lock pins
+      # each module by an absolute file:// path from the machine that last ran `mod tidy`.
+      # That path does not exist here, and `protoconf mod tidy` does NOT fall back to the
+      # relative url in CONFIGSPACE: it fails, and `protoconf compile` then fails on an empty
+      # cache. Deleting the lock makes tidy re-resolve against this checkout. The lock is
+      # deliberately outside the diff asserted below — CI regenerates it every run.
+      - name: drop the machine-local lock
+        run: rm -f test/protoconf.lock
+
+      # The repo's real build (D-02). The drift check is that build plus an assertion, not a
+      # reimplementation of it.
+      - name: rebuild
+        run: cd test && make test
+
+      # `git diff` alone is blind to a NEW output file: it compares the index to the worktree
+      # for tracked paths only, so a change that adds a component — and with it an untracked
+      # state directory under test/outputs/ — would pass green on exactly the drift this file
+      # exists to catch. Staging first makes additions visible and still prints a readable
+      # diff on failure.
+      - name: assert generated output is current
+        run: |
+          git add -A -- test/materialized_config test/outputs .github/workflows/terraform.yaml
+          git diff --cached --exit-code -- \
+            test/materialized_config test/outputs .github/workflows/terraform.yaml \
+          || {
+            echo "::error::generated output is stale. Run 'cd test && make test' and commit the result."
+            exit 1
+          }
