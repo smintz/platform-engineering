@@ -34,8 +34,11 @@ load(
 # its objectives without collecting a load line per hook. The modules behind it still load
 # each other by symbol — this file loads them, so they cannot load it back.
 #
-# Drivers are deliberately absent: which backend holds the state and which tool draws the
-# dashboards are replaceable choices, and importing one should stay a visible decision.
+# Drivers are deliberately absent, and live in //drivers instead: which runtime a process
+# lands on, which backend holds the state, which tool draws the dashboards and which CI
+# runs the applies are replaceable choices, and importing one should stay a visible
+# decision. One file per driver under its own kind, so a second one is a sibling rather
+# than a branch inside the first.
 platform = struct(
     # hook plumbing
     chain = chain,

@@ -1,6 +1,6 @@
 load("//google/protobuf/struct.proto", "NullValue", "Value")
 load("//google/protobuf/wrappers.proto", "BoolValue", "DoubleValue")
-load("//platform/drivers/monitoring/alerts.pinc", "alerts")
+load("grafana/alerts.pinc", "alerts")
 load("//platform/platform.pinc", "platform")
 load("//platform/v1/platform.proto", component_proto = "Component")
 load("//terraform/grafana/datasources/v4/data.proto", "GrafanaDataSource")

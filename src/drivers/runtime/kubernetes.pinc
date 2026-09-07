@@ -1,0 +1,76 @@
+load("//terraform/kubernetes/provider/v3/kubernetes.proto", "Kubernetes")
+load("//terraform/kubernetes/resources/v3/deployment.proto", "KubernetesDeployment")
+load("//terraform/kubernetes/resources/v3/service.proto", "KubernetesService")
+load("//terraform/v1/util.pinc", "util")
+
+# Kubernetes runtime driver: how a component's process is deployed and addressed.
+#
+# The sibling of ecs.pinc, and the reason both exist separately rather than behind one
+# "runtime" interface: what a workload *is* differs between them. An ECS task is a task
+# definition plus a service plus the IAM roles they assume; a Kubernetes workload is a
+# Deployment plus a Service, and its address is a DNS name the cluster resolves rather
+# than something Terraform has to publish. An interface wide enough to cover both would
+# be a union of the two, which is the same as neither.
+
+Pod = KubernetesDeployment.Spec.Template.Spec
+Container = Pod.Container
+
+# Workload is one process as Kubernetes deploys it: a Deployment of `image` and a
+# ClusterIP Service in front of it, both selected by app=<name>. That selector is what
+# makes the workload's address its own name — which is what lets a dependency hand its
+# address to a dependant (see WithContainerEnv) without either one publishing a value
+# through Terraform.
+def Workload(name, image, port):
+    labels = {"app": name}
+    return util.Group(
+        util.Provider(Kubernetes()),
+        util.Resource(
+            name,
+            KubernetesDeployment(
+                metadata = KubernetesDeployment.Metadata(name = name, labels = labels),
+                spec = KubernetesDeployment.Spec(
+                    selector = KubernetesDeployment.Spec.Selector(
+                        match_labels = labels,
+                    ),
+                    template = KubernetesDeployment.Spec.Template(
+                        metadata = KubernetesDeployment.Spec.Template.Metadata(
+                            labels = labels,
+                        ),
+                        spec = Pod(
+                            container = [Container(
+                                name = name,
+                                image = image,
+                                port = [Container.Port(container_port = port)],
+                            )],
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        util.Resource(
+            name,
+            KubernetesService(
+                metadata = KubernetesService.Metadata(name = name, labels = labels),
+                spec = KubernetesService.Spec(
+                    selector = labels,
+                    port = [KubernetesService.Spec.Port(
+                        port = port,
+                        target_port = str(port),
+                    )],
+                ),
+            ),
+        ),
+    )
+
+# WithContainerEnv sets a variable on every container in the config it runs against. Meant
+# for a dependency's ForDownstream hooks — the same channel ecs.pinc spells WithTaskEnv:
+# the dependency knows its own address and hands it over without knowing which workload
+# the dependant deploys, or how many containers that workload turned out to have.
+def WithContainerEnv(name, value):
+    def do(config, next):
+        for deployment in config.resource.kubernetes_deployment.values():
+            for container in deployment.spec.template.spec.container:
+                container.env.append(Container.Env(name = name, value = value))
+        return next(config)
+
+    return do

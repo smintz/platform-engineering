@@ -1,16 +1,8 @@
-load("@platform//platform/drivers/monitoring/grafana.pinc", "WithGrafanaDashboard")
-load("@platform//platform/drivers/terraform/actions.pinc", "actions")
-load("@platform//platform/drivers/terraform/terraform.pinc", "S3Backend", "WithState")
+load("@platform//drivers/cicd/github_actions.pinc", "actions")
+load("@platform//drivers/monitoring/grafana.pinc", "WithGrafanaDashboard")
+load("@platform//drivers/runtime/kubernetes.pinc", "WithContainerEnv", "Workload")
+load("@platform//drivers/state/terraform.pinc", "S3Backend", "WithState")
 load("@platform//platform/platform.pinc", "platform")
-load("//terraform/kubernetes/provider/v3/kubernetes.proto", "Kubernetes")
-load("//terraform/kubernetes/resources/v3/deployment.proto", "KubernetesDeployment")
-load("//terraform/kubernetes/resources/v3/service.proto", "KubernetesService")
-load("//terraform/v1/util.pinc", tf = "util")
-
-Deployment = KubernetesDeployment
-Service = KubernetesService
-Pod = KubernetesDeployment.Spec.Template.Spec
-Container = Pod.Container
 
 # Where every state in this stack lives. One bucket, keyed by failure domain and state
 # name, which is also what lets the pipeline below recover the order states apply in.
@@ -27,56 +19,6 @@ DATASOURCES = {"prometheus": "Prometheus"}
 # workflow is installed at the root (GitHub reads nowhere else) and every path in it —
 # working directories, the paths filter — is resolved from there.
 OUTPUT_ROOT = "test/outputs/core_test"
-
-# Workload is one process as Kubernetes deploys it: a Deployment of `image` and a
-# ClusterIP Service in front of it, both selected by app=<name> — so the address of the
-# workload is its own name, which is what lets a dependency hand it out below.
-def Workload(name, image, port):
-    labels = {"app": name}
-    return tf.Group(
-        tf.Provider(Kubernetes()),
-        tf.Resource(
-            name,
-            Deployment(
-                metadata = Deployment.Metadata(name = name, labels = labels),
-                spec = Deployment.Spec(
-                    selector = Deployment.Spec.Selector(match_labels = labels),
-                    template = Deployment.Spec.Template(
-                        metadata = Deployment.Spec.Template.Metadata(labels = labels),
-                        spec = Pod(
-                            container = [Container(
-                                name = name,
-                                image = image,
-                                port = [Container.Port(container_port = port)],
-                            )],
-                        ),
-                    ),
-                ),
-            ),
-        ),
-        tf.Resource(
-            name,
-            Service(
-                metadata = Service.Metadata(name = name, labels = labels),
-                spec = Service.Spec(
-                    selector = labels,
-                    port = [Service.Spec.Port(port = port, target_port = str(port))],
-                ),
-            ),
-        ),
-    )
-
-# WithEnv sets a variable on every container in the config it runs against. Meant for a
-# dependency's ForDownstream hooks: the dependency knows its own address, and does not
-# have to know which workload the downstream deploys to hand it over.
-def WithEnv(name, value):
-    def do(t, next):
-        for deployment in t.resource.kubernetes_deployment.values():
-            for container in deployment.spec.template.spec.container:
-                container.env.append(Container.Env(name = name, value = value))
-        return next(t)
-
-    return do
 
 # Redis is measured where it is consumed rather than at the process: `redis_up` is the
 # exporter's view of whether a connection and a PING succeeded, which is the same failure
@@ -125,7 +67,7 @@ def RedisComponent(*hooks):
         WithGrafanaDashboard(BACKEND, DATASOURCES),
         # runs on the downstream component, writing into its own main.tf.json
         platform.ForDownstream(
-            platform.WithConfig(None, WithEnv("REDIS_URL", "redis://redis:6379")),
+            platform.WithConfig(None, WithContainerEnv("REDIS_URL", "redis://redis:6379")),
         ),
         *hooks
     )
