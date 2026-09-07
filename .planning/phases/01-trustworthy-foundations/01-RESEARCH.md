@@ -1179,7 +1179,7 @@ automate it.
 | A4 | `sudo tar -xzf ... -C /usr/local/bin` works unprompted on `ubuntu-latest`. | Standard Stack | The install step fails. Passwordless sudo is standard on GitHub-hosted runners; if the planner prefers to avoid it, extract to `$HOME/.local/bin` and add it to `$GITHUB_PATH`. |
 | A5 | `protoconf v0.2.0-rc2` will remain the newest release for the life of this phase, so the pin does not immediately go stale. | Standard Stack | Only a freshness concern; the pin is the point and a newer release changes nothing until someone bumps it deliberately. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should the drift check also assert the `test/protoconf.lock` is coherent?**
    - What we know: D-03 lists `test/protoconf.lock` among the *triggers*, and D-02 excludes it
@@ -1187,7 +1187,7 @@ automate it.
      the check, and the check then throws the lock away and passes.
    - What's unclear: whether that is intended. The `fileDescriptorSetSum` values in the lock are
      genuinely meaningful — they would catch a `.proto` change that nobody re-tidied.
-   - Recommendation: accept it for this phase. Asserting on the lock requires either fixing the
+   - RESOLVED: accept it for this phase. Asserting on the lock requires either fixing the
      absolute-path problem properly (a protoconf-side change, explicitly deferred) or a
      normalisation step that would itself need testing. Note it in Deferred beside the existing
      absolute-path item, now with the CI consequence attached.
@@ -1198,7 +1198,7 @@ automate it.
      so nothing breaks now.
    - What's unclear: whether a future component will legitimately read a state applied by a
      different repository.
-   - Recommendation: build it with no escape hatch (YAGNI, and D-17 is locked). If phases 3-5 hit
+   - RESOLVED: build it with no escape hatch (YAGNI, and D-17 is locked). If phases 3-5 hit
      the case, the hatch is a one-argument addition to `TerraformPipeline`
      (`external_states = []`). Do not build it speculatively.
 
@@ -1208,7 +1208,7 @@ automate it.
    - What's unclear: whether the planner reads FOUND-02 as "the field exists and is writable" (no
      hook — a call site could assign `component.metadata` through a bespoke hook) or "there is a
      supported way to declare them" (a hook).
-   - Recommendation: add `WithLabels` to `core.pinc` and export it. It is nine lines, it is the
+   - RESOLVED: add `WithLabels` to `core.pinc` and export it. It is nine lines, it is the
      established idiom, and every one of COST-01, COST-02, SEC-01 needs it in the next two phases.
      Without it FOUND-02 has no observable surface at all.
 
@@ -1216,7 +1216,7 @@ automate it.
    - What we know: the new S3 state starts empty; any Kubernetes objects that already exist will
      be planned for creation.
    - What's unclear: whether a real cluster currently holds them.
-   - Recommendation: out of scope for the code change, but the plan should carry it as an
+   - RESOLVED: out of scope for the code change, but the plan should carry it as an
      operational note so nobody is surprised by the first post-merge plan.
 
 ## Environment Availability
