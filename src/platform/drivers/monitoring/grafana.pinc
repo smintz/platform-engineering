@@ -1,7 +1,14 @@
 load("//google/protobuf/struct.proto", "NullValue", "Value")
 load("//google/protobuf/wrappers.proto", "BoolValue", "DoubleValue")
+load("//platform/drivers/monitoring/alerts.pinc", "alerts")
+load("//platform/platform.pinc", "platform")
+load("//platform/v1/platform.proto", component_proto = "Component")
+load("//terraform/grafana/datasources/v4/data.proto", "GrafanaDataSource")
+load("//terraform/grafana/provider/v4/grafana.proto", "Grafana")
+load("//terraform/grafana/resources/v4/dashboard.proto", "GrafanaDashboard")
+load("//terraform/v1/util.pinc", "util")
 load(
-    "//grafana/v1/dashboard.proto",
+    "grafana/v1/dashboard.proto",
     "Dashboard",
     "DataSource",
     "FieldConfig",
@@ -11,13 +18,6 @@ load(
     "Target",
     "Thresholds",
 )
-load("//platform/drivers/monitoring/alerts.pinc", "alerts")
-load("//platform/platform.pinc", "platform")
-load("//platform/v1/platform.proto", component_proto = "Component")
-load("//terraform/grafana/datasources/v4/data.proto", "GrafanaDataSource")
-load("//terraform/grafana/provider/v4/grafana.proto", "Grafana")
-load("//terraform/grafana/resources/v4/dashboard.proto", "GrafanaDashboard")
-load("//terraform/v1/util.pinc", "util")
 load("re.star", "re")
 
 # Grafana generates a uid for each datasource when it is created, and a dashboard that

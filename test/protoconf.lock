@@ -5,7 +5,8 @@
       "label":  "platform",
       "url":  "..",
       "sourcePath":  "src",
-      "getterUrl":  "file:///Users/smintz/git/platform-engineering"
+      "getterUrl":  "file:///Users/smintz/git/platform-engineering",
+      "fileDescriptorSetSum":  "41864fbc91f8fc5d488587f77221d267"
     }
   }
 }

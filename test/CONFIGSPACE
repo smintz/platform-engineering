@@ -1,4 +1,5 @@
 platform=remote_repo(
   label="platform",
-  url=".."
+  url="..",
+  checksum="abc"
 )

@@ -1,0 +1,255 @@
+syntax = "proto3";
+
+// A dashboard as Grafana's HTTP API and provisioning files accept it. Only the parts we
+// generate are modelled — Grafana's real schema is enormous and mostly UI state, and a
+// field nobody sets is a field nobody can get wrong.
+//
+// json_name annotations carry the camelCase Grafana expects; the wrapper types appear
+// where proto3's "default means absent" would change the meaning of the emitted JSON
+// (editable=false and a threshold step's null base are both significant).
+package grafana.v1;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/wrappers.proto";
+
+message Dashboard {
+  string uid = 1;
+
+  string title = 2;
+
+  repeated string tags = 3;
+
+  int32 schema_version = 4 [json_name = "schemaVersion"];
+
+  google.protobuf.BoolValue editable = 5;
+
+  string refresh = 6;
+
+  repeated Panel panels = 7;
+
+  Time time = 8;
+
+  int32 version = 9;
+
+  message Time {
+    string from = 1;
+
+    string to = 2;
+  }
+}
+
+message Panel {
+  // timeseries, stat, gauge, table, row, ...
+  string type = 1;
+
+  string title = 2;
+
+  string description = 3;
+
+  DataSource datasource = 4;
+
+  GridPos grid_pos = 5 [json_name = "gridPos"];
+
+  repeated Target targets = 6;
+
+  FieldConfig field_config = 7 [json_name = "fieldConfig"];
+
+  int32 id = 8;
+
+  // Rows only. Wrapped because an absent collapsed is how Grafana spells a pre-rows
+  // dashboard, and a row that says false is a row we meant to leave open.
+  google.protobuf.BoolValue collapsed = 9;
+
+  Options options = 10;
+
+  // Links in the panel header.
+  repeated Link links = 11;
+
+  // Per-type display options. Grafana keys this off the panel's type and the sets do not
+  // overlap, so the fields for each type we render sit side by side here rather than in a
+  // message per type — a panel only ever sets its own. A timeseries renders the same with
+  // or without options, so it gets none.
+  message Options {
+    // --- stat ---
+
+    // Which series value the single number shows.
+    ReduceOptions reduce_options = 1 [json_name = "reduceOptions"];
+
+    // value, background (gradient), background_solid, none
+    string color_mode = 2 [json_name = "colorMode"];
+
+    // area or none — the sparkline drawn behind the number
+    string graph_mode = 3 [json_name = "graphMode"];
+
+    // auto, value, value_and_name, name, none
+    string text_mode = 4 [json_name = "textMode"];
+
+    string justify_mode = 5 [json_name = "justifyMode"];
+
+    string orientation = 6;
+
+    // --- alertlist ---
+
+    // list or stat
+    string view_mode = 7 [json_name = "viewMode"];
+
+    // default or custom
+    string group_mode = 8 [json_name = "groupMode"];
+
+    int32 max_items = 9 [json_name = "maxItems"];
+
+    // 1 = alphabetical asc, 2 = desc, 3 = importance, 4 = time asc, 5 = time desc
+    int32 sort_order = 10 [json_name = "sortOrder"];
+
+    // Limit to alerts belonging to this dashboard.
+    bool dashboard_alerts = 11 [json_name = "dashboardAlerts"];
+
+    // Which alert states to show at all. A state left out is a state the panel stays
+    // silent about, so an empty panel means nothing is wrong.
+    StateFilter state_filter = 12 [json_name = "stateFilter"];
+
+    // A PromQL-style matcher over alert instance labels, e.g. {component=~"rds|redis"}.
+    string alert_instance_label_filter = 13 [json_name = "alertInstanceLabelFilter"];
+
+    bool show_instances = 14 [json_name = "showInstances"];
+
+    message StateFilter {
+      bool firing = 1;
+
+      bool pending = 2;
+
+      bool no_data = 3 [json_name = "noData"];
+
+      bool normal = 4;
+
+      bool error = 5;
+    }
+
+    message ReduceOptions {
+      // lastNotNull, mean, last, min, max, ...
+      repeated string calcs = 1;
+
+      // Show every value in the series rather than one reduced number.
+      bool values = 2;
+
+      string fields = 3;
+    }
+  }
+}
+
+// A link out of a panel. Grafana spells a panel link and a data link the same way; the
+// difference is where it hangs — Panel.links puts it in the header, FieldConfig.Defaults
+// .links makes the value itself clickable.
+message Link {
+  string title = 1;
+
+  string url = 2;
+
+  bool target_blank = 3 [json_name = "targetBlank"];
+}
+
+message DataSource {
+  string type = 1;
+
+  string uid = 2;
+}
+
+message GridPos {
+  int32 h = 1;
+
+  int32 w = 2;
+
+  int32 x = 3;
+
+  int32 y = 4;
+}
+
+// A query, in whichever datasource's dialect. Prometheus uses expr. CloudWatch has two
+// separate query languages and a field for each: expression for metric math, and
+// sql_expression for Metrics Insights SQL. The two mode fields tell the frontend which one
+// to read; putting SQL in expression provisions cleanly and then renders nothing.
+message Target {
+  string ref_id = 1 [json_name = "refId"];
+
+  string expr = 2;
+
+  string legend_format = 3 [json_name = "legendFormat"];
+
+  DataSource datasource = 4;
+
+  // CloudWatch metric math, e.g. m1 / m2 * 100.
+  string expression = 5;
+
+  string region = 6;
+
+  // Metrics or Logs
+  string query_mode = 7 [json_name = "queryMode"];
+
+  // 0 = metric search, 1 = metrics insights
+  int32 metric_query_type = 8 [json_name = "metricQueryType"];
+
+  // 0 = builder, 1 = code
+  int32 metric_editor_mode = 9 [json_name = "metricEditorMode"];
+
+  string period = 10;
+
+  // CloudWatch Metrics Insights SQL. Requires metric_query_type = 1.
+  string sql_expression = 11 [json_name = "sqlExpression"];
+
+  // Handle a metric math expression refers to this target by. CloudWatch requires it to
+  // start with a lowercase letter and hold only letters, digits and underscores.
+  string id = 12;
+
+  // Series name shown in the legend. Without it CloudWatch series arrive unnamed, which
+  // is unreadable as soon as a panel holds more than one.
+  string label = 13;
+
+  // SQL datasources (Postgres) take the statement itself. time_series format wants a
+  // column named "time" and one value column per series.
+  string raw_sql = 14 [json_name = "rawSql"];
+
+  string format = 15;
+
+  bool raw_query = 16 [json_name = "rawQuery"];
+
+  // CloudWatch only, and required even when it changes nothing: a Metrics Insights query
+  // takes its aggregation from the SQL, but the plugin rejects a query without this field.
+  // The frontend supplies a default, so a panel renders without it and anything evaluated
+  // server-side does not.
+  string statistic = 17;
+}
+
+message FieldConfig {
+  Defaults defaults = 1;
+
+  repeated google.protobuf.Struct overrides = 2;
+
+  message Defaults {
+    Thresholds thresholds = 1;
+
+    // percentunit, s, bytes, ...
+    string unit = 2;
+
+    google.protobuf.DoubleValue min = 3;
+
+    google.protobuf.DoubleValue max = 4;
+
+    // Data links: clicking the value follows them.
+    repeated Link links = 5;
+  }
+}
+
+message Thresholds {
+  // absolute or percentage
+  string mode = 1;
+
+  repeated Step steps = 2;
+
+  message Step {
+    string color = 1;
+
+    // google.protobuf.Value, because the base step's value is a literal JSON null and an
+    // absent double would be dropped from the output instead.
+    google.protobuf.Value value = 2;
+  }
+}
