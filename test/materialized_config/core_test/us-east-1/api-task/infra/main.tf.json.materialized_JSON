@@ -1,0 +1,92 @@
+{
+  "protoFile": "terraform/v1/terraform.proto",
+  "value": {
+    "@type": "type.googleapis.com/terraform.v1.Terraform",
+    "resource": {
+      "kubernetes_deployment": {
+        "api-task": {
+          "metadata": {
+            "labels": {
+              "app": "api-task"
+            },
+            "name": "api-task"
+          },
+          "spec": {
+            "selector": {
+              "match_labels": {
+                "app": "api-task"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "api-task"
+                }
+              },
+              "spec": {
+                "container": [
+                  {
+                    "image": "ghcr.io/example/api:latest",
+                    "name": "api-task",
+                    "env": [
+                      {
+                        "name": "REDIS_URL",
+                        "value": "redis://redis:6379"
+                      }
+                    ],
+                    "port": [
+                      {
+                        "container_port": "8080"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "kubernetes_service": {
+        "api-task": {
+          "metadata": {
+            "labels": {
+              "app": "api-task"
+            },
+            "name": "api-task"
+          },
+          "spec": {
+            "selector": {
+              "app": "api-task"
+            },
+            "port": [
+              {
+                "port": "8080",
+                "target_port": "8080"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "provider": {
+      "kubernetes": [
+        {}
+      ]
+    },
+    "terraform": {
+      "required_providers": {
+        "kubernetes": {
+          "source": "registry.terraform.io/hashicorp/kubernetes",
+          "version": "3.2.1"
+        }
+      },
+      "backend": {
+        "s3": {
+          "region": "us-east-1",
+          "bucket": "platform-engineering-tfstate",
+          "key": "us-east-1/api-task.tfstate"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,180 @@
+{
+  "protoFile": "terraform/v1/terraform.proto",
+  "value": {
+    "@type": "type.googleapis.com/terraform.v1.Terraform",
+    "resource": {
+      "grafana_dashboard": {
+        "slos": {
+          "config_json": "{\"uid\":\"redis\",\"title\":\"redis SLOs\",\"tags\":[\"slo\",\"us-east-1\",\"redis\"],\"schemaVersion\":39,\"editable\":false,\"refresh\":\"1m\",\"panels\":[{\"type\":\"row\",\"title\":\"SLOs\",\"gridPos\":{\"h\":1,\"w\":24},\"collapsed\":false},{\"type\":\"stat\",\"description\":\"Share of scrapes where Redis accepted a connection and answered PING. The API keeps no local cache, so a Redis that is down is an API that is down.\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"avg_over_time(redis_up{job=\\\"redis\\\"}[28d])\",\"legendFormat\":\"availability\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.999}]},\"unit\":\"percentunit\",\"min\":0.999}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"row\",\"title\":\"Diagnostics\",\"gridPos\":{\"h\":1,\"w\":24,\"y\":5},\"collapsed\":false},{\"type\":\"timeseries\",\"title\":\"memory used\",\"description\":\"Approaching maxmemory is what turns a healthy Redis into one that starts evicting keys the API expected to find.\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"y\":6},\"targets\":[{\"refId\":\"A\",\"expr\":\"redis_memory_used_bytes{job=\\\"redis\\\"}\",\"legendFormat\":\"memory used\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"bytes\"}}}]}",
+          "message": "Managed by protoconf",
+          "overwrite": true
+        }
+      },
+      "grafana_folder": {
+        "alerts": {
+          "title": "redis SLOs",
+          "uid": "redis-slos"
+        }
+      },
+      "grafana_rule_group": {
+        "slo_alerts": {
+          "folder_uid": "${grafana_folder.alerts.uid}",
+          "interval_seconds": "60",
+          "name": "redis SLO alerts",
+          "rule": [
+            {
+              "annotations": {
+                "description": "About 2% of the 28-day error budget is gone. The target is 99.9%, so the budget is 0.1% of events; both the 1h and 5m windows are below 0.9856. Share of scrapes where Redis accepted a connection and answered PING. The API keeps no local cache, so a Redis that is down is an API that is down.",
+                "summary": "availability is burning its error budget 14.4x faster than it can afford"
+              },
+              "condition": "C",
+              "exec_err_state": "Error",
+              "labels": {
+                "component": "redis",
+                "objective": "availability",
+                "severity": "page"
+              },
+              "name": "redis: availability · fast burn",
+              "no_data_state": "NoData",
+              "data": [
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"avg_over_time(redis_up{job=\\\"redis\\\"}[1h])\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "ref_id": "A",
+                  "relative_time_range": {
+                    "from": "3600"
+                  }
+                },
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"avg_over_time(redis_up{job=\\\"redis\\\"}[5m])\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "ref_id": "B",
+                  "relative_time_range": {
+                    "from": "300"
+                  }
+                },
+                {
+                  "datasource_uid": "-100",
+                  "model": "{\"expression\":\"$A < 0.9856 && $B < 0.9856\",\"refId\":\"C\",\"type\":\"math\"}",
+                  "ref_id": "C",
+                  "relative_time_range": {
+                    "from": "3600"
+                  }
+                }
+              ]
+            },
+            {
+              "annotations": {
+                "description": "About 5% of the 28-day error budget is gone. The target is 99.9%, so the budget is 0.1% of events; both the 6h and 30m windows are below 0.994. Share of scrapes where Redis accepted a connection and answered PING. The API keeps no local cache, so a Redis that is down is an API that is down.",
+                "summary": "availability is burning its error budget 6x faster than it can afford"
+              },
+              "condition": "C",
+              "exec_err_state": "Error",
+              "labels": {
+                "component": "redis",
+                "objective": "availability",
+                "severity": "page"
+              },
+              "name": "redis: availability · slow burn",
+              "no_data_state": "NoData",
+              "data": [
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"avg_over_time(redis_up{job=\\\"redis\\\"}[6h])\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "ref_id": "A",
+                  "relative_time_range": {
+                    "from": "21600"
+                  }
+                },
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"avg_over_time(redis_up{job=\\\"redis\\\"}[30m])\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "ref_id": "B",
+                  "relative_time_range": {
+                    "from": "1800"
+                  }
+                },
+                {
+                  "datasource_uid": "-100",
+                  "model": "{\"expression\":\"$A < 0.994 && $B < 0.994\",\"refId\":\"C\",\"type\":\"math\"}",
+                  "ref_id": "C",
+                  "relative_time_range": {
+                    "from": "21600"
+                  }
+                }
+              ]
+            },
+            {
+              "annotations": {
+                "description": "About 10% of the 28-day error budget is gone. The target is 99.9%, so the budget is 0.1% of events; both the 3d and 6h windows are below 0.999. Share of scrapes where Redis accepted a connection and answered PING. The API keeps no local cache, so a Redis that is down is an API that is down.",
+                "summary": "availability is burning its error budget 1x faster than it can afford"
+              },
+              "condition": "C",
+              "exec_err_state": "Error",
+              "labels": {
+                "component": "redis",
+                "objective": "availability",
+                "severity": "ticket"
+              },
+              "name": "redis: availability · budget leak",
+              "no_data_state": "NoData",
+              "data": [
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"avg_over_time(redis_up{job=\\\"redis\\\"}[3d])\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "ref_id": "A",
+                  "relative_time_range": {
+                    "from": "259200"
+                  }
+                },
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"avg_over_time(redis_up{job=\\\"redis\\\"}[6h])\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "ref_id": "B",
+                  "relative_time_range": {
+                    "from": "21600"
+                  }
+                },
+                {
+                  "datasource_uid": "-100",
+                  "model": "{\"expression\":\"$A < 0.999 && $B < 0.999\",\"refId\":\"C\",\"type\":\"math\"}",
+                  "ref_id": "C",
+                  "relative_time_range": {
+                    "from": "259200"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "data": {
+      "grafana_data_source": {
+        "prometheus": {
+          "name": "Prometheus"
+        }
+      }
+    },
+    "provider": {
+      "grafana": [
+        {}
+      ]
+    },
+    "terraform": {
+      "required_providers": {
+        "grafana": {
+          "source": "registry.terraform.io/grafana/grafana",
+          "version": "4.45.2"
+        }
+      },
+      "backend": {
+        "s3": {
+          "region": "us-east-1",
+          "bucket": "platform-engineering-tfstate",
+          "key": "us-east-1/redis-monitoring.tfstate"
+        }
+      }
+    }
+  }
+}

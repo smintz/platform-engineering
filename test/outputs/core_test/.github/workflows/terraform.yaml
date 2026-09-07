@@ -1,0 +1,641 @@
+concurrency:
+  group: terraform-${{ github.ref }}
+env:
+  TF_IN_AUTOMATION: "true"
+  TF_INPUT: "false"
+  TF_PLUGIN_CACHE_DIR: /home/runner/.terraform.d/plugin-cache
+jobs:
+  apply_us_east_1_api_task_infra:
+    defaults:
+      run:
+        working-directory: test/outputs/core_test/us-east-1/api-task/infra
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.plan_us_east_1_api_task_infra.outputs.changes
+      == 'true'
+    name: apply us-east-1/api-task/infra
+    needs:
+    - plan_us_east_1_api_task_infra
+    runs-on: ubuntu-latest
+    steps:
+    - id: checkout
+      uses: actions/checkout@v4
+    - id: aws-credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: us-east-1
+        role-to-assume: ${{ vars.TF_APPLY_ROLE }}
+    - id: setup-terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.9.8
+        terraform_wrapper: false
+    - id: plugin-cache-dir
+      run: mkdir -p /home/runner/.terraform.d/plugin-cache
+    - id: plugin-cache
+      uses: actions/cache@v4
+      with:
+        key: tf-plugins-test_outputs_core_test_us_east_1_api_task_infra-${{ hashFiles('test/outputs/core_test/us-east-1/api-task/infra/.terraform.lock.hcl')
+          }}
+        path: /home/runner/.terraform.d/plugin-cache
+        restore-keys: tf-plugins-test_outputs_core_test_us_east_1_api_task_infra-
+    - id: init
+      run: terraform init -lock-timeout=5m
+    - id: download-plan
+      uses: actions/download-artifact@v4
+      with:
+        name: tfplan-us_east_1_api_task_infra-${{ github.run_id }}
+        path: test/outputs/core_test/us-east-1/api-task/infra
+    - id: apply
+      run: terraform apply -auto-approve -lock-timeout=5m tfplan
+  apply_us_east_1_api_task_monitoring:
+    defaults:
+      run:
+        working-directory: test/outputs/core_test/us-east-1/api-task/monitoring
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.plan_us_east_1_api_task_monitoring.outputs.changes
+      == 'true'
+    name: apply us-east-1/api-task/monitoring
+    needs:
+    - plan_us_east_1_api_task_monitoring
+    runs-on: ubuntu-latest
+    steps:
+    - id: checkout
+      uses: actions/checkout@v4
+    - id: aws-credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: us-east-1
+        role-to-assume: ${{ vars.TF_APPLY_ROLE }}
+    - id: grafana-token
+      run: |
+        set -euo pipefail
+
+        ws="${{ vars.GRAFANA_WORKSPACE_ID }}"
+        account="protoconf-apply"
+
+        sa=$(aws grafana list-workspace-service-accounts --workspace-id "$ws" \
+          --query "serviceAccounts[?name=='$account'].id | [0]" --output text)
+        if [ -z "$sa" ] || [ "$sa" = "None" ]; then
+          echo "::error::no Grafana service account named $account in workspace $ws - apply the grafana state first"
+          exit 1
+        fi
+
+        # Grafana keeps expired tokens on the account, and this job cannot touch the live ones
+        # belonging to the jobs running beside it, so it collects the dead and leaves the rest.
+        now=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        aws grafana list-workspace-service-account-tokens --workspace-id "$ws" --service-account-id "$sa" \
+          | jq -r --arg now "$now" '.serviceAccountTokens[] | select(.expiresAt[0:19] < $now[0:19]) | .id' \
+          | while read -r dead; do
+              aws grafana delete-workspace-service-account-token \
+                --workspace-id "$ws" --service-account-id "$sa" --token-id "$dead" >/dev/null || true
+            done
+
+        key=$(aws grafana create-workspace-service-account-token --workspace-id "$ws" --service-account-id "$sa" \
+          --name "gha-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-$GITHUB_JOB" --seconds-to-live 1800 \
+          --query 'serviceAccountToken.key' --output text)
+        echo "::add-mask::$key"
+
+        {
+          echo "GRAFANA_AUTH=$key"
+          echo "GRAFANA_URL=https://$(aws grafana describe-workspace --workspace-id "$ws" \
+            --query 'workspace.endpoint' --output text)"
+        } >> "$GITHUB_ENV"
+    - id: setup-terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.9.8
+        terraform_wrapper: false
+    - id: plugin-cache-dir
+      run: mkdir -p /home/runner/.terraform.d/plugin-cache
+    - id: plugin-cache
+      uses: actions/cache@v4
+      with:
+        key: tf-plugins-test_outputs_core_test_us_east_1_api_task_monitoring-${{ hashFiles('test/outputs/core_test/us-east-1/api-task/monitoring/.terraform.lock.hcl')
+          }}
+        path: /home/runner/.terraform.d/plugin-cache
+        restore-keys: tf-plugins-test_outputs_core_test_us_east_1_api_task_monitoring-
+    - id: init
+      run: terraform init -lock-timeout=5m
+    - id: download-plan
+      uses: actions/download-artifact@v4
+      with:
+        name: tfplan-us_east_1_api_task_monitoring-${{ github.run_id }}
+        path: test/outputs/core_test/us-east-1/api-task/monitoring
+    - id: apply
+      run: terraform apply -auto-approve -lock-timeout=5m tfplan
+  apply_us_east_1_redis_infra:
+    defaults:
+      run:
+        working-directory: test/outputs/core_test/us-east-1/redis/infra
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.plan_us_east_1_redis_infra.outputs.changes
+      == 'true'
+    name: apply us-east-1/redis/infra
+    needs:
+    - plan_us_east_1_redis_infra
+    runs-on: ubuntu-latest
+    steps:
+    - id: checkout
+      uses: actions/checkout@v4
+    - id: aws-credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: us-east-1
+        role-to-assume: ${{ vars.TF_APPLY_ROLE }}
+    - id: setup-terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.9.8
+        terraform_wrapper: false
+    - id: plugin-cache-dir
+      run: mkdir -p /home/runner/.terraform.d/plugin-cache
+    - id: plugin-cache
+      uses: actions/cache@v4
+      with:
+        key: tf-plugins-test_outputs_core_test_us_east_1_redis_infra-${{ hashFiles('test/outputs/core_test/us-east-1/redis/infra/.terraform.lock.hcl')
+          }}
+        path: /home/runner/.terraform.d/plugin-cache
+        restore-keys: tf-plugins-test_outputs_core_test_us_east_1_redis_infra-
+    - id: init
+      run: terraform init -lock-timeout=5m
+    - id: download-plan
+      uses: actions/download-artifact@v4
+      with:
+        name: tfplan-us_east_1_redis_infra-${{ github.run_id }}
+        path: test/outputs/core_test/us-east-1/redis/infra
+    - id: apply
+      run: terraform apply -auto-approve -lock-timeout=5m tfplan
+  apply_us_east_1_redis_monitoring:
+    defaults:
+      run:
+        working-directory: test/outputs/core_test/us-east-1/redis/monitoring
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.plan_us_east_1_redis_monitoring.outputs.changes
+      == 'true'
+    name: apply us-east-1/redis/monitoring
+    needs:
+    - plan_us_east_1_redis_monitoring
+    runs-on: ubuntu-latest
+    steps:
+    - id: checkout
+      uses: actions/checkout@v4
+    - id: aws-credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: us-east-1
+        role-to-assume: ${{ vars.TF_APPLY_ROLE }}
+    - id: grafana-token
+      run: |
+        set -euo pipefail
+
+        ws="${{ vars.GRAFANA_WORKSPACE_ID }}"
+        account="protoconf-apply"
+
+        sa=$(aws grafana list-workspace-service-accounts --workspace-id "$ws" \
+          --query "serviceAccounts[?name=='$account'].id | [0]" --output text)
+        if [ -z "$sa" ] || [ "$sa" = "None" ]; then
+          echo "::error::no Grafana service account named $account in workspace $ws - apply the grafana state first"
+          exit 1
+        fi
+
+        # Grafana keeps expired tokens on the account, and this job cannot touch the live ones
+        # belonging to the jobs running beside it, so it collects the dead and leaves the rest.
+        now=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        aws grafana list-workspace-service-account-tokens --workspace-id "$ws" --service-account-id "$sa" \
+          | jq -r --arg now "$now" '.serviceAccountTokens[] | select(.expiresAt[0:19] < $now[0:19]) | .id' \
+          | while read -r dead; do
+              aws grafana delete-workspace-service-account-token \
+                --workspace-id "$ws" --service-account-id "$sa" --token-id "$dead" >/dev/null || true
+            done
+
+        key=$(aws grafana create-workspace-service-account-token --workspace-id "$ws" --service-account-id "$sa" \
+          --name "gha-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-$GITHUB_JOB" --seconds-to-live 1800 \
+          --query 'serviceAccountToken.key' --output text)
+        echo "::add-mask::$key"
+
+        {
+          echo "GRAFANA_AUTH=$key"
+          echo "GRAFANA_URL=https://$(aws grafana describe-workspace --workspace-id "$ws" \
+            --query 'workspace.endpoint' --output text)"
+        } >> "$GITHUB_ENV"
+    - id: setup-terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.9.8
+        terraform_wrapper: false
+    - id: plugin-cache-dir
+      run: mkdir -p /home/runner/.terraform.d/plugin-cache
+    - id: plugin-cache
+      uses: actions/cache@v4
+      with:
+        key: tf-plugins-test_outputs_core_test_us_east_1_redis_monitoring-${{ hashFiles('test/outputs/core_test/us-east-1/redis/monitoring/.terraform.lock.hcl')
+          }}
+        path: /home/runner/.terraform.d/plugin-cache
+        restore-keys: tf-plugins-test_outputs_core_test_us_east_1_redis_monitoring-
+    - id: init
+      run: terraform init -lock-timeout=5m
+    - id: download-plan
+      uses: actions/download-artifact@v4
+      with:
+        name: tfplan-us_east_1_redis_monitoring-${{ github.run_id }}
+        path: test/outputs/core_test/us-east-1/redis/monitoring
+    - id: apply
+      run: terraform apply -auto-approve -lock-timeout=5m tfplan
+  plan_us_east_1_api_task_infra:
+    defaults:
+      run:
+        working-directory: test/outputs/core_test/us-east-1/api-task/infra
+    if: '!cancelled() && !failure()'
+    name: plan us-east-1/api-task/infra
+    outputs:
+      changes: ${{ steps.plan.outputs.changes }}
+    runs-on: ubuntu-latest
+    steps:
+    - id: checkout
+      uses: actions/checkout@v4
+    - id: aws-credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: us-east-1
+        role-to-assume: ${{ vars.TF_PLAN_ROLE }}
+    - id: setup-terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.9.8
+        terraform_wrapper: false
+    - id: plugin-cache-dir
+      run: mkdir -p /home/runner/.terraform.d/plugin-cache
+    - id: plugin-cache
+      uses: actions/cache@v4
+      with:
+        key: tf-plugins-test_outputs_core_test_us_east_1_api_task_infra-${{ hashFiles('test/outputs/core_test/us-east-1/api-task/infra/.terraform.lock.hcl')
+          }}
+        path: /home/runner/.terraform.d/plugin-cache
+        restore-keys: tf-plugins-test_outputs_core_test_us_east_1_api_task_infra-
+    - id: init
+      run: terraform init -lock-timeout=5m
+    - id: validate
+      run: terraform validate -no-color
+    - id: plan
+      run: |
+        set +e
+        terraform plan -detailed-exitcode -lock-timeout=5m -out=tfplan
+        code=$?
+        set -e
+        case $code in
+          0) echo "changes=false" >> "$GITHUB_OUTPUT" ;;
+          2) echo "changes=true"  >> "$GITHUB_OUTPUT" ;;
+          *) exit $code ;;
+        esac
+        terraform show -no-color tfplan > plan.txt
+    - id: upload-plan
+      uses: actions/upload-artifact@v4
+      with:
+        name: tfplan-us_east_1_api_task_infra-${{ github.run_id }}
+        path: |
+          test/outputs/core_test/us-east-1/api-task/infra/tfplan
+          test/outputs/core_test/us-east-1/api-task/infra/plan.txt
+        retention-days: 5
+    - id: drift
+      if: github.event_name == 'schedule' && steps.plan.outputs.changes == 'true'
+      run: |-
+        echo "::error::drift detected in us-east-1/api-task/infra"
+        exit 1
+  plan_us_east_1_api_task_monitoring:
+    defaults:
+      run:
+        working-directory: test/outputs/core_test/us-east-1/api-task/monitoring
+    if: '!cancelled() && !failure()'
+    name: plan us-east-1/api-task/monitoring
+    outputs:
+      changes: ${{ steps.plan.outputs.changes }}
+    runs-on: ubuntu-latest
+    steps:
+    - id: checkout
+      uses: actions/checkout@v4
+    - id: aws-credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: us-east-1
+        role-to-assume: ${{ vars.TF_PLAN_ROLE }}
+    - id: grafana-token
+      run: |
+        set -euo pipefail
+
+        ws="${{ vars.GRAFANA_WORKSPACE_ID }}"
+        account="protoconf-plan"
+
+        sa=$(aws grafana list-workspace-service-accounts --workspace-id "$ws" \
+          --query "serviceAccounts[?name=='$account'].id | [0]" --output text)
+        if [ -z "$sa" ] || [ "$sa" = "None" ]; then
+          echo "::error::no Grafana service account named $account in workspace $ws - apply the grafana state first"
+          exit 1
+        fi
+
+        # Grafana keeps expired tokens on the account, and this job cannot touch the live ones
+        # belonging to the jobs running beside it, so it collects the dead and leaves the rest.
+        now=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        aws grafana list-workspace-service-account-tokens --workspace-id "$ws" --service-account-id "$sa" \
+          | jq -r --arg now "$now" '.serviceAccountTokens[] | select(.expiresAt[0:19] < $now[0:19]) | .id' \
+          | while read -r dead; do
+              aws grafana delete-workspace-service-account-token \
+                --workspace-id "$ws" --service-account-id "$sa" --token-id "$dead" >/dev/null || true
+            done
+
+        key=$(aws grafana create-workspace-service-account-token --workspace-id "$ws" --service-account-id "$sa" \
+          --name "gha-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-$GITHUB_JOB" --seconds-to-live 1800 \
+          --query 'serviceAccountToken.key' --output text)
+        echo "::add-mask::$key"
+
+        {
+          echo "GRAFANA_AUTH=$key"
+          echo "GRAFANA_URL=https://$(aws grafana describe-workspace --workspace-id "$ws" \
+            --query 'workspace.endpoint' --output text)"
+        } >> "$GITHUB_ENV"
+    - id: setup-terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.9.8
+        terraform_wrapper: false
+    - id: plugin-cache-dir
+      run: mkdir -p /home/runner/.terraform.d/plugin-cache
+    - id: plugin-cache
+      uses: actions/cache@v4
+      with:
+        key: tf-plugins-test_outputs_core_test_us_east_1_api_task_monitoring-${{ hashFiles('test/outputs/core_test/us-east-1/api-task/monitoring/.terraform.lock.hcl')
+          }}
+        path: /home/runner/.terraform.d/plugin-cache
+        restore-keys: tf-plugins-test_outputs_core_test_us_east_1_api_task_monitoring-
+    - id: init
+      run: terraform init -lock-timeout=5m
+    - id: validate
+      run: terraform validate -no-color
+    - id: plan
+      run: |
+        set +e
+        terraform plan -detailed-exitcode -lock-timeout=5m -out=tfplan
+        code=$?
+        set -e
+        case $code in
+          0) echo "changes=false" >> "$GITHUB_OUTPUT" ;;
+          2) echo "changes=true"  >> "$GITHUB_OUTPUT" ;;
+          *) exit $code ;;
+        esac
+        terraform show -no-color tfplan > plan.txt
+    - id: upload-plan
+      uses: actions/upload-artifact@v4
+      with:
+        name: tfplan-us_east_1_api_task_monitoring-${{ github.run_id }}
+        path: |
+          test/outputs/core_test/us-east-1/api-task/monitoring/tfplan
+          test/outputs/core_test/us-east-1/api-task/monitoring/plan.txt
+        retention-days: 5
+    - id: drift
+      if: github.event_name == 'schedule' && steps.plan.outputs.changes == 'true'
+      run: |-
+        echo "::error::drift detected in us-east-1/api-task/monitoring"
+        exit 1
+  plan_us_east_1_redis_infra:
+    defaults:
+      run:
+        working-directory: test/outputs/core_test/us-east-1/redis/infra
+    if: '!cancelled() && !failure()'
+    name: plan us-east-1/redis/infra
+    outputs:
+      changes: ${{ steps.plan.outputs.changes }}
+    runs-on: ubuntu-latest
+    steps:
+    - id: checkout
+      uses: actions/checkout@v4
+    - id: aws-credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: us-east-1
+        role-to-assume: ${{ vars.TF_PLAN_ROLE }}
+    - id: setup-terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.9.8
+        terraform_wrapper: false
+    - id: plugin-cache-dir
+      run: mkdir -p /home/runner/.terraform.d/plugin-cache
+    - id: plugin-cache
+      uses: actions/cache@v4
+      with:
+        key: tf-plugins-test_outputs_core_test_us_east_1_redis_infra-${{ hashFiles('test/outputs/core_test/us-east-1/redis/infra/.terraform.lock.hcl')
+          }}
+        path: /home/runner/.terraform.d/plugin-cache
+        restore-keys: tf-plugins-test_outputs_core_test_us_east_1_redis_infra-
+    - id: init
+      run: terraform init -lock-timeout=5m
+    - id: validate
+      run: terraform validate -no-color
+    - id: plan
+      run: |
+        set +e
+        terraform plan -detailed-exitcode -lock-timeout=5m -out=tfplan
+        code=$?
+        set -e
+        case $code in
+          0) echo "changes=false" >> "$GITHUB_OUTPUT" ;;
+          2) echo "changes=true"  >> "$GITHUB_OUTPUT" ;;
+          *) exit $code ;;
+        esac
+        terraform show -no-color tfplan > plan.txt
+    - id: upload-plan
+      uses: actions/upload-artifact@v4
+      with:
+        name: tfplan-us_east_1_redis_infra-${{ github.run_id }}
+        path: |
+          test/outputs/core_test/us-east-1/redis/infra/tfplan
+          test/outputs/core_test/us-east-1/redis/infra/plan.txt
+        retention-days: 5
+    - id: drift
+      if: github.event_name == 'schedule' && steps.plan.outputs.changes == 'true'
+      run: |-
+        echo "::error::drift detected in us-east-1/redis/infra"
+        exit 1
+  plan_us_east_1_redis_monitoring:
+    defaults:
+      run:
+        working-directory: test/outputs/core_test/us-east-1/redis/monitoring
+    if: '!cancelled() && !failure()'
+    name: plan us-east-1/redis/monitoring
+    outputs:
+      changes: ${{ steps.plan.outputs.changes }}
+    runs-on: ubuntu-latest
+    steps:
+    - id: checkout
+      uses: actions/checkout@v4
+    - id: aws-credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: us-east-1
+        role-to-assume: ${{ vars.TF_PLAN_ROLE }}
+    - id: grafana-token
+      run: |
+        set -euo pipefail
+
+        ws="${{ vars.GRAFANA_WORKSPACE_ID }}"
+        account="protoconf-plan"
+
+        sa=$(aws grafana list-workspace-service-accounts --workspace-id "$ws" \
+          --query "serviceAccounts[?name=='$account'].id | [0]" --output text)
+        if [ -z "$sa" ] || [ "$sa" = "None" ]; then
+          echo "::error::no Grafana service account named $account in workspace $ws - apply the grafana state first"
+          exit 1
+        fi
+
+        # Grafana keeps expired tokens on the account, and this job cannot touch the live ones
+        # belonging to the jobs running beside it, so it collects the dead and leaves the rest.
+        now=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        aws grafana list-workspace-service-account-tokens --workspace-id "$ws" --service-account-id "$sa" \
+          | jq -r --arg now "$now" '.serviceAccountTokens[] | select(.expiresAt[0:19] < $now[0:19]) | .id' \
+          | while read -r dead; do
+              aws grafana delete-workspace-service-account-token \
+                --workspace-id "$ws" --service-account-id "$sa" --token-id "$dead" >/dev/null || true
+            done
+
+        key=$(aws grafana create-workspace-service-account-token --workspace-id "$ws" --service-account-id "$sa" \
+          --name "gha-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-$GITHUB_JOB" --seconds-to-live 1800 \
+          --query 'serviceAccountToken.key' --output text)
+        echo "::add-mask::$key"
+
+        {
+          echo "GRAFANA_AUTH=$key"
+          echo "GRAFANA_URL=https://$(aws grafana describe-workspace --workspace-id "$ws" \
+            --query 'workspace.endpoint' --output text)"
+        } >> "$GITHUB_ENV"
+    - id: setup-terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.9.8
+        terraform_wrapper: false
+    - id: plugin-cache-dir
+      run: mkdir -p /home/runner/.terraform.d/plugin-cache
+    - id: plugin-cache
+      uses: actions/cache@v4
+      with:
+        key: tf-plugins-test_outputs_core_test_us_east_1_redis_monitoring-${{ hashFiles('test/outputs/core_test/us-east-1/redis/monitoring/.terraform.lock.hcl')
+          }}
+        path: /home/runner/.terraform.d/plugin-cache
+        restore-keys: tf-plugins-test_outputs_core_test_us_east_1_redis_monitoring-
+    - id: init
+      run: terraform init -lock-timeout=5m
+    - id: validate
+      run: terraform validate -no-color
+    - id: plan
+      run: |
+        set +e
+        terraform plan -detailed-exitcode -lock-timeout=5m -out=tfplan
+        code=$?
+        set -e
+        case $code in
+          0) echo "changes=false" >> "$GITHUB_OUTPUT" ;;
+          2) echo "changes=true"  >> "$GITHUB_OUTPUT" ;;
+          *) exit $code ;;
+        esac
+        terraform show -no-color tfplan > plan.txt
+    - id: upload-plan
+      uses: actions/upload-artifact@v4
+      with:
+        name: tfplan-us_east_1_redis_monitoring-${{ github.run_id }}
+        path: |
+          test/outputs/core_test/us-east-1/redis/monitoring/tfplan
+          test/outputs/core_test/us-east-1/redis/monitoring/plan.txt
+        retention-days: 5
+    - id: drift
+      if: github.event_name == 'schedule' && steps.plan.outputs.changes == 'true'
+      run: |-
+        echo "::error::drift detected in us-east-1/redis/monitoring"
+        exit 1
+  pr_comment:
+    if: always() && github.event_name == 'pull_request'
+    name: comment
+    needs:
+    - plan_us_east_1_api_task_infra
+    - plan_us_east_1_api_task_monitoring
+    - plan_us_east_1_redis_infra
+    - plan_us_east_1_redis_monitoring
+    runs-on: ubuntu-latest
+    steps:
+    - continue-on-error: true
+      id: download-plans
+      uses: actions/download-artifact@v4
+      with:
+        path: plans
+        pattern: tfplan-*-${{ github.run_id }}
+    - env:
+        NEEDS: ${{ toJSON(needs) }}
+        PLANS: '[{"job":"plan_us_east_1_api_task_infra","label":"us-east-1/api-task/infra","slug":"us_east_1_api_task_infra"},{"job":"plan_us_east_1_api_task_monitoring","label":"us-east-1/api-task/monitoring","slug":"us_east_1_api_task_monitoring"},{"job":"plan_us_east_1_redis_infra","label":"us-east-1/redis/infra","slug":"us_east_1_redis_infra"},{"job":"plan_us_east_1_redis_monitoring","label":"us-east-1/redis/monitoring","slug":"us_east_1_redis_monitoring"}]'
+      id: comment
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const tag = '<!-- tf-plan -->';
+          const plans = JSON.parse(process.env.PLANS);
+          const needs = JSON.parse(process.env.NEEDS);
+          const runId = process.env.GITHUB_RUN_ID;
+
+          // GitHub rejects a comment over 65536 characters, and a rejected comment says nothing at
+          // all about any state. Everything below is spent staying under that.
+          const BUDGET = 60000;
+
+          const rows = [];
+          const changed = [];
+          for (const p of plans) {
+            const job = needs[p.job] || {};
+            const result = job.result || 'skipped';
+            const changes = (job.outputs || {}).changes;
+            rows.push(`| \`${p.label}\` | ${result === 'success' ? (changes === 'true' ? 'changes' : 'no changes') : result} |`);
+            if (result !== 'success' || changes !== 'true') continue;
+            try {
+              changed.push({ label: p.label, text: fs.readFileSync(`plans/tfplan-${p.slug}-${runId}/plan.txt`, 'utf8') });
+            } catch (e) {
+              core.warning(`no plan artifact for ${p.label}`);
+            }
+          }
+
+          const header = `${tag}
+          ### Terraform plan
+
+          | state | plan |
+          | --- | --- |
+          ${rows.join('\n')}
+          `;
+
+          // Only the states that changed are worth showing, and they share what is left of the
+          // budget equally, so one enormous plan cannot crowd every other state out of the comment.
+          const share = changed.length ? Math.floor((BUDGET - header.length) / changed.length) - 200 : 0;
+          const details = changed.map(c => {
+            const text = c.text.length > share ? c.text.slice(0, Math.max(share, 0)) + '\n... truncated, see the artifact' : c.text;
+            return `<details><summary><code>${c.label}</code></summary>
+
+          \`\`\`hcl
+          ${text}
+          \`\`\`
+
+          </details>`;
+          }).join('\n');
+
+          const out = header + '\n' + details;
+          const { data: comments } = await github.rest.issues.listComments({
+            ...context.repo, issue_number: context.issue.number });
+          const prev = comments.find(c => c.body.startsWith(tag));
+          prev
+            ? await github.rest.issues.updateComment({ ...context.repo, comment_id: prev.id, body: out })
+            : await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body: out });
+name: terraform
+"on":
+  pull_request:
+    paths:
+    - test/outputs/core_test/**
+  push:
+    branches:
+    - main
+    paths:
+    - test/outputs/core_test/**
+  schedule:
+  - cron: 0 3 * * *
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
