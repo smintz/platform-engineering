@@ -1,17 +1,19 @@
 ---
-gsd_state_version: 1.0
+gsd_state_version: "1.0"
 milestone: v1.0
-milestone_name: milestone
+current_phase: 01
+current_phase_name: Trustworthy Foundations
 status: executing
-stopped_at: Completed 01-02-PLAN.md
-last_updated: "2026-09-07T17:47:14.750Z"
+stopped_at: Completed 01-03-PLAN.md
+last_updated: "2026-09-07T17:56:12.135Z"
 last_activity: 2026-09-07
+state_head: 80cc10659e5d6b84b27090a97870b649a1cf2d3a
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 3
   completed_plans: 2
-  percent: 0
+milestone_name: milestone
 ---
 
 # Project State
@@ -58,6 +60,7 @@ Progress: [███████░░░] 67%
 |------|----------|-------|-------|
 | Phase 01 P01 | 7 min | 2 tasks | 5 files |
 | Phase 01 P02 | 7 min | 2 tasks | 5 files |
+| Phase 01 P03 | 6 min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -74,6 +77,10 @@ Recent decisions affecting current work:
 - [Phase 01]: SelectComponents de-duplicates by structural equality on the component message, not by a <domain>/<name> string key — A string key works and silently asserts a uniqueness the schema does not enforce; proto messages hash and compare by value here, so a dict collapses exactly the diamond case
 - [Phase 01]: WithLabels is a plain component_filter hook, not Inherit — Whether a label reaches a component's whole dependency subtree is a Phase 2 COST-01 question; WithFailureDomain shows the inheriting variant is a one-word change
 - [Phase 01]: SelectComponents returns an empty list on no match rather than failing — Phase 5 SEC-02 needs the empty result in order to raise its own better-informed error
+- [Phase 01]: Both compile gates live in the CI drivers TerraformPipeline (D-14), not as a .proto-validator — a validator bound to Component runs before the component is flattened into a pipeline and cannot see the producer set
+- [Phase 01]: MISMATCHED and LOCAL are declared ABOVE the switch points they substitute into — Starlark evaluates a module top to bottom, so a forward reference dies with undefined: before reaching the gate, which is indistinguishable from a gate that stopped firing
+- [Phase 01]: _check_remote_backends tests backend.local structurally rather than via a None return from _backend_state_id — that helper returns a non-empty local:// id for a local backend and would never fire on it
+- [Phase 01]: CONTEXT D-16 predicted a generated-workflow job-ordering diff from the redis fix; it does not occur — no config in the reference stack declares a terraform_remote_state, so a real redis state id gains no edge and a workflow diff there is a regression
 
 ### Pending Todos
 
@@ -94,6 +101,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-07T17:47:01.660Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-09-07T17:55:43.517Z
+Stopped at: Completed 01-03-PLAN.md
 Resume file: None
