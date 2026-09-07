@@ -1,18 +1,16 @@
 ---
-gsd_state_version: "1.0"
-current_phase: 01
-current_phase_name: Trustworthy Foundations
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
 status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-09-07T17:37:42.834Z"
-last_activity: 2026-09-08
-last_activity_desc: Phase 01 execution started
-state_head: 85d1b20fe577a4d8ea68b76ebc2207db2e829118
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-09-07T17:47:14.750Z"
+last_activity: 2026-09-07
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -28,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-09-07)
 ## Current Position
 
 Phase: 01 (Trustworthy Foundations) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
-Last activity: 2026-09-08 — Phase 01 execution started
+Last activity: 2026-09-07
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
@@ -59,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 01 P01 | 7 min | 2 tasks | 5 files |
+| Phase 01 P02 | 7 min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -72,6 +71,9 @@ Recent decisions affecting current work:
 - Roadmap: Security policy (Phase 5) sequenced last and depends on Phase 1, 3, and 4 — it needs `tags` to exist *and* needs real drivers already populating meaningful tags
 - [Phase 01]: Drift check triggers on .github/workflows/terraform.yaml too, not only D-03's five source paths — It is one of the three asserted trees and is never hand-edited; without it in the filter a PR that only hand-edits the generated workflow matches no trigger and the tamper lands green
 - [Phase 01]: test/protoconf.lock is in the drift trigger but deliberately out of the drift assertion — CI deletes and regenerates it every run, and the rc2 release binary and the dev build disagree about its JSON whitespace — asserting on it would fail every clean run
+- [Phase 01]: SelectComponents de-duplicates by structural equality on the component message, not by a <domain>/<name> string key — A string key works and silently asserts a uniqueness the schema does not enforce; proto messages hash and compare by value here, so a dict collapses exactly the diamond case
+- [Phase 01]: WithLabels is a plain component_filter hook, not Inherit — Whether a label reaches a component's whole dependency subtree is a Phase 2 COST-01 question; WithFailureDomain shows the inheriting variant is a one-word change
+- [Phase 01]: SelectComponents returns an empty list on no match rather than failing — Phase 5 SEC-02 needs the empty result in order to raise its own better-informed error
 
 ### Pending Todos
 
@@ -92,6 +94,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-07T17:37:20.147Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-09-07T17:47:01.660Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None

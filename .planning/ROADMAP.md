@@ -45,7 +45,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Compiling a component whose state CI will apply, but that has no remote backend configured, fails with a message naming the missing backend — it does not silently fall back to local state
   4. Compiling a cross-state value handshake that CI's apply-ordering derivation cannot see fails with a message naming the fix, rather than producing a wrong or partial apply order
 
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 **Wave 1**
@@ -54,7 +54,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Component shape and graph selection: `WithLabels`, a lifted `walk_upstreams`, `SelectComponents`, facade exports, and a committed assertion probe (FOUND-02, FOUND-03)
+- [x] 01-02-PLAN.md — Component shape and graph selection: `WithLabels`, a lifted `walk_upstreams`, `SelectComponents`, facade exports, and a committed assertion probe (FOUND-02, FOUND-03)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -125,7 +125,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Trustworthy Foundations | 1/3 | In Progress|  |
+| 1. Trustworthy Foundations | 2/3 | In Progress|  |
 | 2. FinOps Cost Attribution | 0/? | Not started | - |
 | 3. Database Dependency Fan-Out | 0/? | Not started | - |
 | 4. Service Mesh Authorization | 0/? | Not started | - |
