@@ -1,0 +1,151 @@
+load("@github_actions//github_actions.pinc", "actions")
+load("@kubernetes//kubernetes.pinc", "Workload")
+load("@platform//platform/platform.pinc", "platform")
+load(
+    "@terraform_state//terraform.pinc",
+    "LocalBackend",
+    "S3Backend",
+    "WithRemoteOutput",
+    "WithState",
+)
+
+# What the golden files cannot see, part two. This file exists for two reasons.
+#
+# First, it is the only executable assertion that the pipeline's apply-ordering derivation
+# actually derives an edge. Every config in the reference stack stands alone — none of them
+# declares a terraform_remote_state — so `dependencies()` returns an empty upstream list for
+# all four and nothing under outputs/ or materialized_config/ can distinguish "the ordering
+# works" from "the ordering has never been asked a question". This file asks it: one
+# publisher, one subscriber, a correctly paired cross-state handshake, and an assertion that
+# the subscriber's plan job waits on the publisher's.
+#
+# Second, it is the fixture the two compile gates in the CI driver are proven against.
+# NEAR_BACKEND and FAR_BACKEND below are switch points: substituting LOCAL for the first and
+# MISMATCHED for the second reproduces, exactly, the two silently-wrong wirings
+# `_check_remote_backends` and `_check_reads_are_produced` exist to catch. Starlark cannot
+# catch a fail() in-process, so those two negative checks are scripted from outside the
+# compiler rather than asserted here — see this plan's Task 3.
+#
+# main() returns an empty dict on purpose: an .mpconf with no keys writes no output file, so
+# this costs zero golden-file surface while still compiling on every `make test`.
+
+# Where this fixture's states would live if anything ever applied them. Nothing does — the
+# bucket is named as a fixture rather than as real infrastructure, because this file emits
+# no Terraform at all and a plausible bucket name here would read as a second live stack.
+BACKEND = S3Backend(
+    "handshake-test-fixture",
+    "us-east-1",
+    lambda domain, name: "%s/%s.tfstate" % (domain, name),
+)
+
+# MISMATCHED and LOCAL are used by no component in this file. They exist as the values the
+# two negative checks substitute into NEAR_BACKEND and FAR_BACKEND below, and deleting them
+# as dead code would silently disarm both checks.
+#
+# They are declared ABOVE the two switch points on purpose. Starlark evaluates a module top
+# to bottom, so a substitution that referred forward to a name defined later would fail with
+# `undefined: MISMATCHED` before the compiler ever reached the gate the check is aimed at —
+# a non-zero exit and an absent gate message, which reads exactly like a gate that stopped
+# firing.
+#
+# MISMATCHED feeds the FOUND-05 negative check: swapped in for FAR_BACKEND it makes the
+# subscriber read an s3 state no config in this pipeline writes.
+MISMATCHED = S3Backend(
+    "handshake-test-nobody-writes-this",
+    "us-east-1",
+    lambda domain, name: "%s/%s.tfstate" % (domain, name),
+)
+
+# LOCAL feeds the FOUND-04 negative check: swapped in for NEAR_BACKEND it makes both
+# components hold their state on the runner's disk, which CI discards when the job ends.
+LOCAL = LocalBackend()
+
+# The backend each component's own state is written to.
+NEAR_BACKEND = BACKEND
+
+# The backend the far half of the handshake reads through. It is deliberately the same
+# object the publisher writes to: a read pointing at a state this pipeline does not apply
+# yields no ordering edge, which leaves the apply order arbitrary rather than merely
+# unsupported. That is the pairing FOUND-05 makes mandatory, and the one asserted below.
+FAR_BACKEND = BACKEND
+
+# One failure domain for both components, so the handshake is a cross-state read rather
+# than a cross-domain one — the case the DB and mesh drivers in phases 3-5 will produce.
+DOMAIN = "handshake"
+
+# Never written to: the pipeline is built and discarded, and the compiler is never asked to
+# materialize it. It is here because TerraformPipeline requires a root to resolve working
+# directories against, not because anything reads one.
+OUTPUT_ROOT = "test/outputs/handshake_test"
+
+# The publisher owns its own state and publishes one value out of it. WithRemoteOutput
+# returns a tuple — the near half writes `output "host"` here, the far half gives every
+# dependant a terraform_remote_state pointing back at this state — so it is passed as one
+# positional argument and Component's flatten splices the pair. Unpacking it at the call
+# site would let a future edit apply one half without the other, which is the wiring the
+# handshake convention exists to make impossible.
+def PublisherComponent(*hooks):
+    return platform.Component(
+        "pub",
+        WithState(
+            lambda component: Workload("pub", "ghcr.io/example/pub:latest", 8080),
+            NEAR_BACKEND,
+        ),
+        WithRemoteOutput("host", "pub.internal", FAR_BACKEND),
+        *hooks
+    )
+
+# The subscriber declares only the dependency. It never names the publisher's state, its
+# bucket or its key: the far half of the handshake wrote the data source into this config,
+# and the pipeline recovers the ordering edge by matching that read against the publisher's
+# backend. Nobody declares the DAG, which is the property being asserted.
+def SubscriberComponent(*hooks):
+    return platform.Component(
+        "sub",
+        WithState(
+            lambda component: Workload("sub", "ghcr.io/example/sub:latest", 8080),
+            NEAR_BACKEND,
+        ),
+        platform.WithDeps(PublisherComponent),
+        *hooks
+    )
+
+def main():
+    configs = platform.GetConfigs(
+        SubscriberComponent(platform.WithFailureDomain(DOMAIN)).msg,
+    )
+
+    # This call comes FIRST, before the assertion below, and the order is load-bearing.
+    # TerraformPipeline runs the two compile gates, and both of this file's switch points
+    # also break the assertion below: LOCAL collapses both backend state ids to "local://",
+    # which the duplicate-state fail() inside _producers reports, and MISMATCHED leaves the
+    # subscriber with no upstream, which this file's own fail() reports. Starlark cannot
+    # catch a fail(), so whichever runs first ends the compile. With the assertion first,
+    # neither gate would ever be entered and a gate that had quietly stopped firing would
+    # still look green. The result is discarded: nothing here is materialized.
+    actions.TerraformPipeline(
+        configs,
+        OUTPUT_ROOT,
+        actions.OidcCredentials("us-east-1"),
+    )
+
+    # Composed rather than hardcoded, because the key layout is GetConfigs' business:
+    # "<domain>/<name>/<config key>", with the domain omitted when empty. A literal here
+    # would keep passing after a change to that layout by asserting against a path the
+    # compiler no longer writes.
+    pub = "%s/pub/%s" % (DOMAIN, platform.MAIN_CONFIG)
+    sub = "%s/sub/%s" % (DOMAIN, platform.MAIN_CONFIG)
+    expected = {pub: [], sub: [pub]}
+
+    deps = actions.dependencies(configs)
+    if deps != expected:
+        fail(
+            ("handshake_test: the apply-ordering derivation lost the cross-state edge. " +
+             "Expected %s — the subscriber's plan job waiting on the publisher's, and the " +
+             "publisher waiting on nothing — but got %s. An empty upstream list for the " +
+             "subscriber means its terraform_remote_state read matched no config's backend " +
+             "state id, so both halves of the handshake are no longer pointed at the same " +
+             "backend.") % (expected, deps),
+        )
+
+    return {}
