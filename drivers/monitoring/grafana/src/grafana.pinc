@@ -1,12 +1,12 @@
+load("@platform//platform/platform.pinc", "platform")
+load("@platform//terraform/v1/util.pinc", "util")
 load("//google/protobuf/struct.proto", "NullValue", "Value")
 load("//google/protobuf/wrappers.proto", "BoolValue", "DoubleValue")
-load("grafana/alerts.pinc", "alerts")
-load("@platform//platform/platform.pinc", "platform")
 load("//platform/v1/platform.proto", component_proto = "Component")
 load("//terraform/grafana/datasources/v4/data.proto", "GrafanaDataSource")
 load("//terraform/grafana/provider/v4/grafana.proto", "Grafana")
 load("//terraform/grafana/resources/v4/dashboard.proto", "GrafanaDashboard")
-load("@platform//terraform/v1/util.pinc", "util")
+load("grafana/alerts.pinc", "alerts")
 load(
     "grafana/v1/dashboard.proto",
     "Dashboard",

@@ -1,8 +1,8 @@
 load("@github_actions//github_actions.pinc", "actions")
 load("@grafana//grafana.pinc", "WithGrafanaDashboard")
 load("@kubernetes//kubernetes.pinc", "WithContainerEnv", "Workload")
-load("@terraform_state//terraform.pinc", "S3Backend", "WithState")
 load("@platform//platform/platform.pinc", "platform")
+load("@terraform_state//terraform.pinc", "S3Backend", "WithState")
 
 # Where every state in this stack lives. One bucket, keyed by failure domain and state
 # name, which is also what lets the pipeline below recover the order states apply in.

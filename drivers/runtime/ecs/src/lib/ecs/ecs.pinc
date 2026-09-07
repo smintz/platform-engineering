@@ -1,26 +1,24 @@
+load("@platform//terraform/v1/util.pinc", "ChainWithLast", "util")
 load("//aws/ecs/v1/taskdefinition.proto", "ContainerDefinition")
 load("//terraform/aws/datasources/v5/caller.proto", "AwsCallerIdentity")
 load("//terraform/aws/datasources/v5/rds.proto", "AwsRdsCluster")
 load("//terraform/aws/datasources/v5/secretsmanager.proto", "AwsSecretsmanagerSecret")
 load("//terraform/aws/resources/v5/ecs.proto", "AwsEcsService", "AwsEcsTaskDefinition")
-load("//terraform/aws/resources/v5/service.proto", "AwsServiceDiscoveryService")
-load("//terraform/aws/resources/v5/scheduler.proto", "AwsSchedulerSchedule")
 load(
     "//terraform/aws/resources/v5/iam.proto",
     "AwsIamRole",
     "AwsIamRolePolicy",
     "AwsIamRolePolicyAttachment",
 )
-load("@platform//terraform/v1/util.pinc", "ChainWithLast", "util")
+load("//terraform/aws/resources/v5/scheduler.proto", "AwsSchedulerSchedule")
+load("//terraform/aws/resources/v5/service.proto", "AwsServiceDiscoveryService")
 load("encoding/json.star", "json")
 load("re.star", "re")
-
 
 def to_terraform_safe_name(name):
     return re.sub("[^a-zA-Z0-9 -]", "_", name.split("/")[-1])
 
-
-def WithEnv(env_var, value, container_id="main"):
+def WithEnv(env_var, value, container_id = "main"):
     def with_env(t, next):
         environment = t.tmp["containers"][container_id].environment or []
 
@@ -28,18 +26,17 @@ def WithEnv(env_var, value, container_id="main"):
         environment = [e for e in environment if e.name != env_var]
 
         # Add the new environment variable
-        environment.append(ContainerDefinition.Env(name=env_var, value=value))
+        environment.append(ContainerDefinition.Env(name = env_var, value = value))
         t.tmp["containers"][container_id].environment = environment
         return next(t)
 
     return with_env
 
-
-def WithPort(container_port, host_port=None, protocol="tcp", container_id="main"):
+def WithPort(container_port, host_port = None, protocol = "tcp", container_id = "main"):
     portmap = ContainerDefinition.PortMapping(
-        container_port=container_port,
-        protocol=protocol,
-        host_port=host_port or container_port,
+        container_port = container_port,
+        protocol = protocol,
+        host_port = host_port or container_port,
     )
 
     def with_port(t, next):
@@ -52,12 +49,11 @@ def WithPort(container_port, host_port=None, protocol="tcp", container_id="main"
 
     return with_port
 
-
-def WithUlimit(name, soft_limit, hard_limit, container_id="main"):
+def WithUlimit(name, soft_limit, hard_limit, container_id = "main"):
     ulimit = ContainerDefinition.Ulimit(
-        name=name,
-        soft_limit=soft_limit,
-        hard_limit=hard_limit,
+        name = name,
+        soft_limit = soft_limit,
+        hard_limit = hard_limit,
     )
 
     def with_ulimit(t, next):
@@ -68,16 +64,15 @@ def WithUlimit(name, soft_limit, hard_limit, container_id="main"):
 
     return with_ulimit
 
-
 def WithDatabaseUser(dbuser):
     def with_database_user(t, next):
         t.Chain(
             util.Resource(
                 t.prefix + "db_user" + t.suffix,
                 AwsIamRolePolicy(
-                    name=t.prefix + "db_user",
-                    role=t.var.task_role.id,
-                    policy=json.encode(
+                    name = t.prefix + "db_user",
+                    role = t.var.task_role.id,
+                    policy = json.encode(
                         {
                             "Version": "2012-10-17",
                             "Statement": [
@@ -86,8 +81,8 @@ def WithDatabaseUser(dbuser):
                                     "Action": ["rds-db:connect"],
                                     "Resource": [
                                         "arn:aws:rds-db:*:{account_id}:dbuser:*/{dbuser}".format(
-                                            dbuser=dbuser,
-                                            account_id=t.var.data.caller.account_id,
+                                            dbuser = dbuser,
+                                            account_id = t.var.data.caller.account_id,
                                         ),
                                     ],
                                 },
@@ -101,16 +96,15 @@ def WithDatabaseUser(dbuser):
 
     return with_database_user
 
-
 def WithS3Access(bucket):
     def with_s3_access(t, next):
         t.Chain(
             util.Resource(
                 t.prefix + "s3_access" + t.suffix,
                 AwsIamRolePolicy(
-                    name=t.prefix + "s3_access" + t.suffix,
-                    role=t.var.task_role.id,
-                    policy=json.encode(
+                    name = t.prefix + "s3_access" + t.suffix,
+                    role = t.var.task_role.id,
+                    policy = json.encode(
                         {
                             "Version": "2012-10-17",
                             "Statement": [
@@ -122,8 +116,8 @@ def WithS3Access(bucket):
                                         "s3:ListBucket",
                                     ],
                                     "Resource": [
-                                        "arn:aws:s3:::{bucket}".format(bucket=bucket),
-                                        "arn:aws:s3:::{bucket}/*".format(bucket=bucket),
+                                        "arn:aws:s3:::{bucket}".format(bucket = bucket),
+                                        "arn:aws:s3:::{bucket}/*".format(bucket = bucket),
                                     ],
                                 },
                             ],
@@ -136,16 +130,15 @@ def WithS3Access(bucket):
 
     return with_s3_access
 
-
-def WithPolicy(name, role_id, actions=[], resources=[]):
+def WithPolicy(name, role_id, actions = [], resources = []):
     def with_policy(t, next):
         t.Chain(
             util.Resource(
                 t.prefix + name + t.suffix,
                 AwsIamRolePolicy(
-                    name=t.prefix + name + t.suffix,
-                    role=role_id,
-                    policy=json.encode(
+                    name = t.prefix + name + t.suffix,
+                    role = role_id,
+                    policy = json.encode(
                         {
                             "Version": "2012-10-17",
                             "Statement": [
@@ -164,7 +157,6 @@ def WithPolicy(name, role_id, actions=[], resources=[]):
 
     return with_policy
 
-
 def WithTimestreamAccess():
     def with_timestream_access(t, next):
         return WithPolicy(
@@ -178,16 +170,15 @@ def WithTimestreamAccess():
 
     return with_timestream_access
 
-
-def WithSecret(env_var, secret_arn, container_id="main"):
+def WithSecret(env_var, secret_arn, container_id = "main"):
     def with_secret(t, next):
         t.Chain(
             util.Resource(
                 t.prefix + "secret_" + env_var.lower() + t.suffix,
                 AwsIamRolePolicy(
-                    name=t.prefix + "secret_" + env_var.lower() + t.suffix,
-                    role=t.var.role.id,
-                    policy=json.encode(
+                    name = t.prefix + "secret_" + env_var.lower() + t.suffix,
+                    role = t.var.role.id,
+                    policy = json.encode(
                         {
                             "Version": "2012-10-17",
                             "Statement": [
@@ -208,38 +199,36 @@ def WithSecret(env_var, secret_arn, container_id="main"):
         secrets = [s for s in secrets if s.name != env_var]
 
         # Add the new secret
-        secrets.append(ContainerDefinition.Secret(name=env_var, value_from=secret_arn))
+        secrets.append(ContainerDefinition.Secret(name = env_var, value_from = secret_arn))
         t.tmp["containers"][container_id].secrets = secrets
         return next(t)
 
     return with_secret
 
-
-def WithSecretName(env_var, secret_name, container_id="main"):
+def WithSecretName(env_var, secret_name, container_id = "main"):
     def with_secret_name(t, next):
         dataSourceName = to_terraform_safe_name(
-            t.prefix + "secret_name_" + env_var.lower() + t.suffix
+            t.prefix + "secret_name_" + env_var.lower() + t.suffix,
         )
         t.Chain(
             util.Data(
                 dataSourceName,
                 AwsSecretsmanagerSecret(
-                    name=secret_name,
+                    name = secret_name,
                 ),
-            )
+            ),
         )
         secret_arn = "${{data.aws_secretsmanager_secret.{dataSourceName}.arn}}".format(
-            dataSourceName=dataSourceName
+            dataSourceName = dataSourceName,
         )
         return WithSecret(env_var, secret_arn, container_id)(t, next)
 
     return with_secret_name
 
-
 # Service hooks are chained over a context carrying both the task (ctx.t) and the
 # AwsEcsService being built (ctx.service). They mutate ctx.service in place and may use
 # ctx.t to install supporting resources (e.g. Cloud Map), then return next(ctx).
-def WithServiceCapacityProvider(capacity_provider, weight=1, base=0):
+def WithServiceCapacityProvider(capacity_provider, weight = 1, base = 0):
     def with_capacity_provider(ctx, next):
         svc = ctx.service
         if not hasattr(svc, "capacity_provider_strategy"):
@@ -247,15 +236,14 @@ def WithServiceCapacityProvider(capacity_provider, weight=1, base=0):
         svc.launch_type = ""
         svc.capacity_provider_strategy.append(
             AwsEcsService.CapacityProviderStrategy(
-                capacity_provider=capacity_provider,
-                weight=weight,
-                base=base,
+                capacity_provider = capacity_provider,
+                weight = weight,
+                base = base,
             ),
         )
         return next(ctx)
 
     return with_capacity_provider
-
 
 def WithLaunchType(launch_type):
     def with_launch_type(ctx, next):
@@ -264,8 +252,7 @@ def WithLaunchType(launch_type):
 
     return with_launch_type
 
-
-def WithServiceRegistry(namespace_id, dns_name, container_id="main", ttl=10):
+def WithServiceRegistry(namespace_id, dns_name, container_id = "main", ttl = 10):
     def with_service_registry(ctx, next):
         t = ctx.t
         resource_name = t.prefix + "discovery_" + dns_name + t.suffix
@@ -273,15 +260,15 @@ def WithServiceRegistry(namespace_id, dns_name, container_id="main", ttl=10):
             util.Resource(
                 resource_name,
                 AwsServiceDiscoveryService(
-                    name=dns_name,
-                    namespace_id=namespace_id,
-                    dns_config=AwsServiceDiscoveryService.DnsConfig(
-                        namespace_id=namespace_id,
-                        routing_policy="MULTIVALUE",
-                        dns_records=[
+                    name = dns_name,
+                    namespace_id = namespace_id,
+                    dns_config = AwsServiceDiscoveryService.DnsConfig(
+                        namespace_id = namespace_id,
+                        routing_policy = "MULTIVALUE",
+                        dns_records = [
                             AwsServiceDiscoveryService.DnsConfig.DnsRecords(
-                                ttl=ttl,
-                                type="A",
+                                ttl = ttl,
+                                type = "A",
                             ),
                         ],
                     ),
@@ -289,24 +276,23 @@ def WithServiceRegistry(namespace_id, dns_name, container_id="main", ttl=10):
             ),
         )
         ctx.service.service_registries = AwsEcsService.ServiceRegistries(
-            registry_arn="${aws_service_discovery_service." + resource_name + ".arn}",
-            container_name=t.tmp["containers"][container_id].name,
+            registry_arn = "${aws_service_discovery_service." + resource_name + ".arn}",
+            container_name = t.tmp["containers"][container_id].name,
         )
         return next(ctx)
 
     return with_service_registry
 
-
-def WithService(desired_count=1, *hooks):
+def WithService(desired_count = 1, *hooks):
     def with_service(t, next):
         svc = AwsEcsService(
-            name="leapalgo-" + t.prefix + "service" + t.suffix,
-            cluster="leapalgo",
-            task_definition=t.var.task_definition.arn,
-            desired_count=desired_count,
-            launch_type="FARGATE",
-            network_configuration=AwsEcsService.NetworkConfiguration(
-                subnets=[
+            name = "leapalgo-" + t.prefix + "service" + t.suffix,
+            cluster = "leapalgo",
+            task_definition = t.var.task_definition.arn,
+            desired_count = desired_count,
+            launch_type = "FARGATE",
+            network_configuration = AwsEcsService.NetworkConfiguration(
+                subnets = [
                     "${data.aws_subnet.private_subnet_a.id}",
                     "${data.aws_subnet.private_subnet_b.id}",
                     "${data.aws_subnet.private_subnet_c.id}",
@@ -314,12 +300,11 @@ def WithService(desired_count=1, *hooks):
             ),
         )
 
-        ChainWithLast(struct(t=t, service=svc), *hooks)
+        ChainWithLast(struct(t = t, service = svc), *hooks)
         t.Chain(util.Resource(t.prefix + "service" + t.suffix, svc))
         return next(t)
 
     return with_service
-
 
 # WithSchedule runs the task on a cron via EventBridge Scheduler instead of (or
 # alongside) a long-running service. It relies on a shared scheduler IAM role and
@@ -328,37 +313,36 @@ def WithService(desired_count=1, *hooks):
 # (see SHARED_DATA_SOURCES); the cluster ARN is derived from the caller identity
 # every Task carries, because the aws_ecs_cluster data source has no name lookup.
 def WithSchedule(
-    schedule_expression,
-    scheduler_role_arn="${data.aws_iam_role.scheduler_role.arn}",
-    cluster_arn=None,
-    timezone="America/New_York",
-    task_count=1,
-):
+        schedule_expression,
+        scheduler_role_arn = "${data.aws_iam_role.scheduler_role.arn}",
+        cluster_arn = None,
+        timezone = "America/New_York",
+        task_count = 1):
     def with_schedule(t, next):
         cluster_arn_ = cluster_arn or (
-            "arn:aws:ecs:us-east-1:"
-            + t.var.data.caller.account_id
-            + ":cluster/leapalgo"
+            "arn:aws:ecs:us-east-1:" +
+            t.var.data.caller.account_id +
+            ":cluster/leapalgo"
         )
         t.Chain(
             util.Resource(
                 t.prefix + "schedule" + t.suffix,
                 AwsSchedulerSchedule(
-                    name="leapalgo-" + t.prefix + "schedule" + t.suffix,
-                    schedule_expression=schedule_expression,
-                    schedule_expression_timezone=timezone,
-                    flexible_time_window=AwsSchedulerSchedule.FlexibleTimeWindow(
-                        mode="OFF",
+                    name = "leapalgo-" + t.prefix + "schedule" + t.suffix,
+                    schedule_expression = schedule_expression,
+                    schedule_expression_timezone = timezone,
+                    flexible_time_window = AwsSchedulerSchedule.FlexibleTimeWindow(
+                        mode = "OFF",
                     ),
-                    target=AwsSchedulerSchedule.Target(
-                        arn=cluster_arn_,
-                        role_arn=scheduler_role_arn,
-                        ecs_parameters=AwsSchedulerSchedule.Target.EcsParameters(
-                            task_definition_arn=t.var.task_definition.arn,
-                            launch_type="FARGATE",
-                            task_count=task_count,
-                            network_configuration=AwsSchedulerSchedule.Target.EcsParameters.NetworkConfiguration(
-                                subnets=[
+                    target = AwsSchedulerSchedule.Target(
+                        arn = cluster_arn_,
+                        role_arn = scheduler_role_arn,
+                        ecs_parameters = AwsSchedulerSchedule.Target.EcsParameters(
+                            task_definition_arn = t.var.task_definition.arn,
+                            launch_type = "FARGATE",
+                            task_count = task_count,
+                            network_configuration = AwsSchedulerSchedule.Target.EcsParameters.NetworkConfiguration(
+                                subnets = [
                                     "${data.aws_subnet.private_subnet_a.id}",
                                     "${data.aws_subnet.private_subnet_b.id}",
                                     "${data.aws_subnet.private_subnet_c.id}",
@@ -373,25 +357,24 @@ def WithSchedule(
 
     return with_schedule
 
-
-def WithSidecar(name, image, cmd=[], *hooks, **kwargs):
+def WithSidecar(name, image, cmd = [], *hooks, **kwargs):
     region = kwargs.pop("region", "us-east-1")
 
     def with_sidecar(t, next):
         t.tmp["containers"].setdefault(
             name,
             ContainerDefinition(
-                name=name,
-                image=image,
-                command=cmd,
-                essential=False,
-                environment=[],
-                mount_points=[],
-                system_controls=[],
-                volumes_from=[],
-                log_configuration=ContainerDefinition.LogConfiguration(
-                    log_driver="awslogs",
-                    options={
+                name = name,
+                image = image,
+                command = cmd,
+                essential = False,
+                environment = [],
+                mount_points = [],
+                system_controls = [],
+                volumes_from = [],
+                log_configuration = ContainerDefinition.LogConfiguration(
+                    log_driver = "awslogs",
+                    options = {
                         "awslogs-group": "${data.aws_cloudwatch_log_group.log_group.name}",
                         "awslogs-region": region,
                         "awslogs-stream-prefix": name,
@@ -404,17 +387,15 @@ def WithSidecar(name, image, cmd=[], *hooks, **kwargs):
 
     return with_sidecar
 
-
 def Task(
-    name,
-    region,
-    *hooks,
-    suffix=None,
-    image_tag="latest",
-    cpu="256",
-    memory="512",
-    collector=True
-):
+        name,
+        region,
+        *hooks,
+        suffix = None,
+        image_tag = "latest",
+        cpu = "256",
+        memory = "512",
+        collector = True):
     """collector=False leaves the adot sidecar out, for callers that inject it
     themselves — see the ADOT component, which adds it to every task of every
     component that depends on it."""
@@ -433,22 +414,22 @@ def Task(
         t.resource.prometheus_policy.role = t.var.task_role.name
         t.tmp["containers"] = {
             "main": ContainerDefinition(
-                command=[name],
-                name=name,
-                image="${data.aws_ecr_repository.repo.repository_url}:" + image_tag,
-                environment=[
+                command = [name],
+                name = name,
+                image = "${data.aws_ecr_repository.repo.repository_url}:" + image_tag,
+                environment = [
                     ContainerDefinition.Env(
-                        name="AWS_XRAY_DAEMON_ADDRESS",
-                        value="xray-daemon:2000",
+                        name = "AWS_XRAY_DAEMON_ADDRESS",
+                        value = "xray-daemon:2000",
                     ),
                 ],
-                essential=True,
-                mount_points=[],
-                system_controls=[],
-                volumes_from=[],
-                log_configuration=ContainerDefinition.LogConfiguration(
-                    log_driver="awslogs",
-                    options={
+                essential = True,
+                mount_points = [],
+                system_controls = [],
+                volumes_from = [],
+                log_configuration = ContainerDefinition.LogConfiguration(
+                    log_driver = "awslogs",
+                    options = {
                         "awslogs-group": "${data.aws_cloudwatch_log_group.log_group.name}",
                         "awslogs-region": region,
                         "awslogs-stream-prefix": full_name,
@@ -458,28 +439,28 @@ def Task(
         }
         if collector:
             t.tmp["containers"]["collector"] = ContainerDefinition(
-                name="adot",
-                image="${data.aws_ecr_repository.repo_collector.repository_url}:c82dd644e8208638dda7372e49d7db9bd35dc060",
-                port_mappings=[
+                name = "adot",
+                image = "${data.aws_ecr_repository.repo_collector.repository_url}:c82dd644e8208638dda7372e49d7db9bd35dc060",
+                port_mappings = [
                     ContainerDefinition.PortMapping(
-                        container_port=4317,
-                        host_port=4317,
-                        protocol="tcp",
+                        container_port = 4317,
+                        host_port = 4317,
+                        protocol = "tcp",
                     ),
                     ContainerDefinition.PortMapping(
-                        container_port=4318,
-                        host_port=4318,
-                        protocol="tcp",
+                        container_port = 4318,
+                        host_port = 4318,
+                        protocol = "tcp",
                     ),
                 ],
-                environment=[],
-                essential=True,
-                mount_points=[],
-                system_controls=[],
-                volumes_from=[],
-                log_configuration=ContainerDefinition.LogConfiguration(
-                    log_driver="awslogs",
-                    options={
+                environment = [],
+                essential = True,
+                mount_points = [],
+                system_controls = [],
+                volumes_from = [],
+                log_configuration = ContainerDefinition.LogConfiguration(
+                    log_driver = "awslogs",
+                    options = {
                         "awslogs-group": "${data.aws_cloudwatch_log_group.log_group.name}",
                         "awslogs-region": region,
                         "awslogs-stream-prefix": full_name + "_adot",
@@ -512,60 +493,59 @@ def Task(
 
     return util.Link(
         linker,
-        prefix=name + "_",
-        suffix=suffix,
-        caller=AwsCallerIdentity(),
-        rds=AwsRdsCluster(cluster_identifier="leap-aurora"),
-        role=AwsIamRole(
-            name="ecs-task-execution-role-" + full_name,
-            assume_role_policy=json.encode(
+        prefix = name + "_",
+        suffix = suffix,
+        caller = AwsCallerIdentity(),
+        rds = AwsRdsCluster(cluster_identifier = "leap-aurora"),
+        role = AwsIamRole(
+            name = "ecs-task-execution-role-" + full_name,
+            assume_role_policy = json.encode(
                 dict(
-                    Version="2012-10-17",
-                    Statement=[
+                    Version = "2012-10-17",
+                    Statement = [
                         dict(
-                            Action="sts:AssumeRole",
-                            Effect="Allow",
-                            Principal=dict(Service="ecs-tasks.amazonaws.com"),
+                            Action = "sts:AssumeRole",
+                            Effect = "Allow",
+                            Principal = dict(Service = "ecs-tasks.amazonaws.com"),
                         ),
                     ],
                 ),
             ),
         ),
-        policy_attachment=AwsIamRolePolicyAttachment(
-            policy_arn="arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
+        policy_attachment = AwsIamRolePolicyAttachment(
+            policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
         ),
-        xray_policy=AwsIamRolePolicyAttachment(
-            policy_arn="arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess",
+        xray_policy = AwsIamRolePolicyAttachment(
+            policy_arn = "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess",
         ),
-        prometheus_policy=AwsIamRolePolicyAttachment(
-            policy_arn="arn:aws:iam::aws:policy/AmazonPrometheusRemoteWriteAccess",
+        prometheus_policy = AwsIamRolePolicyAttachment(
+            policy_arn = "arn:aws:iam::aws:policy/AmazonPrometheusRemoteWriteAccess",
         ),
-        task_role=AwsIamRole(
-            name="ecs-task-role-" + full_name,
-            assume_role_policy=json.encode(
+        task_role = AwsIamRole(
+            name = "ecs-task-role-" + full_name,
+            assume_role_policy = json.encode(
                 dict(
-                    Version="2012-10-17",
-                    Statement=[
+                    Version = "2012-10-17",
+                    Statement = [
                         dict(
-                            Action="sts:AssumeRole",
-                            Effect="Allow",
-                            Principal=dict(Service="ecs-tasks.amazonaws.com"),
+                            Action = "sts:AssumeRole",
+                            Effect = "Allow",
+                            Principal = dict(Service = "ecs-tasks.amazonaws.com"),
                         ),
                     ],
                 ),
             ),
         ),
-        task_definition=AwsEcsTaskDefinition(
-            family="leapalgo-" + full_name,
-            requires_compatibilities=["FARGATE"],
-            network_mode="awsvpc",
-            cpu=cpu,
-            memory=memory,
-            track_latest=True,
+        task_definition = AwsEcsTaskDefinition(
+            family = "leapalgo-" + full_name,
+            requires_compatibilities = ["FARGATE"],
+            network_mode = "awsvpc",
+            cpu = cpu,
+            memory = memory,
+            track_latest = True,
         ),
         *hooks
     )
-
 
 def OverrideRequiresCapabilities(capabilities):
     def override_requires_capabilities(t, next):
@@ -574,7 +554,6 @@ def OverrideRequiresCapabilities(capabilities):
 
     return override_requires_capabilities
 
-
 def OverrideCpuVcpus(vcpus):
     def override_cpu_vcpus(t, next):
         t.resource.task_definition.cpu = str(vcpus * 1024)
@@ -582,14 +561,12 @@ def OverrideCpuVcpus(vcpus):
 
     return override_cpu_vcpus
 
-
 def OverrideMemoryGb(memory_gb):
     def override_memory_gb(t, next):
         t.resource.task_definition.memory = str(memory_gb * 1024)
         return next(t)
 
     return override_memory_gb
-
 
 def If(cond, *hooks):
     def condition(t, next):
@@ -599,22 +576,19 @@ def If(cond, *hooks):
 
     return condition
 
-
-def WithCommand(*command, container_id="main"):
+def WithCommand(*command, container_id = "main"):
     def with_command(t, next):
         t.tmp["containers"][container_id].command = list(command)
         return next(t)
 
     return with_command
 
-
-def WithImage(image, container_id="main"):
+def WithImage(image, container_id = "main"):
     def with_image(t, next):
         t.tmp["containers"][container_id].image = image
         return next(t)
 
     return with_image
-
 
 def WithSuffix(suffix):
     def with_suffix(t, next):
@@ -623,37 +597,36 @@ def WithSuffix(suffix):
 
     return with_suffix
 
-
 # Export all functions in a struct for easy access
 ecs = struct(
     # Utility functions
-    to_terraform_safe_name=to_terraform_safe_name,
-    If=If,
-    WithSuffix=WithSuffix,
+    to_terraform_safe_name = to_terraform_safe_name,
+    If = If,
+    WithSuffix = WithSuffix,
     # Container configuration functions
-    WithEnv=WithEnv,
-    WithPort=WithPort,
-    WithUlimit=WithUlimit,
-    WithSidecar=WithSidecar,
-    WithCommand=WithCommand,
-    WithImage=WithImage,
+    WithEnv = WithEnv,
+    WithPort = WithPort,
+    WithUlimit = WithUlimit,
+    WithSidecar = WithSidecar,
+    WithCommand = WithCommand,
+    WithImage = WithImage,
     # AWS IAM/Policy functions
-    WithDatabaseUser=WithDatabaseUser,
-    WithS3Access=WithS3Access,
-    WithPolicy=WithPolicy,
-    WithTimestreamAccess=WithTimestreamAccess,
-    WithSecret=WithSecret,
-    WithSecretName=WithSecretName,
+    WithDatabaseUser = WithDatabaseUser,
+    WithS3Access = WithS3Access,
+    WithPolicy = WithPolicy,
+    WithTimestreamAccess = WithTimestreamAccess,
+    WithSecret = WithSecret,
+    WithSecretName = WithSecretName,
     # ECS service functions
-    WithService=WithService,
-    WithSchedule=WithSchedule,
-    WithServiceRegistry=WithServiceRegistry,
-    WithServiceCapacityProvider=WithServiceCapacityProvider,
-    OnEc2Type=WithServiceCapacityProvider,
-    WithLaunchType=WithLaunchType,
+    WithService = WithService,
+    WithSchedule = WithSchedule,
+    WithServiceRegistry = WithServiceRegistry,
+    WithServiceCapacityProvider = WithServiceCapacityProvider,
+    OnEc2Type = WithServiceCapacityProvider,
+    WithLaunchType = WithLaunchType,
     # Task configuration functions
-    OverrideRequiresCapabilities=OverrideRequiresCapabilities,
-    OverrideCpuVcpus=OverrideCpuVcpus,
-    OverrideMemoryGb=OverrideMemoryGb,
-    Task=Task,
+    OverrideRequiresCapabilities = OverrideRequiresCapabilities,
+    OverrideCpuVcpus = OverrideCpuVcpus,
+    OverrideMemoryGb = OverrideMemoryGb,
+    Task = Task,
 )

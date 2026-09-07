@@ -1,8 +1,8 @@
+load("@platform//platform/platform.pinc", "platform")
+load("@platform//terraform/v1/util.pinc", "util")
 load("//aws/ecs/v1/taskdefinition.proto", "ContainerDefinition", "TaskSpec")
 load("//lib/ecs/ecs.pinc", lib = "ecs")
-load("@platform//platform/platform.pinc", "platform")
 load("//terraform/aws/resources/v5/iam.proto", "AwsIamRolePolicyAttachment")
-load("@platform//terraform/v1/util.pinc", "util")
 load("any.star", "any")
 
 # ECS runtime driver: lib/ecs's task hooks, addressed as a component instead of as a

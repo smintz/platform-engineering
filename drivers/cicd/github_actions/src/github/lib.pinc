@@ -3,7 +3,6 @@ load("actions.proto", "Workflow")
 
 pb = Workflow
 
-
 def Chain(msg, *hooks):
     queue = list(hooks)
 
@@ -16,7 +15,6 @@ def Chain(msg, *hooks):
     first = queue.pop(0)
     return first(msg, run_next)
 
-
 def value(v):
     """
     value gets a variable and returns is as a wkt `Value`
@@ -27,23 +25,21 @@ def value(v):
         Value()
     """
     if type(v) == "string":
-        return Value(string_value=v)
+        return Value(string_value = v)
     if type(v) == "int":
-        return Value(number_value=float(v))
+        return Value(number_value = float(v))
     if type(v) == "double":
-        return Value(number_value=v)
+        return Value(number_value = v)
     if type(v) == "bool":
-        return Value(bool_value=v)
+        return Value(bool_value = v)
     if type(v) == "list":
-        return Value(list_value=ListValue(values=[value(i) for i in v]))
+        return Value(list_value = ListValue(values = [value(i) for i in v]))
     if type(v) == "dict":
-        return Struct(fields=dict([(k, value(vv)) for k, vv in v.items()]))
+        return Struct(fields = dict([(k, value(vv)) for k, vv in v.items()]))
     return None
 
-
 def File(name, *hooks):
-    return Chain(Workflow(name=name), *hooks)
-
+    return Chain(Workflow(name = name), *hooks)
 
 def Event(*hooks):
     def on(msg, next):
@@ -54,14 +50,12 @@ def Event(*hooks):
 
     return on
 
-
 def OnPush(**kwargs):
     def on_push(msg, next):
         msg.push = pb.PushEvent(**kwargs)
         return next(msg)
 
     return Event(on_push)
-
 
 def OnIssue(**kwargs):
     def on_issue(msg, next):
@@ -70,14 +64,12 @@ def OnIssue(**kwargs):
 
     return Event(on_issue)
 
-
 def OnIssueComment(**kwargs):
     def on_issue_comment(msg, next):
         msg.issue_comment = pb.IssueCommentEvent(**kwargs)
         return next(msg)
 
     return Event(on_issue_comment)
-
 
 def OnPullRequest(**kwargs):
     def on_pull_request(msg, next):
@@ -86,14 +78,12 @@ def OnPullRequest(**kwargs):
 
     return Event(on_pull_request)
 
-
 def OnPullRequestReview(**kwargs):
     def on_pull_request_review(msg, next):
         msg.pull_request_review = pb.PullRequestEvent(**kwargs)
         return next(msg)
 
     return Event(on_pull_request_review)
-
 
 def OnPullRequestReviewComment(**kwargs):
     def on_pull_request_review_comment(msg, next):
@@ -102,7 +92,6 @@ def OnPullRequestReviewComment(**kwargs):
 
     return Event(on_pull_request_review_comment)
 
-
 def OnCheckSuite(**kwargs):
     def on_check_suite(msg, next):
         msg.check_suite = pb.CheckSuiteEvent(**kwargs)
@@ -110,14 +99,12 @@ def OnCheckSuite(**kwargs):
 
     return Event(on_check_suite)
 
-
 def OnWorkflowDispatch(**kwargs):
     def on_workflow_dispatch(msg, next):
         msg.workflow_dispatch = pb.WorkflowDispatchEvent(**kwargs)
         return next(msg)
 
     return Event(on_workflow_dispatch)
-
 
 def OnSchedule(**kwargs):
     def on_workflow_dispatch(msg, next):
@@ -128,14 +115,12 @@ def OnSchedule(**kwargs):
 
     return Event(on_workflow_dispatch)
 
-
 def Job(name, *hooks):
     def job(msg, next):
-        msg.jobs[name] = Chain(Workflow.Job(name=name, runs_on="ubuntu-latest"), *hooks)
+        msg.jobs[name] = Chain(Workflow.Job(name = name, runs_on = "ubuntu-latest"), *hooks)
         return next(msg)
 
     return job
-
 
 def Permissions(**values):
     def permissions(msg, next):
@@ -144,7 +129,6 @@ def Permissions(**values):
 
     return permissions
 
-
 def RunsOn(label):
     def runs_on(msg, next):
         msg.runs_on = label
@@ -152,14 +136,12 @@ def RunsOn(label):
 
     return runs_on
 
-
 def Step(id, *hooks):
     def step(msg, next):
-        msg.steps.append(Chain(pb.Step(id=id), *hooks))
+        msg.steps.append(Chain(pb.Step(id = id), *hooks))
         return next(msg)
 
     return step
-
 
 def Name(name_str):
     def name(msg, next):
@@ -168,14 +150,12 @@ def Name(name_str):
 
     return name
 
-
 def Uses(uses_str):
     def uses(msg, next):
         msg.uses = uses_str
         return next(msg)
 
     return uses
-
 
 def Cmd(run_str):
     def run(msg, next):
@@ -184,22 +164,19 @@ def Cmd(run_str):
 
     return run
 
-
 def Defaults(**defaults_val):
     def defaults(msg, next):
-        msg.defaults = pb.Defaults(run=pb.Run(**defaults_val))
+        msg.defaults = pb.Defaults(run = pb.Run(**defaults_val))
         return next(msg)
 
     return defaults
 
-
-def ContinueOnError(value=True):
+def ContinueOnError(value = True):
     def continue_on_error(msg, next):
         msg.continue_on_error = value
         return next(msg)
 
     return continue_on_error
-
 
 def If(value):
     def condition(msg, next):
@@ -208,14 +185,12 @@ def If(value):
 
     return condition
 
-
 def SetEnv(**env):
     def set_env(msg, next):
         msg.env.update(env)
         return next(msg)
 
     return set_env
-
 
 def With(**params):
     def with_params(msg, next):
@@ -224,14 +199,12 @@ def With(**params):
 
     return with_params
 
-
 def Needs(*values):
     def needs(msg, next):
         msg.needs.extend(values)
         return next(msg)
 
     return needs
-
 
 def Outputs(**values):
     def outputs(msg, next):
@@ -240,17 +213,15 @@ def Outputs(**values):
 
     return outputs
 
-
-def Concurrency(group, cancel_in_progress=False):
+def Concurrency(group, cancel_in_progress = False):
     def concurrency(msg, next):
         msg.concurrency = pb.Concurrency(
-            group=group,
-            cancel_in_progress=cancel_in_progress,
+            group = group,
+            cancel_in_progress = cancel_in_progress,
         )
         return next(msg)
 
     return concurrency
-
 
 def Environment(name):
     def environment(msg, next):
@@ -259,7 +230,6 @@ def Environment(name):
 
     return environment
 
-
 def WorkingDirectory(path):
     def working_directory(msg, next):
         msg.working_directory = path
@@ -267,35 +237,34 @@ def WorkingDirectory(path):
 
     return working_directory
 
-
 lib = struct(
-    Chain=Chain,
-    File=File,
-    OnPush=OnPush,
-    OnIssue=OnIssue,
-    OnIssueComment=OnIssueComment,
-    OnPullRequest=OnPullRequest,
-    OnPullRequestReview=OnPullRequestReview,
-    OnPullRequestReviewComment=OnPullRequestReviewComment,
-    OnCheckSuite=OnCheckSuite,
-    OnWorkflowDispatch=OnWorkflowDispatch,
-    OnSchedule=OnSchedule,
-    Job=Job,
-    Permissions=Permissions,
-    RunsOn=RunsOn,
-    Step=Step,
-    Name=Name,
-    Uses=Uses,
-    Cmd=Cmd,
-    ContinueOnError=ContinueOnError,
-    If=If,
-    SetEnv=SetEnv,
-    With=With,
-    Needs=Needs,
-    Defaults=Defaults,
-    Outputs=Outputs,
-    Concurrency=Concurrency,
-    Environment=Environment,
-    WorkingDirectory=WorkingDirectory,
-    Input=pb.WorkflowDispatchEvent.Input,
+    Chain = Chain,
+    File = File,
+    OnPush = OnPush,
+    OnIssue = OnIssue,
+    OnIssueComment = OnIssueComment,
+    OnPullRequest = OnPullRequest,
+    OnPullRequestReview = OnPullRequestReview,
+    OnPullRequestReviewComment = OnPullRequestReviewComment,
+    OnCheckSuite = OnCheckSuite,
+    OnWorkflowDispatch = OnWorkflowDispatch,
+    OnSchedule = OnSchedule,
+    Job = Job,
+    Permissions = Permissions,
+    RunsOn = RunsOn,
+    Step = Step,
+    Name = Name,
+    Uses = Uses,
+    Cmd = Cmd,
+    ContinueOnError = ContinueOnError,
+    If = If,
+    SetEnv = SetEnv,
+    With = With,
+    Needs = Needs,
+    Defaults = Defaults,
+    Outputs = Outputs,
+    Concurrency = Concurrency,
+    Environment = Environment,
+    WorkingDirectory = WorkingDirectory,
+    Input = pb.WorkflowDispatchEvent.Input,
 )
