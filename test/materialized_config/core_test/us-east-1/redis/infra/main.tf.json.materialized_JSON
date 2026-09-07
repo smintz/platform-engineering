@@ -64,7 +64,9 @@
     },
     "provider": {
       "kubernetes": [
-        {}
+        {
+          "config_path": "~/.kube/config"
+        }
       ]
     },
     "terraform": {
@@ -75,11 +77,7 @@
         }
       },
       "backend": {
-        "s3": {
-          "region": "us-east-1",
-          "bucket": "platform-engineering-tfstate",
-          "key": "us-east-1/redis.tfstate"
-        }
+        "local": {}
       }
     }
   }

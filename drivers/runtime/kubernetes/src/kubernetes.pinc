@@ -15,15 +15,40 @@ load("//terraform/kubernetes/resources/v3/service.proto", "KubernetesService")
 Pod = KubernetesDeployment.Spec.Template.Spec
 Container = Pod.Container
 
+# Terraform's kubernetes provider reads no kubeconfig unless it is pointed at one: with
+# config_path unset it assumes it is running inside the cluster it is configuring, and an
+# apply from a laptop or a runner fails trying to reach an in-cluster API address. Pointing
+# it at the kubeconfig is what makes `terraform apply` land on the cluster `kubectl` is
+# already talking to.
+KUBECONFIG = "~/.kube/config"
+
+# KubeConfig is that provider. An unset context means the kubeconfig's current-context —
+# whatever `kubectl config current-context` prints — which is what a person running this by
+# hand wants and is why it is the default.
+#
+# Naming a context pins the cluster instead. Anything unattended should: current-context is
+# per-machine mutable state, so a pipeline that leaves it unset applies to whichever cluster
+# the runner happened to be pointed at, and that is not a failure Terraform can catch.
+# config_context is set only when asked for: the provider proto is proto2, so a field
+# assigned the empty string is *present and empty* rather than absent, and the provider
+# reads an empty config_context as "a context named ''" rather than as the current one.
+def KubeConfig(context = "", path = KUBECONFIG):
+    provider = Kubernetes(config_path = path)
+    if context:
+        provider.config_context = context
+    return provider
+
 # Workload is one process as Kubernetes deploys it: a Deployment of `image` and a
 # ClusterIP Service in front of it, both selected by app=<name>. That selector is what
 # makes the workload's address its own name — which is what lets a dependency hand its
 # address to a dependant (see WithContainerEnv) without either one publishing a value
 # through Terraform.
-def Workload(name, image, port):
+def Workload(name, image, port, provider = None):
     labels = {"app": name}
     return util.Group(
-        util.Provider(Kubernetes()),
+        # explicit None check: an all-default Kubernetes() is falsy, and passing one is how
+        # a caller asks for in-cluster credentials rather than for the default below
+        util.Provider(KubeConfig() if provider == None else provider),
         util.Resource(
             name,
             KubernetesDeployment(
