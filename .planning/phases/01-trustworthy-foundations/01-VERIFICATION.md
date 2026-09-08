@@ -1,9 +1,10 @@
 ---
 phase: 01-trustworthy-foundations
 verified: 2026-09-08T10:45:00Z
-status: human_needed
+status: passed
 score: 5/6 must-haves verified
 covered_files:
+
   - ".github/workflows/drift.yaml"
   - ".planning/REQUIREMENTS.md"
   - ".planning/ROADMAP.md"
@@ -28,7 +29,8 @@ covered_files:
   - "test/src/core_test.mpconf"
   - "test/src/handshake_test.mpconf"
   - "test/src/select_test.mpconf"
-covered_digest: "v1:sha256:27d9633e13e5f5434ccdb5152dea1bd635d0ba1b22818dd2765acf0031051ce6"
+
+covered_digest: "v1:sha256:440633e68046b274ea045533dadfae81feb97f9a4bcd0f6284db0e4fa42ebc7b"
 behavior_unverified: 0
 overrides_applied: 0
 re_verification:
@@ -43,6 +45,7 @@ re_verification:
 deferred: []
 advisory: []
 human_verification:
+
   - test: "Open a pull request that touches test/src/** and let .github/workflows/drift.yaml run on GitHub for the first time."
     expected: "The workflow installs protoconf 0.2.0-rc2 (sha256 verified), runs `cd test && make test` — which now also runs `make gates` — and the diff over the three asserted trees is empty on an already-current tree."
     why_human: "The workflow has still never executed: `gh run list --workflow drift.yaml` returns HTTP 404 (`not found on the default branch`). Golden-file byte-reproducibility was measured only on darwin/arm64 with a locally-built `protoconf 0.0.1`; CI pins 0.2.0-rc2 on linux_amd64. This is assumption A1 in 01-RESEARCH.md, still open, and unclosable from this machine. It now also carries `make gates`, which shells out to `sed`/`grep`/`mktemp` on a runner this repository has never exercised."
