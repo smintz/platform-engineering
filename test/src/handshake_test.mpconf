@@ -24,7 +24,8 @@ load(
 # MISMATCHED for the second reproduces, exactly, the two silently-wrong wirings
 # `_check_remote_backends` and `_check_reads_are_produced` exist to catch. Starlark cannot
 # catch a fail() in-process, so those two negative checks are scripted from outside the
-# compiler rather than asserted here — see this plan's Task 3.
+# compiler rather than asserted here: they are the `gates` target in test/Makefile, which
+# `make test` runs, which is what CI runs.
 #
 # main() returns an empty dict on purpose: an .mpconf with no keys writes no output file, so
 # this costs zero golden-file surface while still compiling on every `make test`.
@@ -38,9 +39,17 @@ BACKEND = S3Backend(
     lambda domain, name: "%s/%s.tfstate" % (domain, name),
 )
 
-# MISMATCHED and LOCAL are used by no component in this file. They exist as the values the
-# two negative checks substitute into NEAR_BACKEND and FAR_BACKEND below, and deleting them
-# as dead code would silently disarm both checks.
+# MISMATCHED and LOCAL are used by no component in this file, and they are not dead. `make
+# gates` substitutes LOCAL for NEAR_BACKEND and MISMATCHED for FAR_BACKEND in a COPY of this
+# file, compiles each copy, and asserts on the gate message the compiler prints — so deleting
+# either constant as unreferenced turns that target red rather than disarming it quietly,
+# which is the whole point of naming a command here instead of a rule.
+#
+# The two switch-point assignments below are anchored substitution targets: `make gates`
+# matches them with `^` and `$`, so each must stay alone on its own line in exactly the form
+# `NEAR_BACKEND = BACKEND` / `FAR_BACKEND = BACKEND`. A trailing comment on either line breaks
+# the substitution — reported by name, because the target checks that each mutation landed
+# before it draws any conclusion from the compile.
 #
 # They are declared ABOVE the two switch points on purpose. Starlark evaluates a module top
 # to bottom, so a substitution that referred forward to a name defined later would fail with
@@ -116,13 +125,17 @@ def main():
     )
 
     # This call comes FIRST, before the assertion below, and the order is load-bearing.
-    # TerraformPipeline runs the two compile gates, and both of this file's switch points
-    # also break the assertion below: LOCAL collapses both backend state ids to "local://",
-    # which the duplicate-state fail() inside _producers reports, and MISMATCHED leaves the
-    # subscriber with no upstream, which this file's own fail() reports. Starlark cannot
-    # catch a fail(), so whichever runs first ends the compile. With the assertion first,
-    # neither gate would ever be entered and a gate that had quietly stopped firing would
-    # still look green. The result is discarded: nothing here is materialized.
+    # TerraformPipeline runs the two compile gates: LOCAL is caught by _check_remote_backends
+    # (github_actions.pinc:204) and MISMATCHED by _check_reads_are_produced (:239). Both
+    # switch points also break the assertion below, and both have a second catcher behind the
+    # gate — LOCAL collapses both backend state ids to "local://", which the duplicate-state
+    # fail() inside _producers reports, and MISMATCHED leaves the subscriber with no upstream,
+    # which this file's own fail() reports. Starlark cannot catch a fail(), so whichever runs
+    # first ends the compile. With the assertion first, neither gate would ever be entered and
+    # a gate that had quietly stopped firing would still look green — and it would still exit
+    # non-zero from those second catchers, which is why `make gates` asserts on the gate's own
+    # message and on the function named in the traceback rather than on the exit code. The
+    # result is discarded: nothing here is materialized.
     actions.TerraformPipeline(
         configs,
         OUTPUT_ROOT,
