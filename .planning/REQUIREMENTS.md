@@ -14,8 +14,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [ ] **FOUND-01**: CI fails the build when committed generated output differs from a fresh `protoconf compile` of the source
 - [ ] **FOUND-02**: A component carries declared key/value labels (`platform.v1.Component.Metadata.labels`) that describe its shape
 - [ ] **FOUND-03**: A platform author can select every component in a dependency graph matching a predicate, via an exported `SelectComponents`
-- [ ] **FOUND-04**: Compile fails with a message naming the fix when a component whose state CI will apply has no remote backend configured
-- [ ] **FOUND-05**: A cross-state value handshake authored by any driver is visible to CI apply-ordering derivation, or compile fails
+- [x] **FOUND-04**: Compile fails with a message naming the fix when a component whose state CI will apply has no remote backend configured
+- [x] **FOUND-05**: A cross-state value handshake authored by any driver is visible to CI apply-ordering derivation, or compile fails
 
 ### FinOps
 
@@ -101,8 +101,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FOUND-01 | Phase 1 | Gaps Found |
 | FOUND-02 | Phase 1 | Gaps Found |
 | FOUND-03 | Phase 1 | Gaps Found |
-| FOUND-04 | Phase 1 | Gaps Found |
-| FOUND-05 | Phase 1 | Gaps Found |
+| FOUND-04 | Phase 1 | Complete |
+| FOUND-05 | Phase 1 | Complete |
 | COST-01 | Phase 2 | Pending |
 | COST-02 | Phase 2 | Pending |
 | COST-03 | Phase 2 | Pending |

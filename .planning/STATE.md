@@ -2,18 +2,18 @@
 gsd_state_version: "1.0"
 milestone: v1.0
 current_phase: 01
-current_phase_name: trustworthy-foundations
+current_phase_name: Trustworthy Foundations
 status: executing
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-09-08T02:48:26.059Z"
+stopped_at: Completed 01-04-PLAN.md
+last_updated: "2026-09-08T03:00:51.533Z"
 last_activity: 2026-09-08
-last_activity_desc: Phase 01 planning complete
-state_head: d52ad088814f5e1fec242288705c7f22a3cb34c2
+last_activity_desc: Phase 01 execution started
+state_head: c72026db4eb8bc81a47b8bae9935ec74c2378af1
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 5
-  completed_plans: 2
+  completed_plans: 4
 milestone_name: milestone
 ---
 
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-09-07)
 
 ## Current Position
 
-Phase: 01 (trustworthy-foundations) — READY TO EXECUTE
-Plan: 3 of 3
+Phase: 01 (Trustworthy Foundations) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-09-08 — Phase 01 planning complete
+Last activity: 2026-09-08 — Phase 01 execution started
 
 Progress: [███████░░░] 67%
 
@@ -62,6 +62,7 @@ Progress: [███████░░░] 67%
 | Phase 01 P01 | 7 min | 2 tasks | 5 files |
 | Phase 01 P02 | 7 min | 2 tasks | 5 files |
 | Phase 01 P03 | 6 min | 3 tasks | 5 files |
+| Phase 01 P04 | 4 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,10 @@ Recent decisions affecting current work:
 - [Phase 01]: MISMATCHED and LOCAL are declared ABOVE the switch points they substitute into — Starlark evaluates a module top to bottom, so a forward reference dies with undefined: before reaching the gate, which is indistinguishable from a gate that stopped firing
 - [Phase 01]: _check_remote_backends tests backend.local structurally rather than via a None return from _backend_state_id — that helper returns a non-empty local:// id for a local backend and would never fire on it
 - [Phase 01]: CONTEXT D-16 predicted a generated-workflow job-ordering diff from the redis fix; it does not occur — no config in the reference stack declares a terraform_remote_state, so a real redis state id gains no edge and a workflow diff there is a regression
+- [Phase 01]: make gates decides a gate fired from the gate own fail() message plus the gate function named in the compiler traceback, never from the exit code — measured: with both gate calls replaced by pass, the LOCAL mutation still exits 1 from the duplicate-state fail() in _producers at github_actions.pinc:125, so an exit-code assertion reports a deleted gate as firing
+- [Phase 01]: make gates compiles mutated COPIES under test/src/ rather than sed -i on the tracked fixture, diverging from the 01-REVIEW CR-02 sketch — the in-place-plus-restore shape leaves test/src/handshake_test.mpconf modified if the compile is interrupted between the two steps; with copies there is no half-applied state, only a copy the trap deletes
+- [Phase 01]: each substitution is confirmed to have landed in the copy (anchored grep) before the resulting compile is interpreted — a fixture edit that breaks a sed anchor produces a copy identical to the original, which compiles clean, which is indistinguishable from a gate that stopped firing
+- [Phase 01]: the negative checks reach CI through the make test that drift.yaml already runs; the workflow is not edited — a second CI step would put the same check in two places that can disagree, and the coverage arrives with no new token scope on a job that runs contributor-authored Starlark
 
 ### Pending Todos
 
@@ -102,6 +107,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-07T17:55:43.517Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-09-08T03:00:51.522Z
+Stopped at: Completed 01-04-PLAN.md
 Resume file: None

@@ -17,6 +17,13 @@ Correctness is established by three layers, in this order:
 3. **`terraform validate` and `terraform plan` in CI**, run against the generated
    `main.tf.json` files — this is what catches a config that compiles but is not valid
    Terraform.
+4. **Negative checks (`make gates`, phase 01-04).** Layers 1-3 only ever compile inputs
+   that are correct, so a deleted `fail()` guard is invisible to all three. `make gates`
+   feeds each of the two CI-driver compile gates the wiring it exists to reject, compiling
+   a mutated COPY of `test/src/handshake_test.mpconf`, and asserts on the gate's own
+   message plus the gate function named in the traceback — never on the exit code, since
+   both mutations exit non-zero for reasons unrelated to the gate. It runs from `make test`,
+   so `drift.yaml` covers it.
 
 ## The `test/` Module
 
@@ -57,8 +64,9 @@ make fmt                 # protoconf fmt -w   (black-equivalent formatting)
 make build               # protoconf compile -process-templates .
 make clean               # rm -rf outputs materialized_config .github/workflows/*
 
-cd test && make test     # the real test: mod tidy + compile + install workflows
+cd test && make test     # the real test: mod tidy + compile + install workflows + gates
 cd test && make workflows # copy outputs/core_test/.github/workflows/*.yaml to repo root
+cd test && make gates    # the negative tests: prove both compile gates still fire
 ```
 
 `test/Makefile`:
@@ -67,6 +75,7 @@ test:
 	protoconf mod tidy
 	protoconf compile .
 	$(MAKE) workflows
+	$(MAKE) gates
 ```
 
 `workflows` exists because GitHub only reads `.github/workflows` at the repository root,
@@ -115,7 +124,10 @@ No coverage tooling. The practical coverage measure is whether a mechanism appea
   `_backend_state_id` in the CI driver handles all five.
 - `Finally` and `Check`-style objectives (`Component.Objective.Check` is a TODO stub in
   `src/platform/v1/platform.proto`).
-- No negative tests: nothing asserts that a `fail()` path actually fires.
+- Negative tests exist for exactly two `fail()` paths — `_check_remote_backends` and
+  `_check_reads_are_produced`, covered by `make gates` (phase 01-04). Every other `fail()`
+  in the platform and the drivers is still unasserted: nothing proves the job-id collision
+  check, the cycle check, or any validator actually fires.
 
 ## CI
 
