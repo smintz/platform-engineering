@@ -197,36 +197,47 @@ def Component(slug, *hooks):
     )
 
 # walk_upstreams visits every component in the graph depth-first, upstreams before the
-# component that declared them, and hands each one to `next`. It lives at module level
+# component that declared them, and hands each one to `visit`. It lives at module level
 # rather than nested inside GetConfigs because SelectComponents needs exactly this order
 # over exactly this graph: two traversals are two things that can disagree about what the
 # graph is, and the one that disagrees silently is the selector nobody is checking.
-def walk_upstreams(component, next):
+# The parameter is `visit` and not this file's usual `next`: `next` means "call the next
+# hook and return its result" everywhere else here, and this function discards every
+# recursive return value. A caller who read the name literally and passed a transforming
+# hook would lose every upstream result with nothing to show for it.
+def walk_upstreams(component, visit):
     if not component.upstreams:
-        return next(component)
+        return visit(component)
     for upstream in component.upstreams.components:
-        walk_upstreams(upstream, next)
-    return next(component)
+        walk_upstreams(upstream, visit)
+    return visit(component)
 
-# SelectComponents returns every component in the graph rooted at `component` that
-# `predicate` accepts, in the post-order walk_upstreams produces, de-duplicated. The
-# de-duplication is the point: a component reached down two arms of a diamond is one
-# component, and a policy hook applied to it twice is applied once too often. Component
-# builds each dependency once per parent, so those two arms hold two distinct objects —
-# they compare and hash by value here, which is why a dict collapses them and identity
-# comparison would collapse nothing. Keying on "<domain>/<name>" instead would also work
-# and would silently assert a uniqueness the schema does not enforce.
+# SelectComponents returns every OCCURRENCE the `predicate` accepts in the graph rooted at
+# `component`, in the post-order walk_upstreams produces. Every occurrence, not one entry
+# per distinct content: Component builds each dependency factory once per parent, so the
+# two arms of a diamond hold two DISTINCT live objects that merely happen to be equal, and
+# a caller handed one of them has silently skipped a component. Skipping is what the
+# consumers of this list cannot survive — a hardening hook or a cost centre applied across
+# a selection has to reach every live object, and an audit built on a selection that
+# under-reports is wrong in the direction that looks fine.
+# The dict this used to collect into keyed by proto VALUE, so it collapsed those two
+# objects, and the collapse was neither complete nor idempotent: it returned whichever of
+# the two the traversal inserted first, and a mutation through that one made the contents
+# differ, so the next selection returned both. The answer depended on mutation history.
+# A caller that wants a unique view builds one, visibly, from a key it chose and can be
+# held to. Keying on "<domain>/<name>" here would assert a uniqueness platform.proto does
+# not enforce, and would make that assertion the platform's rather than the caller's.
 # No match returns an empty list rather than failing: a caller that needs a zero match to
 # be an error knows what it was asking for and can say so; this one does not.
 def SelectComponents(component, predicate):
-    found = {}
+    found = []
 
     def collect(c):
         if predicate(c):
-            found[c] = True
+            found.append(c)
 
     walk_upstreams(component, collect)
-    return found.keys()
+    return found
 
 # GetConfigs walks a Component and its upstreams, and returns a map of all the Terraform
 # configs keyed by "<domain>/<name>/<config name>". Components store their configs under

@@ -3,12 +3,17 @@ load("@platform//platform/platform.pinc", "platform")
 # What the golden files cannot see. Every other assertion in this repo is an empty
 # `git diff` over generated Terraform, and a Component is never materialized — only its
 # configs are — so nothing under outputs/ or materialized_config/ can say whether
-# SelectComponents returned a diamond's shared upstream once or twice, or whether it
+# SelectComponents returned every occurrence of a diamond's shared upstream, or whether it
 # returned anything at all. This file says it, in the build that already runs.
 #
 # main() returns an empty dict on purpose: an .mpconf with no keys writes no output file,
 # so this costs zero golden-file surface while still compiling on every `make test`. A
 # tripped assertion is a failed build with a traceback naming the line.
+
+# The value stamped through the selection and read back by an independent walk. A distinct
+# marker rather than a plausible description, so a read-back that finds it cannot be
+# finding something the graph already had.
+STAMP = "POLICY-APPLIED"
 
 # HasLabel reads through metadata that may not be there: a component that declared no
 # labels has metadata unset, and a predicate that assumes otherwise fails on the one
@@ -33,11 +38,12 @@ def Anything(component):
 #  base     leaf (cache)
 #  (no labels)
 #
-# leaf is reached down both arms and is the de-duplication case: WithDeps takes
-# uninstantiated factories and Component calls each one once per parent, so mid1 and mid2
-# hold two distinct leaf objects with equal content. mid1 and mid2 differ in slug and in
-# what they depend on, because de-duplication is by content and two components alike in
-# every field would collapse legitimately.
+# leaf is reached down both arms and is the occurrence case: WithDeps takes uninstantiated
+# factories and Component calls each one once per parent, so mid1 and mid2 hold two
+# DISTINCT live leaf objects that merely happen to have equal content. A selector that
+# hands back one of them hands back a hook target that reaches one arm only. mid1 and mid2
+# differ in slug and in what they depend on so that the two arms stay distinguishable in
+# the assertions below.
 
 def LeafComponent(*hooks):
     return platform.Component(
@@ -82,27 +88,66 @@ def TopComponent(*hooks):
 def names(components):
     return [c.name for c in components]
 
+# occurrences is a second walk of the same graph, written here rather than borrowed from
+# the platform, and the duplication is the point. The mutation assertion below asks whether
+# a change made through SelectComponents reached the live objects in the graph; reading the
+# answer back through SelectComponents would ask the selector to grade its own homework, and
+# a selector that omits an object omits it in both directions at once — the fixture would
+# pass on exactly the defect it exists to catch.
+def occurrences(component, out):
+    if component.upstreams:
+        for upstream in component.upstreams.components:
+            occurrences(upstream, out)
+    out.append(component)
+    return out
+
 def main():
     root = TopComponent().msg
 
-    # The important one: five distinct components, leaf exactly once despite two arms,
-    # upstreams before the component that declared them.
+    # The important one: every occurrence, upstreams before the component that declared
+    # them, and leaf twice because two arms of the diamond hold two distinct live objects.
     every = names(platform.SelectComponents(root, Anything))
-    if every != ["leaf", "base", "mid1", "mid2", "top"]:
-        fail("SelectComponents: expected every component once in post-order, ['leaf', 'base', 'mid1', 'mid2', 'top'], got %s — a repeated name means the diamond's shared upstream was not de-duplicated; a reordering means walk_upstreams no longer visits upstreams first" % every)
+    if every != ["leaf", "base", "mid1", "leaf", "mid2", "top"]:
+        fail("SelectComponents: expected every occurrence in post-order, ['leaf', 'base', 'mid1', 'leaf', 'mid2', 'top'], got %s — a missing second leaf means the traversal collapsed two distinct live objects, and a hook applied across the result would reach one arm of the diamond only; a reordering means walk_upstreams no longer visits upstreams first" % every)
 
     apps = names(platform.SelectComponents(root, HasLabel("tier", "app")))
     if apps != ["mid1", "mid2"]:
         fail("SelectComponents: expected the two tier=app components in post-order, ['mid1', 'mid2'], got %s — check that WithLabels writes into Component.Metadata.labels" % apps)
 
     caches = names(platform.SelectComponents(root, HasLabel("tier", "cache")))
-    if caches != ["leaf"]:
-        fail("SelectComponents: expected exactly the tier=cache leaf, ['leaf'], got %s — a second entry means the predicate matched a component that did not declare that label" % caches)
+    if caches != ["leaf", "leaf"]:
+        fail("SelectComponents: expected both tier=cache occurrences, ['leaf', 'leaf'], got %s — a single entry means the two live leaf objects were collapsed into one and the caller can only reach one of them" % caches)
 
     # A label no component declares. Selecting nothing is an empty list, not a failure:
     # a caller that needs a zero match to be an error says so itself.
     none = names(platform.SelectComponents(root, HasLabel("tier", "no-such-tier")))
     if none != []:
         fail("SelectComponents: expected an empty list for a label nothing declares, [], got %s" % none)
+
+    # The other half of that edge: a root with no upstreams that matches is returned, and
+    # is the whole answer. base is built standalone here, not the one inside the diamond.
+    only = names(platform.SelectComponents(BaseComponent().msg, Anything))
+    if only != ["base"]:
+        fail("SelectComponents: expected a root with no upstreams to return exactly itself, ['base'], got %s — an empty result means the traversal never visits the component it was handed" % only)
+
+    # Everything above reads names on an unmutated graph. From here the graph is stamped,
+    # so no name-based assertion may follow that does not expect the mutation.
+
+    # The assertion this fixture exists for: a hook applied across the selection has to
+    # reach every live object, not just the one the selector happened to hand back. Read
+    # back through occurrences, never through SelectComponents.
+    for c in platform.SelectComponents(root, HasLabel("tier", "cache")):
+        c.description = STAMP
+
+    stamped = [c.description for c in occurrences(root, []) if c.name == "leaf"]
+    if stamped != [STAMP, STAMP]:
+        fail("SelectComponents: expected the stamp to reach both leaf occurrences, got %s — an empty description means one arm of the diamond holds a live object the selection never handed to the caller, which is the property Phase 5 SEC-01 depends on; a name assertion alone would pass here even if the selector returned copies and the mutation went nowhere" % stamped)
+
+    # Idempotent with respect to mutation. Before every-occurrence this returned one entry
+    # and then two: the collection keyed on content, and stamping one of the two leaves made
+    # the contents differ, so the answer depended on the graph's mutation history.
+    again = names(platform.SelectComponents(root, HasLabel("tier", "cache")))
+    if again != ["leaf", "leaf"]:
+        fail("SelectComponents: expected the same two tier=cache occurrences after mutating through the selection, ['leaf', 'leaf'], got %s — a different answer means the result depends on mutation history rather than on the graph" % again)
 
     return {}
