@@ -4,16 +4,16 @@ milestone: v1.0
 current_phase: 01
 current_phase_name: Trustworthy Foundations
 status: executing
-stopped_at: Completed 01-04-PLAN.md
-last_updated: "2026-09-08T03:00:51.533Z"
+stopped_at: Completed 01-05-PLAN.md
+last_updated: "2026-09-08T03:25:08.857Z"
 last_activity: 2026-09-08
 last_activity_desc: Phase 01 execution started
-state_head: c72026db4eb8bc81a47b8bae9935ec74c2378af1
+state_head: c2070ad24f113965aac6640ab53a45c7b76ef64c
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
 milestone_name: milestone
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-09-07)
 ## Current Position
 
 Phase: 01 (Trustworthy Foundations) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-09-08 — Phase 01 execution started
 
@@ -63,6 +63,7 @@ Progress: [███████░░░] 67%
 | Phase 01 P02 | 7 min | 2 tasks | 5 files |
 | Phase 01 P03 | 6 min | 3 tasks | 5 files |
 | Phase 01 P04 | 4 min | 2 tasks | 2 files |
+| Phase 01 P05 | 4 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,8 @@ Recent decisions affecting current work:
 - [Phase 01]: make gates compiles mutated COPIES under test/src/ rather than sed -i on the tracked fixture, diverging from the 01-REVIEW CR-02 sketch — the in-place-plus-restore shape leaves test/src/handshake_test.mpconf modified if the compile is interrupted between the two steps; with copies there is no half-applied state, only a copy the trap deletes
 - [Phase 01]: each substitution is confirmed to have landed in the copy (anchored grep) before the resulting compile is interpreted — a fixture edit that breaks a sed anchor produces a copy identical to the original, which compiles clean, which is indistinguishable from a gate that stopped firing
 - [Phase 01]: the negative checks reach CI through the make test that drift.yaml already runs; the workflow is not edited — a second CI step would put the same check in two places that can disagree, and the coverage arrives with no new token scope on a job that runs contributor-authored Starlark
+- [Phase 01]: Task 1 checkpoint resolved every-occurrence: SelectComponents returns EVERY occurrence of a matching component, superseding 01-02-PLAN's de-dup must_have and D-11's de-duplication clause. D-11's prohibition on a "<domain>/<name>" key is NOT superseded and is honoured — no such key, no de-duplicating helper exported. — The behaviour D-11 described ("one component returned once") is not the behaviour the code had — it dropped one of two live objects by a first-insertion-wins accident and stopped dropping it once anything mutated the graph. Phase 2 COST-01 and Phase 5 SEC-01 both apply a hook across a selection and need every occurrence reached; Phase 5 SEC-03 audits which components each policy hit from an artifact built on this selector.
+- [Phase 01]: walk_upstreams second parameter renamed next -> visit, superseding 01-02-PLAN's acceptance criterion naming walk_upstreams(component, next). — next means "call the next hook and return its result" everywhere else in core.pinc; walk_upstreams discards every recursive return value, so the name told readers the opposite of what the code does. Granted by 01-CONTEXT.md under "Claude's Discretion".
 
 ### Pending Todos
 
@@ -107,6 +110,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-08T03:00:51.522Z
-Stopped at: Completed 01-04-PLAN.md
+Last session: 2026-09-08T03:24:56.866Z
+Stopped at: Completed 01-05-PLAN.md
 Resume file: None

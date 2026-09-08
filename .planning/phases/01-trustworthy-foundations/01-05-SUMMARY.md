@@ -204,3 +204,12 @@ None — plan executed exactly as written. The pinned literals (`found.append(c)
 ---
 *Phase: 01-trustworthy-foundations*
 *Completed: 2026-09-08*
+
+## Self-Check: PASSED
+
+- `src/platform/core.pinc` — exists on disk
+- `test/src/select_test.mpconf` — exists on disk
+- `.planning/phases/01-trustworthy-foundations/01-05-SUMMARY.md` — exists on disk
+- Commit `63dd041` (Task 2, feat) — present in git log
+- Commit `c2070ad` (SUMMARY, docs) — present in git log
+- All six plan `<verify>` clauses re-run and PASS (table above)

@@ -45,7 +45,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Compiling a component whose state CI will apply, but that has no remote backend configured, fails with a message naming the missing backend — it does not silently fall back to local state
   4. Compiling a cross-state value handshake that CI's apply-ordering derivation cannot see fails with a message naming the fix, rather than producing a wrong or partial apply order
 
-**Plans:** 4/5 plans executed (2 gap-closure plans added after 01-VERIFICATION.md)
+**Plans:** 5/5 plans executed (2 gap-closure plans added after 01-VERIFICATION.md)
 
 Plans:
 **Wave 1**
@@ -66,7 +66,7 @@ Plans:
 
 **Gap closure — Wave 2** *(blocked on gap-closure Wave 1; contains a blocking `checkpoint:decision`)*
 
-- [ ] 01-05-PLAN.md — `SelectComponents` returns every occurrence in the graph, and a committed fixture proves a mutation through the selection reaches both arms of a diamond (FOUND-03)
+- [x] 01-05-PLAN.md — `SelectComponents` returns every occurrence in the graph, and a committed fixture proves a mutation through the selection reaches both arms of a diamond (FOUND-03)
 
 ### Phase 2: FinOps Cost Attribution
 
@@ -133,7 +133,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Trustworthy Foundations | 4/5 | In Progress|  |
+| 1. Trustworthy Foundations | 5/5 | In Progress|  |
 | 2. FinOps Cost Attribution | 0/? | Not started | - |
 | 3. Database Dependency Fan-Out | 0/? | Not started | - |
 | 4. Service Mesh Authorization | 0/? | Not started | - |
