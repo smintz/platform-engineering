@@ -2,18 +2,20 @@
 
 ## Overview
 
-Four new stakeholders — FinOps, database consumers, service mesh, and security — get the same
+Four new stakeholders — database consumers, service mesh, security, and FinOps — get the same
 automatic fan-out that SLOs already prove for monitoring: a developer declares one thing, and
 every other stakeholder's concern follows without them naming it. The foundations this all builds
 on are not yet trustworthy (compile/apply drift, no shape-selectable component field, unchecked
 cross-state writes), so Phase 1 closes those gaps first — cheaply, as one mechanical pass — before
-four new drivers can silently inherit the same failure classes. Cost attribution proves the fan-out
-pattern generalizes with the shallowest possible surface area. The database dependency phase is
+four new drivers can silently inherit the same failure classes. The database dependency phase is
 the thesis-defining requirement and carries the milestone's one genuine infrastructure unknown
 (can CI actually reach the database), resolved as that phase's first plan rather than a separate
 phase. Service mesh reuses the same near/far hook-pair convention the database phase validates.
-Security-authored cross-cutting policy comes last on purpose — it needs `Component.Metadata.labels` to be populated
-*and* needs real drivers already populating meaningful labels, which only phases 3 and 4 provide.
+Security-authored cross-cutting policy comes after both on purpose — it needs `Component.Metadata.labels` to be populated
+*and* needs real drivers already populating meaningful labels, which only phases 2 and 3 provide.
+FinOps comes last and ships as tooling rather than cost policy: FinOps authors its own tagging
+hooks and compile gates on the selector mechanism Phase 4 builds, so it reuses that mechanism
+instead of building a second one.
 
 ## Phases
 
@@ -28,6 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 2: Database Dependency Fan-Out** - A database dependency provisions, connects, credentials, monitors, and orders itself over a network path CI can reach
 - [ ] **Phase 3: Service Mesh Authorization** - A service-to-service dependency grants exactly the access that edge implies, nothing more
 - [ ] **Phase 4: Security-Authored Cross-Cutting Policy** - A security engineer targets components by shape, with auditable, non-empty coverage
+- [ ] **Phase 5: FinOps Tooling** - FinOps authors its own tagging and gates on the policy mechanism, and reviewers see cost deltas pre-merge
 
 ## Phase Details
 
@@ -100,13 +103,28 @@ Plans:
 
 **Goal**: A security engineer authors one hardening hook that applies across every component matching a declared shape, with visible, auditable coverage
 **Mode:** mvp
-**Depends on**: Phase 1, Phase 3, Phase 4
+**Depends on**: Phase 1, Phase 2, Phase 3
 **Requirements**: SEC-01, SEC-02, SEC-03
 **Success Criteria** (what must be TRUE):
 
   1. A security engineer authors a hardening hook targeting a tag selector and it applies to every matching component without editing any of those components individually
   2. Compiling a policy whose selector matches zero components fails with a message naming the fix
   3. A security engineer can open a generated artifact and see exactly which components each policy applied to
+
+**Plans**: TBD
+
+### Phase 5: FinOps Tooling
+
+**Goal**: FinOps stays in control of cost attribution — the platform ships the tooling, FinOps authors the tagging and the rules, and reviewers see cost before merge
+**Mode:** mvp
+**Depends on**: Phase 4
+**Requirements**: COST-01, COST-02, COST-03, COST-04
+**Success Criteria** (what must be TRUE):
+
+  1. A FinOps engineer declares a label once and it is inherited by the declaring component's entire dependency subtree, via a general inheriting-labels hook
+  2. A FinOps engineer authors one tagging hook on the Phase 4 selector mechanism that stamps their chosen tags onto every Terraform resource any driver emits, and a generated artifact shows which resources it covered
+  3. A FinOps engineer authors their own compile gate that fails with a message naming the fix, without editing the platform or any driver
+  4. A reviewer opening a pull request sees the estimated cost delta of the change, from a cost-estimate step in the generated CI pipeline
 
 **Plans**: TBD
 
@@ -121,3 +139,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Database Dependency Fan-Out | 0/? | Not started | - |
 | 3. Service Mesh Authorization | 0/? | Not started | - |
 | 4. Security-Authored Cross-Cutting Policy | 0/? | Not started | - |
+| 5. FinOps Tooling | 0/? | Not started | - |

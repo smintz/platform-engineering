@@ -5,10 +5,10 @@ current_phase: 01
 current_phase_name: Trustworthy Foundations
 status: executing
 stopped_at: Completed 01-05-PLAN.md
-last_updated: "2026-09-08T03:25:08.857Z"
+last_updated: "2026-09-13T09:22:05.251Z"
 last_activity: 2026-09-08
 last_activity_desc: Phase 01 execution started
-state_head: c2070ad24f113965aac6640ab53a45c7b76ef64c
+state_head: aa56a94b7152348c954a450b435440d7bba339ec
 progress:
   total_phases: 5
   completed_phases: 0
@@ -99,6 +99,11 @@ None yet.
 
 - Phase 3 (Database Dependency Fan-Out) carries the milestone's one open infrastructure question: whether the CI runner can reach the target database over the network. Resolve as that phase's first plan before writing driver logic.
 - DB credential delivery must avoid ever persisting a secret to Terraform state (IRSA/cloud-native IAM auth is the intended path) — flagged in research as the sharpest new risk this milestone introduces.
+
+### Roadmap Evolution
+
+- Phase 2 removed: FinOps Cost Attribution removed; Database/Mesh/Security renumbered 3-5 -> 2-4
+- Phase 5 added: FinOps Tooling: FinOps authors tagging/gates on the Phase 4 selector mechanism plus a CI cost-estimate step; COST-01..04 reworded as tooling
 
 ## Deferred Items
 

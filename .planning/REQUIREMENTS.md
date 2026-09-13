@@ -19,11 +19,11 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### FinOps
 
-<!-- Stakeholder: FinOps. Cheapest proof that the SLO fan-out generalizes to a new stakeholder. -->
+<!-- Stakeholder: FinOps. Tooling, not policy: the platform ships the mechanisms, FinOps authors the rules. Built on the Security Policy selector mechanism, so sequenced after it. -->
 
-- [ ] **COST-01**: An owner declares a cost center on a component and it propagates to every component in that component's dependency subtree
-- [ ] **COST-02**: Every Terraform resource emitted by every driver carries the cost-attribution tags
-- [ ] **COST-03**: Compile fails when a component emits billable resources but has no cost center attributed
+- [ ] **COST-01**: A label declared once on a component is inherited by every component in that component's dependency subtree
+- [ ] **COST-02**: A FinOps-authored tagging hook stamps FinOps-chosen tags onto every Terraform resource emitted by every driver, with coverage visible in a generated artifact
+- [ ] **COST-03**: A FinOps-authored compile gate fails with a message naming the fix, without editing the platform or any driver
 - [ ] **COST-04**: A reviewer sees the estimated cost delta of a change on its pull request
 
 ### Database Dependency
@@ -103,21 +103,21 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FOUND-03 | Phase 1 | Complete |
 | FOUND-04 | Phase 1 | Complete |
 | FOUND-05 | Phase 1 | Complete |
-| COST-01 | Phase 2 | Pending |
-| COST-02 | Phase 2 | Pending |
-| COST-03 | Phase 2 | Pending |
-| COST-04 | Phase 2 | Pending |
-| DATA-01 | Phase 3 | Pending |
-| DATA-02 | Phase 3 | Pending |
-| DATA-03 | Phase 3 | Pending |
-| DATA-04 | Phase 3 | Pending |
-| DATA-05 | Phase 3 | Pending |
-| DATA-06 | Phase 3 | Pending |
-| MESH-01 | Phase 4 | Pending |
-| MESH-02 | Phase 4 | Pending |
-| SEC-01 | Phase 5 | Pending |
-| SEC-02 | Phase 5 | Pending |
-| SEC-03 | Phase 5 | Pending |
+| DATA-01 | Phase 2 | Pending |
+| DATA-02 | Phase 2 | Pending |
+| DATA-03 | Phase 2 | Pending |
+| DATA-04 | Phase 2 | Pending |
+| DATA-05 | Phase 2 | Pending |
+| DATA-06 | Phase 2 | Pending |
+| MESH-01 | Phase 3 | Pending |
+| MESH-02 | Phase 3 | Pending |
+| SEC-01 | Phase 4 | Pending |
+| SEC-02 | Phase 4 | Pending |
+| SEC-03 | Phase 4 | Pending |
+| COST-01 | Phase 5 | Pending |
+| COST-02 | Phase 5 | Pending |
+| COST-03 | Phase 5 | Pending |
+| COST-04 | Phase 5 | Pending |
 
 **Coverage:**
 
