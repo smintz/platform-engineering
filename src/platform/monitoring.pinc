@@ -55,12 +55,15 @@ def WithSLO(
         severity,
         burn_query,
         threshold_alert,
+        "",
     )
 
 # WithDiagnostic records a signal that is not a promise: saturation, restart counts, feed
 # reconnects. They belong on the dashboard because they explain an objective that broke,
 # and they are typed apart from objectives so that nothing mistakes one for something a
 # user can feel — or pages on it.
+#
+# `legend` names the series when the query returns several, e.g. "{{span_name}}".
 def WithDiagnostic(
         name,
         query,
@@ -68,7 +71,8 @@ def WithDiagnostic(
         datasource = "prometheus",
         min = 0.0,
         max = 0.0,
-        unit = Unit.UNIT_UNSPECIFIED):
+        unit = Unit.UNIT_UNSPECIFIED,
+        legend = ""):
     return objective(
         component_proto.Objective.Type.TYPE_DIAGNOSTIC,
         name,
@@ -81,6 +85,7 @@ def WithDiagnostic(
         component_proto.Status.STATUS_UNSPECIFIED,
         "",
         "",
+        legend,
     )
 
 def objective(
@@ -94,7 +99,8 @@ def objective(
         unit,
         severity,
         burn_query,
-        threshold_alert):
+        threshold_alert,
+        legend):
     def do(component, next):
         component.objectives.append(
             component_proto.Objective(
@@ -109,6 +115,7 @@ def objective(
                     unit = unit,
                     burn_query = burn_query,
                     threshold_alert = threshold_alert,
+                    legend = legend,
                 ),
                 severity = severity,
             ),

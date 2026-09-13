@@ -110,10 +110,16 @@ def target(objective, region):
             raw_query = True,
             format = "time_series",
         )
+    # A stat panel prints its series name inside the number, so an objective's stays its own
+    # name. A diagnostic can return many series; without a template, Grafana's Auto mode
+    # names each by the labels that tell them apart.
+    legend = objective.name
+    if objective.type == DIAGNOSTIC:
+        legend = query.legend or "__auto"
     return Target(
         ref_id = "A",
         expr = query.query,
-        legend_format = objective.name,
+        legend_format = legend,
     )
 
 def field_config(objective):

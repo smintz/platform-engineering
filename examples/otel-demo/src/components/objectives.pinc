@@ -88,6 +88,7 @@ def _objectives(component, threshold_ms, scope):
             "sum by (span_name) (rate(traces_span_metrics_calls_total{%s}[5m]))" % _server(service, scope, ',status_code="STATUS_CODE_ERROR"'),
             description = "Which of %s's operations are failing, when availability drops" % service,
             unit = platform.Unit.UNIT_COUNT,
+            legend = "{{span_name}}",
         ),
     )
 

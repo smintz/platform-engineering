@@ -90,6 +90,11 @@ message Component {
             // this one is deliberately not allowed to imply that it can.
             string threshold_alert = 7;
 
+            // How to name each series a diagnostic returns, in the datasource's own
+            // template syntax — {{span_name}} for Prometheus. Empty leaves naming to the
+            // renderer, which knows which labels tell the series apart.
+            string legend = 8;
+
             enum Unit {
                 UNIT_UNSPECIFIED = 0;
                 // 0.0 - 1.0
