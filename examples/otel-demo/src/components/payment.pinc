@@ -1,0 +1,31 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/flagd.pinc", "FlagdComponent")
+load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/otel_collector.pinc", "Collector")
+
+# Charges the card (Node.js). Critical: a failure here is an order the shopper could not
+# place, so its objectives page.
+def PaymentComponent(*hooks):
+    return platform.Component(
+        "payment",
+        platform.WithDescription("Charges the shopper's card"),
+        platform.WithLabels(criticality = "critical"),
+        WithDemoWorkload(
+            DemoImage("payment"),
+            8080,
+            WithEnv(
+                PAYMENT_PORT = "8080",
+                IPV6_ENABLED = "false",
+                NODE_OPTIONS = "--require @opentelemetry/auto-instrumentations-node/register",
+                OTEL_EXPORTER_OTLP_PROTOCOL = "grpc",
+            ),
+            WithMemoryLimit("140Mi"),
+        ),
+        platform.WithDeps(Collector("grpc"), FlagdComponent),
+        WithDependantEnv(PAYMENT_ADDR = "payment:8080"),
+        WithRequestObjectives(200),
+        Defaults(*hooks),
+    )

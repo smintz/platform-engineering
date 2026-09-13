@@ -3,7 +3,7 @@
     "kubernetes_config_map_v1": {
       "otel-collector": {
         "data": {
-          "config.yaml": "${file(\"${path.module}/../../../../../files/otelcol-config.yml\")}"
+          "config.yaml": "${file(\"${path.module}/config.yaml\")}"
         },
         "metadata": {
           "name": "otel-collector"
@@ -51,6 +51,14 @@
                     {
                       "name": "GOMEMLIMIT",
                       "value": "160MiB"
+                    },
+                    {
+                      "name": "PROMETHEUS_URL",
+                      "value": "http://prometheus:9090"
+                    },
+                    {
+                      "name": "PROMETHEUS_OTLP_ENDPOINT",
+                      "value": "http://prometheus:9090/api/v1/otlp"
                     }
                   ],
                   "port": [

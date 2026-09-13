@@ -1,0 +1,25 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/flagd.pinc", "FlagdComponent")
+load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/otel_collector.pinc", "Collector")
+
+# Picks an ad for the page (Java).
+def AdComponent(*hooks):
+    return platform.Component(
+        "ad",
+        platform.WithDescription("Serves contextual ads"),
+        platform.WithLabels(criticality = "medium"),
+        WithDemoWorkload(
+            DemoImage("ad"),
+            8080,
+            WithEnv(AD_PORT = "8080", AD_PROMETHEUS_PORT = "9465", OTEL_LOGS_EXPORTER = "otlp"),
+            WithMemoryLimit("300Mi"),
+        ),
+        platform.WithDeps(Collector("http"), FlagdComponent),
+        WithDependantEnv(AD_ADDR = "ad:8080"),
+        WithRequestObjectives(200),
+        Defaults(*hooks),
+    )

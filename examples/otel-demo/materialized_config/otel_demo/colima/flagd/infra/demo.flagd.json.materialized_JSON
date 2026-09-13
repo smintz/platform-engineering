@@ -1,0 +1,176 @@
+{
+  "protoFile": "flagd/v1/flags.proto",
+  "value": {
+    "@type": "type.googleapis.com/flagd.v1.Flags",
+    "$schema": "https://flagd.dev/schema/v0/flags.json",
+    "flags": {
+      "adFailure": {
+        "state": "ENABLED",
+        "variants": {
+          "off": false,
+          "on": true
+        },
+        "defaultVariant": "off",
+        "description": "Fail ad service"
+      },
+      "adHighCpu": {
+        "state": "ENABLED",
+        "variants": {
+          "off": false,
+          "on": true
+        },
+        "defaultVariant": "off",
+        "description": "Triggers high cpu load in the ad service"
+      },
+      "adManualGc": {
+        "state": "ENABLED",
+        "variants": {
+          "off": false,
+          "on": true
+        },
+        "defaultVariant": "off",
+        "description": "Triggers full manual garbage collections in the ad service"
+      },
+      "cartFailure": {
+        "state": "ENABLED",
+        "variants": {
+          "10%": 0.1,
+          "100%": 1,
+          "25%": 0.25,
+          "50%": 0.5,
+          "75%": 0.75,
+          "90%": 0.9,
+          "off": 0
+        },
+        "defaultVariant": "off",
+        "description": "Fail cart service n% of the time"
+      },
+      "emailMemoryLeak": {
+        "state": "ENABLED",
+        "variants": {
+          "10000x": 10000,
+          "1000x": 1000,
+          "100x": 100,
+          "10x": 10,
+          "1x": 1,
+          "off": 0
+        },
+        "defaultVariant": "off",
+        "description": "Memory leak in the email service."
+      },
+      "failedReadinessProbe": {
+        "state": "ENABLED",
+        "variants": {
+          "off": false,
+          "on": true
+        },
+        "defaultVariant": "off",
+        "description": "readiness probe failure for cart service"
+      },
+      "imageSlowLoad": {
+        "state": "ENABLED",
+        "variants": {
+          "10sec": 10000,
+          "5sec": 5000,
+          "off": 0
+        },
+        "defaultVariant": "off",
+        "description": "slow loading images in the frontend"
+      },
+      "intlShippingSlowdown": {
+        "state": "ENABLED",
+        "variants": {
+          "10sec": 10,
+          "5sec": 5,
+          "off": 0
+        },
+        "defaultVariant": "off",
+        "description": "Delays international shipping responses to simulate overseas shipping delay"
+      },
+      "kafkaQueueProblems": {
+        "state": "ENABLED",
+        "variants": {
+          "off": 0,
+          "on": 100
+        },
+        "defaultVariant": "off",
+        "description": "Overloads Kafka queue while simultaneously introducing a consumer side delay leading to a lag spike"
+      },
+      "loadGeneratorTraffic": {
+        "state": "ENABLED",
+        "variants": {
+          "off": 0,
+          "on": 1
+        },
+        "defaultVariant": "on",
+        "description": "Enable synthetic traffic from the load generator. Turn off to pause all load-generator scenarios."
+      },
+      "loadGeneratorVUs": {
+        "state": "ENABLED",
+        "variants": {
+          "10": 10,
+          "25": 25,
+          "5": 5,
+          "50": 50
+        },
+        "defaultVariant": "5",
+        "description": "Number of concurrent virtual users the load generator's HTTP scenario runs. Changes take effect on the wrapper's next poll, restarting k6."
+      },
+      "paymentFailure": {
+        "state": "ENABLED",
+        "variants": {
+          "10%": 0.1,
+          "100%": 1,
+          "25%": 0.25,
+          "50%": 0.5,
+          "75%": 0.75,
+          "90%": 0.95,
+          "off": 0
+        },
+        "defaultVariant": "off",
+        "description": "Fail payment service charge requests n%"
+      },
+      "paymentUnreachable": {
+        "state": "ENABLED",
+        "variants": {
+          "off": false,
+          "on": true
+        },
+        "defaultVariant": "off",
+        "description": "Payment service is unavailable"
+      },
+      "productCatalogFailure": {
+        "state": "ENABLED",
+        "variants": {
+          "off": false,
+          "on": true
+        },
+        "defaultVariant": "off",
+        "description": "Fail product catalog service on a specific product",
+        "targeting": {
+          "if": [
+            {
+              "==": [
+                {
+                  "var": "product_id"
+                },
+                "OLJCESPC7Z"
+              ]
+            },
+            "off",
+            "off"
+          ]
+        }
+      },
+      "recommendationCacheFailure": {
+        "state": "ENABLED",
+        "variants": {
+          "off": false,
+          "on": true
+        },
+        "defaultVariant": "off",
+        "description": "Fail recommendation service cache"
+      }
+    }
+  }
+}

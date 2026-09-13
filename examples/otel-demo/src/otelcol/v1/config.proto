@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+package otelcol.v1;
+
+// The OpenTelemetry Collector's configuration file
+// (https://opentelemetry.io/docs/collector/configuration/), for the components this
+// example runs.
+//
+// Each section has one field per component type rather than a map of instance ids, so a
+// component's settings are typed by what it is. The price is one instance of each type:
+// a pipeline names a component by its type ("otlp", "batch"). A second instance of a type
+// ("otlp_http/other") would be a new field with that key as its json_name.
+message Config {
+    Receivers receivers = 1;
+    Processors processors = 2;
+    Connectors connectors = 3;
+    Exporters exporters = 4;
+    Service service = 5;
+}
+
+// --- receivers: where telemetry enters ------------------------------------------------
+
+message Receivers {
+    OtlpReceiver otlp = 1;
+}
+
+message OtlpReceiver {
+    OtlpProtocols protocols = 1;
+}
+
+// A protocol is enabled by being present.
+message OtlpProtocols {
+    Endpoint grpc = 1;
+    Endpoint http = 2;
+}
+
+message Endpoint {
+    // host:port to listen on
+    string endpoint = 1;
+}
+
+// --- processors: what happens to telemetry in a pipeline ------------------------------
+
+message Processors {
+    BatchProcessor batch = 1;
+    FilterProcessor filter = 2;
+}
+
+// Batches telemetry before export; the defaults are what the example wants.
+message BatchProcessor {}
+
+message FilterProcessor {
+    MetricFilter metrics = 1;
+}
+
+message MetricFilter {
+    // OTTL conditions; a metric matching any of them is dropped
+    repeated string metric = 1;
+}
+
+// --- connectors: the exporter of one pipeline and the receiver of another -------------
+
+message Connectors {
+    SpanMetricsConnector span_metrics = 1 [json_name = "span_metrics"];
+}
+
+// Derives calls and duration histograms from spans.
+message SpanMetricsConnector {
+    // span attributes kept as metric labels, beyond service, span name, kind and status
+    repeated Dimension dimensions = 1;
+}
+
+message Dimension {
+    string name = 1;
+}
+
+// --- exporters: where telemetry leaves -------------------------------------------------
+
+message Exporters {
+    DebugExporter debug = 1;
+    OtlpHttpExporter otlp_http = 2 [json_name = "otlp_http"];
+}
+
+message DebugExporter {
+    // basic, normal or detailed
+    string verbosity = 1;
+}
+
+message OtlpHttpExporter {
+    // base URL; the exporter appends /v1/traces, /v1/metrics or /v1/logs
+    string endpoint = 1;
+    Tls tls = 2;
+}
+
+message Tls {
+    bool insecure = 1;
+}
+
+// --- service: which components run, and how they connect -----------------------------
+
+message Service {
+    // keyed by signal: traces, metrics, logs
+    map<string, Pipeline> pipelines = 1;
+}
+
+// Components named by type, as declared in the sections above.
+message Pipeline {
+    repeated string receivers = 1;
+    repeated string processors = 2;
+    repeated string exporters = 3;
+}

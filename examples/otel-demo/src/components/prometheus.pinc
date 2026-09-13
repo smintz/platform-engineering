@@ -1,0 +1,78 @@
+load("//prometheus/v1/config.proto", "Config", "Global", "Otlp", "Storage", "Tsdb")
+load("@kubernetes//kubernetes.pinc", "WithCommand", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv")
+
+# The demo's own Prometheus configuration: nothing is scraped, everything arrives over OTLP.
+#
+# `global` is a reserved word in Starlark, so that one field is passed through a dict, where
+# it is just a string.
+PROMETHEUS_CONFIG = Config(
+    otlp = Otlp(
+        keep_identifying_resource_attributes = True,
+        # The service identity the objectives select on, and the Kubernetes and database
+        # identity the demo's own dashboards use.
+        promote_resource_attributes = [
+            "service.instance.id",
+            "service.name",
+            "service.namespace",
+            "service.version",
+            "service.criticality",
+            "cloud.availability_zone",
+            "cloud.region",
+            "deployment.environment.name",
+            "k8s.cluster.name",
+            "k8s.container.name",
+            "k8s.cronjob.name",
+            "k8s.daemonset.name",
+            "k8s.deployment.name",
+            "k8s.job.name",
+            "k8s.namespace.name",
+            "k8s.node.name",
+            "k8s.pod.name",
+            "k8s.replicaset.name",
+            "k8s.statefulset.name",
+            "container.name",
+            "host.name",
+            "postgresql.database.name",
+            "postgresql.schema.name",
+            "postgresql.table.name",
+            "postgresql.index.name",
+            "kafka.cluster.alias",
+            "collector.instance.id",
+        ],
+    ),
+    # OTLP batches can arrive after newer samples from another exporter have landed
+    storage = Storage(tsdb = Tsdb(out_of_order_time_window = "30m")),
+    # aligned with the OTel SDKs' export interval, so a scrape and an export agree
+    **{"global": Global(scrape_interval = "60s")}
+)
+
+# Prometheus stores the metrics every objective is written against. It receives them over
+# OTLP rather than scraping, so nothing has to know where the services are — the collector
+# depends on Prometheus and is handed its address.
+def PrometheusComponent(*hooks):
+    return platform.Component(
+        "prometheus",
+        platform.WithDescription("Metrics store, receiving OTLP from the collector"),
+        WithDemoWorkload(
+            "prom/prometheus:v3.14.0",
+            9090,
+            WithMemoryLimit("512Mi"),
+            WithCommand(
+                "/bin/prometheus",
+                "--config.file=/etc/prometheus/prometheus-config.yaml",
+                "--storage.tsdb.path=/prometheus",
+                "--storage.tsdb.retention.time=7d",
+                "--web.enable-otlp-receiver",
+                "--web.enable-lifecycle",
+            ),
+        ),
+        WithConfigFile("prometheus", "/etc/prometheus/prometheus-config.yaml", "prometheus-config.yaml", PROMETHEUS_CONFIG, sub_path = "prometheus-config.yaml"),
+        WithDependantEnv(
+            PROMETHEUS_URL = "http://prometheus:9090",
+            PROMETHEUS_OTLP_ENDPOINT = "http://prometheus:9090/api/v1/otlp",
+        ),
+        Defaults(*hooks),
+    )

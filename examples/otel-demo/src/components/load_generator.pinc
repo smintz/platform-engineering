@@ -1,0 +1,38 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithEnv", "WithDependantEnv")
+load("//components/flagd.pinc", "FlagdComponent")
+load("//components/otel_collector.pinc", "Collector")
+
+# k6 driving synthetic shoppers at the storefront, paused and resumed by the
+# loadGeneratorTraffic flag.
+#
+# It targets frontend-proxy, which in turn depends on it — the one address in the demo that
+# flows up the graph instead of down it. WithDependantEnv only flows down, so K6_TARGET_URL
+# is written by hand. The browser scenario is off: it needs a headless Chromium's memory.
+def LoadGeneratorComponent(*hooks):
+    return platform.Component(
+        "load-generator",
+        platform.WithDescription("Synthetic shoppers generating traffic"),
+        platform.WithLabels(criticality = "low"),
+        WithDemoWorkload(
+            DemoImage("load-generator"),
+            8089,
+            WithEnv(
+                LOAD_GENERATOR_VUS = "5",
+                K6_TARGET_URL = "http://frontend-proxy:8080",
+                K6_BROWSER_ENABLED = "false",
+                FLAGD_OFREP_PORT = "8016",
+                OTEL_EXPORTER_OTLP_PROTOCOL = "http/protobuf",
+                K6_OTEL_EXPORTER_PROTOCOL = "http/protobuf",
+                K6_OTEL_HTTP_EXPORTER_ENDPOINT = "otel-collector:4318",
+                K6_OTEL_HTTP_EXPORTER_INSECURE = "true",
+                K6_OTEL_METRIC_PREFIX = "k6.",
+            ),
+            WithMemoryLimit("512Mi"),
+        ),
+        platform.WithDeps(Collector("http"), FlagdComponent),
+        WithDependantEnv(LOCUST_WEB_HOST="load-generator", LOCUST_WEB_PORT="8089"),
+        Defaults(*hooks),
+    )

@@ -1,0 +1,19 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "WithDemoWorkload", "WithDependantEnv")
+
+# The cart's store. It depends on nothing and promises nothing of its own: whether a cart
+# can be read is the cart service's objective, measured where a shopper feels it.
+def ValkeyCartComponent(*hooks):
+    return platform.Component(
+        "valkey-cart",
+        platform.WithDescription("Valkey instance holding shopping carts"),
+        WithDemoWorkload(
+            "ghcr.io/valkey-io/valkey:9.0.4-alpine3.23",
+            6379,
+            WithMemoryLimit("20Mi"),
+        ),
+        WithDependantEnv(VALKEY_ADDR = "valkey-cart:6379"),
+        Defaults(*hooks),
+    )

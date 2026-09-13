@@ -1,0 +1,23 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/otel_collector.pinc", "Collector")
+
+# Serves product images (nginx). No objectives: a static file server, and a missing image
+# is already visible in the frontend's and proxy's own.
+def ImageProviderComponent(*hooks):
+    return platform.Component(
+        "image-provider",
+        platform.WithDescription("Serves product images"),
+        platform.WithLabels(criticality = "low"),
+        WithDemoWorkload(
+            DemoImage("image-provider"),
+            8081,
+            WithEnv(IMAGE_PROVIDER_PORT = "8081"),
+            WithMemoryLimit("50Mi"),
+        ),
+        platform.WithDeps(Collector("grpc")),
+        WithDependantEnv(IMAGE_PROVIDER_HOST = "image-provider", IMAGE_PROVIDER_PORT = "8081"),
+        Defaults(*hooks),
+    )

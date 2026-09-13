@@ -1,0 +1,103 @@
+load("//flagd/v1/flags.proto", "Flags")
+load("//grafana/provisioning/v1/datasources.proto", "Datasources")
+load("//opentelemetry/sdk/v1/config.proto", SdkConfig = "Config")
+load("//otelcol/v1/config.proto", CollectorConfig = "Config")
+load("//prometheus/v1/config.proto", PrometheusConfig = "Config")
+load("@kubernetes//kubernetes.pinc", "WithConfigFiles", "WithContainerEnv", "Workload")
+load("@platform//platform/platform.pinc", "platform")
+load("@terraform_state//terraform.pinc", "WithState")
+load("//components/defaults.pinc", "BACKEND")
+
+# The handful of hooks every demo component is written with. Each one does one thing, and
+# a component is a list of them: read any file next to this one top to bottom and it says
+# what runs, what it is shaped like, what it needs, and what it promises.
+
+# The demo release every image comes from. The Helm chart of the same version is where the
+# ports, memory and environment below were read from.
+VERSION = "3.0.0"
+
+def DemoImage(service):
+    return "ghcr.io/open-telemetry/demo:%s-%s" % (VERSION, service)
+
+# Every state lives at outputs/otel_demo/<domain>/<name>/infra, so files/ next to this
+# example is five directories up from the config that mounts it. Only files that are not
+# data live there — init.sql — since anything YAML, JSON or TOML is a message declared with
+# WithConfigFile instead.
+def File(name):
+    return '${file("${path.module}/../../../../../files/%s")}' % name
+
+# Set on every demo process: what the chart puts in its `default.env`.
+COMMON_ENV = {
+    "OTEL_RESOURCE_ATTRIBUTES": "service.version=" + VERSION,
+    "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE": "cumulative",
+}
+
+# WithEnv sets environment variables on the workload, in the order given. A Terraform hook:
+# it goes inside WithDemoWorkload, or anywhere a Kubernetes config is being shaped.
+def WithEnv(**env):
+    def do(config, next):
+        return next(platform.chain(config, *[WithContainerEnv(k, v) for k, v in env.items()]))
+
+    return do
+
+# WithDemoWorkload is the component's process: a Deployment of `image` and a Service on
+# `port`, named after the component, in its own Terraform state. The hooks after `port`
+# shape that workload — WithEnv, WithMemoryLimit, WithPort, WithCommand — and run once it
+# exists, which is why they are handed to it rather than listed on the component: on their
+# own they would run before there was a Deployment to change.
+#
+# Every process also learns its own OpenTelemetry service name, so no component repeats it.
+def WithDemoWorkload(image, port, *hooks):
+    def shape(component, next):
+        platform.mutate_config(
+            component,
+            platform.MAIN_CONFIG,
+            WithEnv(OTEL_SERVICE_NAME = component.name, **COMMON_ENV),
+            *hooks
+        )
+        return next(component)
+
+    return (
+        WithState(lambda component: Workload(component.name, image, port), BACKEND),
+        platform.component_filter(shape),
+    )
+
+# WithDependantEnv is what this component hands to every component that depends on it —
+# usually its own address. The dependency knows where it listens; its dependants only
+# declare that they need it, and receive the variables when WithDeps wires them together.
+# That is the whole trick that keeps addresses out of the components that use them.
+def WithDependantEnv(**env):
+    return platform.ForDownstream(platform.WithConfig(None, WithEnv(**env)))
+
+# Every config file message a component can render, by type_url: what GetConfigs needs to
+# unpack them (otel_demo.mpconf passes it). The schemas live beside components/, one package
+# per tool — otelcol/v1, prometheus/v1, grafana/provisioning/v1, opentelemetry/sdk/v1,
+# flagd/v1. Built from the message types themselves, so a url cannot be misspelled.
+CONFIG_FILE_TYPES = {
+    "type.googleapis.com/" + type(message): message
+    for message in [CollectorConfig, Datasources, Flags, PrometheusConfig, SdkConfig]
+}
+
+# WithConfigFile gives the workload a config file: `content` is a typed message, rendered by
+# the compiler into `filename` beside the component's own Terraform, in the format the
+# extension names — .yaml, .yml or .json. The file is then mounted from a ConfigMap named
+# `name` at `mount_path`; with `sub_path`, as that one file rather than a directory.
+#
+# Declared on the component, after WithDemoWorkload: it both writes a file and mounts it,
+# and the mount needs the Deployment to exist.
+def WithConfigFile(name, mount_path, filename, content, sub_path = ""):
+    # an unregistered message would compile, and then silently never be written
+    if "type.googleapis.com/" + type(content) not in CONFIG_FILE_TYPES:
+        fail("WithConfigFile: %s is not in CONFIG_FILE_TYPES (components/demo.pinc) — add it there, or %s is never rendered" % (type(content), filename))
+    directory = platform.MAIN_CONFIG.rpartition("/")[0]
+
+    def do(component, next):
+        platform.mutate_config(component, directory + "/" + filename, content)
+        platform.mutate_config(
+            component,
+            platform.MAIN_CONFIG,
+            WithConfigFiles(name, mount_path, {filename: '${file("${path.module}/%s")}' % filename}, sub_path = sub_path),
+        )
+        return next(component)
+
+    return platform.component_filter(do)

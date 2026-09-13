@@ -1,0 +1,88 @@
+{
+  "protoFile": "otelcol/v1/config.proto",
+  "value": {
+    "@type": "type.googleapis.com/otelcol.v1.Config",
+    "receivers": {
+      "otlp": {
+        "protocols": {
+          "grpc": {
+            "endpoint": "0.0.0.0:4317"
+          },
+          "http": {
+            "endpoint": "0.0.0.0:4318"
+          }
+        }
+      }
+    },
+    "processors": {
+      "batch": {},
+      "filter": {
+        "metrics": {
+          "metric": [
+            "IsMatch(name, \"^otel\\\\.sdk\\\\.\")"
+          ]
+        }
+      }
+    },
+    "connectors": {
+      "span_metrics": {
+        "dimensions": [
+          {
+            "name": "upstream_cluster"
+          }
+        ]
+      }
+    },
+    "exporters": {
+      "debug": {
+        "verbosity": "basic"
+      },
+      "otlp_http": {
+        "endpoint": "${env:PROMETHEUS_OTLP_ENDPOINT}",
+        "tls": {
+          "insecure": true
+        }
+      }
+    },
+    "service": {
+      "pipelines": {
+        "logs": {
+          "receivers": [
+            "otlp"
+          ],
+          "processors": [
+            "batch"
+          ],
+          "exporters": [
+            "debug"
+          ]
+        },
+        "metrics": {
+          "receivers": [
+            "otlp",
+            "span_metrics"
+          ],
+          "processors": [
+            "filter",
+            "batch"
+          ],
+          "exporters": [
+            "otlp_http"
+          ]
+        },
+        "traces": {
+          "receivers": [
+            "otlp"
+          ],
+          "processors": [
+            "batch"
+          ],
+          "exporters": [
+            "debug",
+            "span_metrics"
+          ]
+        }
+      }
+    }
+  }
+}

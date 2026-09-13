@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+package opentelemetry.sdk.v1;
+
+// The OpenTelemetry SDK's declarative configuration file, file format 1.0
+// (https://github.com/open-telemetry/opentelemetry-configuration), for the settings the demo
+// services use. An SDK pointed at one through OTEL_CONFIG_FILE reads it instead of the
+// OTEL_* variables, and expands ${VAR} and ${VAR:-default} in any string from its
+// environment.
+message Config {
+    string file_format = 1 [json_name = "file_format"];
+
+    // turns the SDK into a no-op; false, the default, is left out of the file
+    bool disabled = 2;
+
+    string log_level = 3 [json_name = "log_level"];
+    LoggerProvider logger_provider = 4 [json_name = "logger_provider"];
+    MeterProvider meter_provider = 5 [json_name = "meter_provider"];
+    TracerProvider tracer_provider = 6 [json_name = "tracer_provider"];
+    Propagator propagator = 7;
+    Resource resource = 8;
+}
+
+// The schema lists some entries — a propagator, a resource detector — by name alone. It
+// writes them as `name: null`; proto has no null, so they render as `name: {}`, which the
+// schema accepts as the same "enabled, with no settings".
+message Enabled {}
+
+message LoggerProvider {
+    repeated Processor processors = 1;
+}
+
+message TracerProvider {
+    repeated Processor processors = 1;
+}
+
+message Processor {
+    BatchProcessor batch = 1;
+}
+
+message BatchProcessor {
+    Exporter exporter = 1;
+}
+
+message Exporter {
+    OtlpGrpcExporter otlp_grpc = 1 [json_name = "otlp_grpc"];
+}
+
+message OtlpGrpcExporter {
+    string endpoint = 1;
+
+    // metrics only: cumulative, delta or low_memory
+    string temporality_preference = 2 [json_name = "temporality_preference"];
+}
+
+message MeterProvider {
+    repeated MetricReader readers = 1;
+}
+
+message MetricReader {
+    PeriodicReader periodic = 1;
+}
+
+message PeriodicReader {
+    Exporter exporter = 1;
+}
+
+message Propagator {
+    // propagators run in order; each entry names one
+    repeated PropagatorEntry composite = 1;
+}
+
+message PropagatorEntry {
+    Enabled tracecontext = 1;
+    Enabled baggage = 2;
+}
+
+message Resource {
+    // comma-separated key=value pairs
+    string attributes_list = 1 [json_name = "attributes_list"];
+    ResourceDetection detection = 2 [json_name = "detection/development"];
+}
+
+message ResourceDetection {
+    repeated Detector detectors = 1;
+}
+
+message Detector {
+    Enabled container = 1;
+    Enabled host = 2;
+    Enabled process = 3;
+    Enabled service = 4;
+}

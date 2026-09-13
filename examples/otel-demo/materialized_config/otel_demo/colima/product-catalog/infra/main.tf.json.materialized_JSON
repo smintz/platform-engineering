@@ -6,7 +6,7 @@
       "kubernetes_config_map_v1": {
         "product-catalog": {
           "data": {
-            "otel-config.yml": "${file(\"${path.module}/../../../../../files/otel-config.yml\")}"
+            "otel-config.yml": "${file(\"${path.module}/otel-config.yml\")}"
           },
           "metadata": {
             "name": "product-catalog"

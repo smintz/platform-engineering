@@ -1,0 +1,43 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/cart.pinc", "CartComponent")
+load("//components/currency.pinc", "CurrencyComponent")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/email.pinc", "EmailComponent")
+load("//components/flagd.pinc", "FlagdComponent")
+load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/otel_collector.pinc", "Collector")
+load("//components/payment.pinc", "PaymentComponent")
+load("//components/product_catalog.pinc", "ProductCatalogComponent")
+load("//components/shipping.pinc", "ShippingComponent")
+
+# Places an order (Go): the demo's deepest fan-in. Six dependencies, and not one address
+# written here — cart, currency, email, payment, product-catalog and shipping each hand
+# over their own when WithDeps wires them in. Its latency bound is the loosest of the
+# backends because it waits on all of them.
+def CheckoutComponent(*hooks):
+    return platform.Component(
+        "checkout",
+        platform.WithDescription("Places orders across cart, payment, shipping and email"),
+        platform.WithLabels(criticality = "critical"),
+        WithDemoWorkload(
+            DemoImage("checkout"),
+            8080,
+            WithEnv(CHECKOUT_PORT = "8080", GOMEMLIMIT = "16MiB", OTEL_EXPORTER_OTLP_PROTOCOL = "http/protobuf"),
+            WithMemoryLimit("20Mi"),
+        ),
+        platform.WithDeps(
+            Collector("http"),
+            FlagdComponent,
+            CartComponent,
+            CurrencyComponent,
+            EmailComponent,
+            PaymentComponent,
+            ProductCatalogComponent,
+            ShippingComponent,
+        ),
+        WithDependantEnv(CHECKOUT_ADDR = "checkout:8080"),
+        WithRequestObjectives(1000),
+        Defaults(*hooks),
+    )

@@ -3,7 +3,7 @@
     "kubernetes_config_map_v1": {
       "flagd-ui": {
         "data": {
-          "demo.flagd.json": "${file(\"${path.module}/../../../../../files/demo.flagd.json\")}"
+          "demo.flagd.json": "${file(\"${path.module}/demo.flagd.json\")}"
         },
         "metadata": {
           "name": "flagd-ui"

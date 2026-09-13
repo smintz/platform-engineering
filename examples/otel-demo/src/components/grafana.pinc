@@ -1,0 +1,56 @@
+load("//grafana/provisioning/v1/datasources.proto", "Datasource", "Datasources")
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit", "WithScratchDir")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "DATASOURCES", "Defaults")
+load("//components/demo.pinc", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/prometheus.pinc", "PrometheusComponent")
+
+# The one datasource the dashboards query, provisioned when Grafana starts. Its name comes
+# from DATASOURCES — the same map the Grafana driver looks datasources up by — so the name
+# the dashboards ask for and the name Grafana provisions cannot drift apart. The URL is
+# handed to Grafana by the Prometheus component it depends on.
+DATASOURCES_CONFIG = Datasources(
+    api_version = 1,
+    datasources = [
+        Datasource(
+            name = DATASOURCES["prometheus"],
+            type = "prometheus",
+            access = "proxy",
+            url = "$PROMETHEUS_URL",
+            is_default = True,
+        ),
+    ],
+)
+
+# Grafana, where every component's objectives are rendered. It is served under /grafana so
+# the storefront proxy can route to it, as the demo does.
+#
+# 1Gi: Grafana 13 idles near 470Mi and was OOM-killed at both 256Mi and 512Mi once it was
+# evaluating the alert rules. Each kill used to take the dashboards and rules with it too;
+# the scratch dir now keeps them across a container restart.
+# ponytail: still lost when the pod is replaced; mount a PersistentVolumeClaim if Grafana
+# has to survive a redeploy without a `make monitoring` after it.
+def GrafanaComponent(*hooks):
+    return platform.Component(
+        "grafana",
+        platform.WithDescription("Dashboards and alert rules rendered from every component's objectives"),
+        WithDemoWorkload(
+            "grafana/grafana:13.2.1",
+            3000,
+            WithEnv(
+                # the demo's local admin, for a laptop cluster; make monitoring authenticates with it
+                GF_SECURITY_ADMIN_PASSWORD = "admin",
+                GF_AUTH_ANONYMOUS_ENABLED = "true",
+                GF_AUTH_ANONYMOUS_ORG_ROLE = "Viewer",
+                GF_SERVER_ROOT_URL = "%(protocol)s://%(domain)s:%(http_port)s/grafana/",
+                GF_SERVER_SERVE_FROM_SUB_PATH = "true",
+            ),
+            WithMemoryLimit("1Gi"),
+            # dashboards and alert rules live in Grafana's database; keep them across a crash
+            WithScratchDir("grafana-data", "/var/lib/grafana"),
+        ),
+        WithConfigFile("grafana-datasources", "/etc/grafana/provisioning/datasources", "datasources.yaml", DATASOURCES_CONFIG),
+        platform.WithDeps(PrometheusComponent),
+        WithDependantEnv(GRAFANA_HOST = "grafana", GRAFANA_PORT = "3000"),
+        Defaults(*hooks),
+    )

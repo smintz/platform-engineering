@@ -1,0 +1,50 @@
+connectors:
+  span_metrics:
+    dimensions:
+    - name: upstream_cluster
+exporters:
+  debug:
+    verbosity: basic
+  otlp_http:
+    endpoint: ${env:PROMETHEUS_OTLP_ENDPOINT}
+    tls:
+      insecure: true
+processors:
+  batch: {}
+  filter:
+    metrics:
+      metric:
+      - IsMatch(name, "^otel\\.sdk\\.")
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+service:
+  pipelines:
+    logs:
+      exporters:
+      - debug
+      processors:
+      - batch
+      receivers:
+      - otlp
+    metrics:
+      exporters:
+      - otlp_http
+      processors:
+      - filter
+      - batch
+      receivers:
+      - otlp
+      - span_metrics
+    traces:
+      exporters:
+      - debug
+      - span_metrics
+      processors:
+      - batch
+      receivers:
+      - otlp

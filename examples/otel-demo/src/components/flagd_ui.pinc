@@ -1,0 +1,31 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "DemoImage", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/flagd.pinc", "FLAGS", "FlagdComponent")
+load("//components/otel_collector.pinc", "Collector")
+
+# The flag editor, reached through the storefront proxy at /feature. It reads the same flags
+# flagd serves, mounted read-only, so a change made in the UI does not persist — edit FLAGS
+# in flagd.pinc and re-apply instead.
+def FlagdUiComponent(*hooks):
+    return platform.Component(
+        "flagd-ui",
+        platform.WithDescription("Web editor for the demo's feature flags"),
+        platform.WithLabels(criticality = "low"),
+        WithDemoWorkload(
+            DemoImage("flagd-ui"),
+            4000,
+            WithEnv(
+                FLAGD_UI_PORT = "4000",
+                # the demo's published Phoenix signing key, not a credential of anything real
+                SECRET_KEY_BASE = "yYrECL4qbNwleYInGJYvVnSkwJuSQJ4ijPTx5tirGUXrbznFIBFVJdPl5t6O9ASw",
+                PHX_HOST = "localhost",
+            ),
+            WithMemoryLimit("200Mi"),
+        ),
+        WithConfigFile("flagd-ui", "/app/data", "demo.flagd.json", FLAGS),
+        platform.WithDeps(Collector("http"), FlagdComponent),
+        WithDependantEnv(FLAGD_UI_HOST = "flagd-ui", FLAGD_UI_PORT = "4000"),
+        Defaults(*hooks),
+    )

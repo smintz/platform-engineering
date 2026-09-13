@@ -1,0 +1,26 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/flagd.pinc", "FlagdComponent")
+load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/otel_collector.pinc", "Collector")
+load("//components/quote.pinc", "QuoteComponent")
+
+# Ships the order (Rust). It depends on quote, and receives QUOTE_ADDR from it.
+def ShippingComponent(*hooks):
+    return platform.Component(
+        "shipping",
+        platform.WithDescription("Quotes and ships orders"),
+        platform.WithLabels(criticality = "high"),
+        WithDemoWorkload(
+            DemoImage("shipping"),
+            8080,
+            WithEnv(SHIPPING_PORT = "8080", IPV6_ENABLED = "false", OTEL_EXPORTER_OTLP_PROTOCOL = "http/protobuf"),
+            WithMemoryLimit("20Mi"),
+        ),
+        platform.WithDeps(Collector("http"), FlagdComponent, QuoteComponent),
+        WithDependantEnv(SHIPPING_ADDR = "http://shipping:8080"),
+        WithRequestObjectives(400),
+        Defaults(*hooks),
+    )

@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package flagd.v1;
+
+import "google/protobuf/struct.proto";
+
+// A flagd flag definition file (https://flagd.dev/reference/flag-definitions/).
+message Flags {
+    string schema = 1 [json_name = "$schema"];
+
+    // keyed by flag key: what a service asks flagd for
+    map<string, Flag> flags = 2;
+}
+
+message Flag {
+    State state = 1;
+
+    // variant name -> value. A flag's variants share one type, but which type — boolean,
+    // number, string, object — is the flag's own choice, so the value is left as JSON.
+    map<string, google.protobuf.Value> variants = 2;
+
+    // the variant served when no targeting rule applies
+    string default_variant = 3;
+
+    string description = 4;
+
+    // a JsonLogic rule choosing a variant from the evaluation context; untyped by design
+    google.protobuf.Struct targeting = 5;
+}
+
+// Serialized by name, as flagd expects; unprefixed for the same reason.
+enum State {
+    STATE_UNSPECIFIED = 0;
+    ENABLED = 1;
+    DISABLED = 2;
+}

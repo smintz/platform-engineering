@@ -1,0 +1,62 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit", "WithPort")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithEnv")
+load("//components/flagd.pinc", "FlagdComponent")
+load("//components/flagd_ui.pinc", "FlagdUiComponent")
+load("//components/frontend.pinc", "FrontendComponent")
+load("//components/grafana.pinc", "GrafanaComponent")
+load("//components/image_provider.pinc", "ImageProviderComponent")
+load("//components/load_generator.pinc", "LoadGeneratorComponent")
+load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/otel_collector.pinc", "Collector")
+load("//components/telemetry_docs.pinc", "TelemetryDocsComponent")
+
+# The storefront's front door (Envoy): every shopper request enters here, so its objective
+# is the one a shopper feels most directly. It is also the root of the graph — the
+# inventory in otel_demo.mpconf names only this component, and everything else arrives
+# through its dependencies.
+#
+# It routes /grafana too, and Grafana's own failures are not a shopper's. The scope excludes
+# requests Envoy routed to the grafana cluster (the upstream_cluster tag the collector keeps
+# as a span metric dimension) from both sides of the objective; without it, a Grafana
+# restart reads as the shop going down.
+def FrontendProxyComponent(*hooks):
+    return platform.Component(
+        "frontend-proxy",
+        platform.WithDescription("Envoy in front of the storefront, flag UI, docs and Grafana"),
+        platform.WithLabels(criticality = "critical"),
+        WithDemoWorkload(
+            DemoImage("frontend-proxy"),
+            8080,
+            WithEnv(
+                ENVOY_PORT = "8080",
+                ENVOY_ADDR = "0.0.0.0",
+                ENVOY_ADMIN_PORT = "10000",
+                # upstreams the proxy routes to that this example does not deploy; envoy
+                # resolves them lazily, so they cost a failed route rather than a failed start
+                JAEGER_HOST = "jaeger",
+                JAEGER_UI_PORT = "16686",
+                CHATBOT_HOST = "chatbot",
+                CHATBOT_PORT = "7860",
+                OPAMP_SERVER_HOST = "opamp-server",
+                OPAMP_SERVER_UI_PORT = "4321",
+                FIREPIT_HOST = "firepit",
+                FIREPIT_PORT = "8080",
+            ),
+            WithMemoryLimit("90Mi"),
+            WithPort("admin", 10000),
+        ),
+        platform.WithDeps(
+            Collector("grpc"),
+            FlagdComponent,
+            FlagdUiComponent,
+            FrontendComponent,
+            GrafanaComponent,
+            ImageProviderComponent,
+            LoadGeneratorComponent,
+            TelemetryDocsComponent,
+        ),
+        WithRequestObjectives(1000, scope = 'upstream_cluster!="grafana"'),
+        Defaults(*hooks),
+    )

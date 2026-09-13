@@ -1,0 +1,25 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "DemoImage", "VERSION", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/otel_collector.pinc", "Collector")
+
+# Currency conversion (C++). A pure function of its request with no dependencies but the
+# collector, so its latency bound is the tightest in the demo.
+def CurrencyComponent(*hooks):
+    return platform.Component(
+        "currency",
+        platform.WithDescription("Converts prices between currencies"),
+        platform.WithLabels(criticality = "high"),
+        WithDemoWorkload(
+            DemoImage("currency"),
+            8080,
+            WithEnv(CURRENCY_PORT = "8080", VERSION = VERSION, IPV6_ENABLED = "false"),
+            WithMemoryLimit("20Mi"),
+        ),
+        platform.WithDeps(Collector("grpc")),
+        WithDependantEnv(CURRENCY_ADDR = "currency:8080"),
+        WithRequestObjectives(100),
+        Defaults(*hooks),
+    )

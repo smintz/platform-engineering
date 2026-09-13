@@ -1,0 +1,26 @@
+load("@kubernetes//kubernetes.pinc", "WithConfigFiles", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "File", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+
+# The product catalog's PostgreSQL, seeded at first start by files/init.sql. It hands its
+# dependants a complete connection string, so the catalog never assembles one.
+#
+# The passwords are the demo's published ones, and they sit in plain configuration — exactly
+# what a real database dependency must not do (see DATA-03 in the roadmap).
+def AstronomyDbComponent(*hooks):
+    return platform.Component(
+        "astronomy-db",
+        platform.WithDescription("PostgreSQL holding the product catalog"),
+        WithDemoWorkload(
+            "postgres:18.4",
+            5432,
+            WithEnv(POSTGRES_PASSWORD = "changeit"),
+            WithMemoryLimit("100Mi"),
+            WithConfigFiles("astronomy-db", "/docker-entrypoint-initdb.d", {"init.sql": File("init.sql")}),
+        ),
+        WithDependantEnv(
+            DB_CONNECTION_STRING = "postgres://astronomy_user:astronomy_password@astronomy-db/astronomy_db?sslmode=disable",
+        ),
+        Defaults(*hooks),
+    )

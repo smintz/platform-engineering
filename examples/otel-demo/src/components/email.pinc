@@ -1,0 +1,25 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/flagd.pinc", "FlagdComponent")
+load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/otel_collector.pinc", "Collector")
+
+# Sends the order confirmation (Ruby). Called by checkout once an order is placed.
+def EmailComponent(*hooks):
+    return platform.Component(
+        "email",
+        platform.WithDescription("Sends order confirmation emails"),
+        platform.WithLabels(criticality = "medium"),
+        WithDemoWorkload(
+            DemoImage("email"),
+            8080,
+            WithEnv(EMAIL_PORT = "8080", APP_ENV = "production"),
+            WithMemoryLimit("100Mi"),
+        ),
+        platform.WithDeps(Collector("http"), FlagdComponent),
+        WithDependantEnv(EMAIL_ADDR = "http://email:8080"),
+        WithRequestObjectives(400),
+        Defaults(*hooks),
+    )

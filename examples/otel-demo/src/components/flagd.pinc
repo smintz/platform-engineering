@@ -1,0 +1,111 @@
+load("//flagd/v1/flags.proto", "Flag", "Flags", "State")
+load("//google/protobuf/struct.proto", "ListValue", "Struct", "Value")
+load("@kubernetes//kubernetes.pinc", "WithCommand", "WithMemoryLimit", "WithPort")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/otel_collector.pinc", "Collector")
+
+# A flag served as on or off.
+def _toggle(description):
+    return Flag(
+        state = State.ENABLED,
+        default_variant = "off",
+        description = description,
+        variants = {"off": Value(bool_value = False), "on": Value(bool_value = True)},
+    )
+
+# A flag served as a number, one variant per setting.
+def _levels(description, levels, default = "off"):
+    return Flag(
+        state = State.ENABLED,
+        default_variant = default,
+        description = description,
+        variants = {name: Value(number_value = float(level)) for name, level in levels.items()},
+    )
+
+# JsonLogic has no schema to type it against, so a targeting rule is plain JSON: a nested
+# Starlark value turned into a Struct.
+def _json(x):
+    if type(x) == "dict":
+        return Value(struct_value = Struct(fields = {k: _json(v) for k, v in x.items()}))
+    if type(x) == "list":
+        return Value(list_value = ListValue(values = [_json(v) for v in x]))
+    return Value(string_value = x)
+
+# Serve `variant` when the evaluation context's `key` equals `value`.
+def _when(flag, key, value, variant):
+    flag.targeting = _json({"if": [{"==": [{"var": key}, value]}, variant, flag.default_variant]}).struct_value
+    return flag
+
+FAILURE_RATES = {"10%": 0.1, "25%": 0.25, "50%": 0.5, "75%": 0.75, "90%": 0.9, "100%": 1, "off": 0}
+
+# The demo's feature flags, as the 3.0.0 chart ships them. Most are fault injections: turn
+# one on and watch the matching service's objectives break on its dashboard. They have to
+# match the image version — the 3.0.0 load generator sends no traffic at all without
+# loadGeneratorTraffic.
+FLAGS = Flags(
+    schema = "https://flagd.dev/schema/v0/flags.json",
+    flags = {
+        "adFailure": _toggle("Fail ad service"),
+        "adHighCpu": _toggle("Triggers high cpu load in the ad service"),
+        "adManualGc": _toggle("Triggers full manual garbage collections in the ad service"),
+        "cartFailure": _levels("Fail cart service n% of the time", FAILURE_RATES),
+        "emailMemoryLeak": _levels(
+            "Memory leak in the email service.",
+            {"10000x": 10000, "1000x": 1000, "100x": 100, "10x": 10, "1x": 1, "off": 0},
+        ),
+        "failedReadinessProbe": _toggle("readiness probe failure for cart service"),
+        "imageSlowLoad": _levels("slow loading images in the frontend", {"10sec": 10000, "5sec": 5000, "off": 0}),
+        "intlShippingSlowdown": _levels(
+            "Delays international shipping responses to simulate overseas shipping delay",
+            {"10sec": 10, "5sec": 5, "off": 0},
+        ),
+        "kafkaQueueProblems": _levels(
+            "Overloads Kafka queue while simultaneously introducing a consumer side delay leading to a lag spike",
+            {"off": 0, "on": 100},
+        ),
+        "loadGeneratorTraffic": _levels(
+            "Enable synthetic traffic from the load generator. Turn off to pause all load-generator scenarios.",
+            {"off": 0, "on": 1},
+            default = "on",
+        ),
+        "loadGeneratorVUs": _levels(
+            "Number of concurrent virtual users the load generator's HTTP scenario runs. Changes take effect on the wrapper's next poll, restarting k6.",
+            {"10": 10, "25": 25, "5": 5, "50": 50},
+            default = "5",
+        ),
+        # 90% fails 95% of charges in the chart's own file; kept as shipped
+        "paymentFailure": _levels("Fail payment service charge requests n%", dict(FAILURE_RATES, **{"90%": 0.95})),
+        "paymentUnreachable": _toggle("Payment service is unavailable"),
+        # as shipped, the rule serves "off" either way; set its variant to "on" to fail that product
+        "productCatalogFailure": _when(
+            _toggle("Fail product catalog service on a specific product"),
+            "product_id",
+            "OLJCESPC7Z",
+            "off",
+        ),
+        "recommendationCacheFailure": _toggle("Fail recommendation service cache"),
+    },
+)
+
+# flagd serves the flags above to every service that asks — including the load generator's
+# on switch.
+def FlagdComponent(*hooks):
+    return platform.Component(
+        "flagd",
+        platform.WithDescription("Feature flags, including the demo's fault injections"),
+        platform.WithLabels(criticality = "low"),
+        WithDemoWorkload(
+            "ghcr.io/open-feature/flagd:v0.16.0",
+            8013,
+            WithEnv(GOMEMLIMIT = "60MiB", OTEL_EXPORTER_OTLP_PROTOCOL = "http/protobuf"),
+            WithMemoryLimit("75Mi"),
+            WithCommand("/flagd-build", "start", "--port", "8013", "--ofrep-port", "8016", "--uri", "file:./etc/flagd/demo.flagd.json"),
+            WithPort("ofrep", 8016),
+        ),
+        WithConfigFile("flagd", "/etc/flagd", "demo.flagd.json", FLAGS),
+        platform.WithDeps(Collector("http")),
+        WithDependantEnv(FLAGD_HOST = "flagd", FLAGD_PORT = "8013"),
+        Defaults(*hooks),
+    )

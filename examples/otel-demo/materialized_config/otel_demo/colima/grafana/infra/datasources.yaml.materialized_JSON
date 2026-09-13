@@ -1,0 +1,16 @@
+{
+  "protoFile": "grafana/provisioning/v1/datasources.proto",
+  "value": {
+    "@type": "type.googleapis.com/grafana.provisioning.v1.Datasources",
+    "apiVersion": 1,
+    "datasources": [
+      {
+        "name": "Prometheus",
+        "type": "prometheus",
+        "access": "proxy",
+        "url": "$PROMETHEUS_URL",
+        "isDefault": true
+      }
+    ]
+  }
+}

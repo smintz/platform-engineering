@@ -1,0 +1,54 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/ad.pinc", "AdComponent")
+load("//components/cart.pinc", "CartComponent")
+load("//components/checkout.pinc", "CheckoutComponent")
+load("//components/currency.pinc", "CurrencyComponent")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/flagd.pinc", "FlagdComponent")
+load("//components/image_provider.pinc", "ImageProviderComponent")
+load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/otel_collector.pinc", "Collector")
+load("//components/product_catalog.pinc", "ProductCatalogComponent")
+load("//components/quote.pinc", "QuoteComponent")
+load("//components/recommendation.pinc", "RecommendationComponent")
+load("//components/shipping.pinc", "ShippingComponent")
+
+# The storefront (Next.js): the page and the /api routes the shopper's browser calls. Its
+# dependency list is the shop — every backend a page can reach.
+def FrontendComponent(*hooks):
+    return platform.Component(
+        "frontend",
+        platform.WithDescription("The storefront web app and its API routes"),
+        platform.WithLabels(criticality = "critical"),
+        WithDemoWorkload(
+            DemoImage("frontend"),
+            8080,
+            WithEnv(
+                FRONTEND_PORT = "8080",
+                PORT = "8080",
+                FRONTEND_ADDR = "frontend:8080",
+                ENV_PLATFORM = "kubernetes",
+                WEB_OTEL_SERVICE_NAME = "frontend-web",
+                PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT = "http://localhost:8080/otlp-http/v1/traces",
+            ),
+            WithMemoryLimit("250Mi"),
+        ),
+        platform.WithDeps(
+            Collector("grpc"),
+            FlagdComponent,
+            AdComponent,
+            CartComponent,
+            CheckoutComponent,
+            CurrencyComponent,
+            ProductCatalogComponent,
+            QuoteComponent,
+            RecommendationComponent,
+            ShippingComponent,
+            ImageProviderComponent,
+        ),
+        WithDependantEnv(FRONTEND_HOST = "frontend", FRONTEND_PORT = "8080"),
+        WithRequestObjectives(800),
+        Defaults(*hooks),
+    )

@@ -1,0 +1,20 @@
+load("@grafana//grafana.pinc", "WithGrafanaDashboard")
+load("@terraform_state//terraform.pinc", "LocalBackend")
+
+# Where every state lives: next to its config, on whatever disk runs terraform.
+BACKEND = LocalBackend()
+
+# What this Grafana calls its datasources, keyed by the kind an objective asks for. The
+# name is provisioned in files/grafana-datasources.yaml.
+DATASOURCES = {"prometheus": "Prometheus"}
+
+# Defaults is what every component gets whether or not it asked: today, a dashboard and
+# alert rules for whatever objectives it declared. A component with none renders nothing,
+# so the data stores and the observability stack itself pay nothing for it.
+#
+# This is policy rather than platform: the platform provides the drivers, and this file is
+# where the example picks which of them every component gets. Swapping Grafana for another
+# tool happens here and in no component. Components opt in by ending with Defaults(*hooks),
+# which also passes on whatever their caller added.
+def Defaults(*hooks):
+    return (WithGrafanaDashboard(BACKEND, DATASOURCES),) + tuple(hooks)

@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package grafana.provisioning.v1;
+
+// A Grafana datasource provisioning file
+// (https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources),
+// read from /etc/grafana/provisioning/datasources at startup. Grafana spells its keys in
+// camelCase, which is the proto JSON default, so no field needs a json_name.
+message Datasources {
+    int32 api_version = 1;
+    repeated Datasource datasources = 2;
+}
+
+message Datasource {
+    // what dashboards look the datasource up by
+    string name = 1;
+
+    // the plugin id: prometheus, loki, postgres, …
+    string type = 2;
+
+    // proxy: Grafana's backend makes the requests, so the URL only has to resolve from Grafana
+    string access = 3;
+
+    // may reference Grafana's environment as $VAR
+    string url = 4;
+
+    bool is_default = 5;
+
+    // whether it can be changed in the UI; false, the default, keeps provisioning the only source
+    bool editable = 6;
+}

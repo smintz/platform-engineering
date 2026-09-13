@@ -1,0 +1,105 @@
+load(
+    "//otelcol/v1/config.proto",
+    "BatchProcessor",
+    "Config",
+    "Connectors",
+    "DebugExporter",
+    "Dimension",
+    "Endpoint",
+    "Exporters",
+    "FilterProcessor",
+    "MetricFilter",
+    "OtlpHttpExporter",
+    "OtlpProtocols",
+    "OtlpReceiver",
+    "Pipeline",
+    "Processors",
+    "Receivers",
+    "Service",
+    "SpanMetricsConnector",
+    "Tls",
+)
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit", "WithPort")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/prometheus.pinc", "PrometheusComponent")
+
+COLLECTOR_IMAGE = "otel/opentelemetry-collector-contrib:0.160.0"
+
+# The collector's pipeline: receive OTLP from every service, derive request metrics from the
+# traces, and send metrics to Prometheus.
+COLLECTOR_CONFIG = Config(
+    receivers = Receivers(
+        otlp = OtlpReceiver(
+            protocols = OtlpProtocols(
+                grpc = Endpoint(endpoint = "0.0.0.0:4317"),
+                http = Endpoint(endpoint = "0.0.0.0:4318"),
+            ),
+        ),
+    ),
+    processors = Processors(
+        batch = BatchProcessor(),
+        # The SDKs' own self-telemetry arrives as otel.sdk.* instruments with no data points
+        # yet, and Prometheus rejects the whole write for them — which the collector then
+        # reports as a failed export, drowning out any real one. Nothing here reads them.
+        filter = FilterProcessor(metrics = MetricFilter(metric = [r'IsMatch(name, "^otel\\.sdk\\.")'])),
+    ),
+    connectors = Connectors(
+        # span_metrics turns every span into calls and duration histograms labelled by
+        # service, span kind and status code. That is what the services' objectives are
+        # written against: the demo services share no metric vocabulary of their own, but
+        # every one of them emits server spans, so one query shape measures all of them.
+        #
+        # Envoy tags every ingress span with the cluster it routed to. Carrying it lets the
+        # proxy's objective count storefront requests without the observability UIs behind
+        # the same listener; spans without the tag get no extra label.
+        span_metrics = SpanMetricsConnector(dimensions = [Dimension(name = "upstream_cluster")]),
+    ),
+    exporters = Exporters(
+        debug = DebugExporter(verbosity = "basic"),
+        # the endpoint is set by the Prometheus component on whatever depends on it
+        otlp_http = OtlpHttpExporter(endpoint = "${env:PROMETHEUS_OTLP_ENDPOINT}", tls = Tls(insecure = True)),
+    ),
+    service = Service(
+        pipelines = {
+            "traces": Pipeline(receivers = ["otlp"], processors = ["batch"], exporters = ["debug", "span_metrics"]),
+            "metrics": Pipeline(receivers = ["otlp", "span_metrics"], processors = ["filter", "batch"], exporters = ["otlp_http"]),
+            "logs": Pipeline(receivers = ["otlp"], processors = ["batch"], exporters = ["debug"]),
+        },
+    ),
+)
+
+# The collector receives every service's telemetry and sends it to Prometheus, whose address
+# it is handed.
+#
+# It is a dependency of almost everything, and each dependant speaks OTLP over either gRPC
+# or HTTP. Which one is the dependant's choice, so Collector takes the protocol and returns
+# a component factory: `platform.WithDeps(Collector("grpc"))`. Every copy renders the same
+# collector, in the same state; only the endpoint it hands downstream differs.
+def Collector(protocol):
+    port = {"grpc": 4317, "http": 4318}[protocol]
+
+    def OtelCollectorComponent(*hooks):
+        return platform.Component(
+            "otel-collector",
+            platform.WithDescription("Receives OTLP from every service, derives span metrics, exports to Prometheus"),
+            WithDemoWorkload(
+                COLLECTOR_IMAGE,
+                4317,
+                WithEnv(GOMEMLIMIT = "160MiB"),
+                WithMemoryLimit("200Mi"),
+                WithPort("otlp-http", 4318),
+            ),
+            WithConfigFile("otel-collector", "/etc/otelcol-contrib/config.yaml", "config.yaml", COLLECTOR_CONFIG, sub_path = "config.yaml"),
+            platform.WithDeps(PrometheusComponent),
+            WithDependantEnv(
+                OTEL_EXPORTER_OTLP_ENDPOINT = "http://otel-collector:%d" % port,
+                OTEL_COLLECTOR_HOST = "otel-collector",
+                OTEL_COLLECTOR_PORT_GRPC = "4317",
+                OTEL_COLLECTOR_PORT_HTTP = "4318",
+            ),
+            Defaults(*hooks),
+        )
+
+    return OtelCollectorComponent

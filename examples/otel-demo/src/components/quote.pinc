@@ -1,0 +1,29 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/otel_collector.pinc", "Collector")
+
+# Prices a shipment (PHP). Called only by shipping.
+def QuoteComponent(*hooks):
+    return platform.Component(
+        "quote",
+        platform.WithDescription("Calculates shipping quotes"),
+        platform.WithLabels(criticality = "low"),
+        WithDemoWorkload(
+            DemoImage("quote"),
+            8080,
+            WithEnv(
+                QUOTE_PORT = "8080",
+                OTEL_PHP_AUTOLOAD_ENABLED = "true",
+                OTEL_PHP_INTERNAL_METRICS_ENABLED = "true",
+                IPV6_ENABLED = "false",
+            ),
+            WithMemoryLimit("40Mi"),
+        ),
+        platform.WithDeps(Collector("http")),
+        WithDependantEnv(QUOTE_ADDR = "http://quote:8080"),
+        WithRequestObjectives(200),
+        Defaults(*hooks),
+    )

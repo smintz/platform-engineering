@@ -1,0 +1,21 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/otel_collector.pinc", "Collector")
+
+# The demo's telemetry documentation site, reached through the proxy at /telemetry.
+def TelemetryDocsComponent(*hooks):
+    return platform.Component(
+        "telemetry-docs",
+        platform.WithDescription("Documentation of the demo's telemetry"),
+        WithDemoWorkload(
+            DemoImage("telemetry-docs"),
+            8000,
+            WithEnv(TELEMETRY_DOCS_PORT = "8000"),
+            WithMemoryLimit("100Mi"),
+        ),
+        platform.WithDeps(Collector("grpc")),
+        WithDependantEnv(TELEMETRY_DOCS_HOST = "telemetry-docs", TELEMETRY_DOCS_PORT = "8000"),
+        Defaults(*hooks),
+    )

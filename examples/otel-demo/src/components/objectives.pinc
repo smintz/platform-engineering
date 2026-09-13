@@ -1,0 +1,107 @@
+load("@platform//platform/platform.pinc", "platform")
+
+# What a request-serving demo component promises.
+#
+# The users are shoppers, and what they feel is a request that failed or took too long.
+# Every demo service emits server spans, and the collector's span_metrics connector turns
+# them into calls and duration histograms labelled by service, span kind and status — one
+# measurement shape for services written in eleven languages that share no metric names.
+#
+# Implementation, and what it misses: measured at each service's own server spans. That
+# counts every request the service answered, but not the network between it and its
+# caller, and not a request that never reached it — the caller's objective sees those.
+# The denominator is server spans only, so a service's outbound calls to its own
+# dependencies are never counted as its traffic.
+#
+# Targets are provisional. Nothing had measured these services before this example, so the
+# bounds are a first guess to revisit after a few weeks of data rather than history rounded
+# down — an objective that fires constantly on a made-up number gets muted.
+
+WINDOW = "28d"
+AVAILABILITY_TARGET = 0.995
+LATENCY_TARGET = 0.99
+
+# The window the burn-rate alert rules substitute, so the alert asks exactly the SLI the
+# panel shows, over the alert's own windows.
+BURN = "$__window"
+
+def _server(service, scope, extra = ""):
+    return 'service_name="%s",span_kind="SPAN_KIND_SERVER"%s%s' % (service, scope, extra)
+
+def availability(service, scope, window):
+    return (
+        "sum(rate(traces_span_metrics_calls_total{%s}[%s]))" % (_server(service, scope, ',status_code!="STATUS_CODE_ERROR"'), window) +
+        " / sum(rate(traces_span_metrics_calls_total{%s}[%s]))" % (_server(service, scope), window)
+    )
+
+# span_metrics' default buckets are 2, 4, 6, 8, 10, 50, 100, 200, 400, 800, 1000, 1400,
+# 2000, 5000, 10000 and 15000 milliseconds; a threshold has to be one of them, or the share
+# under it cannot be read off the histogram.
+def latency(service, scope, threshold_ms, window):
+    return (
+        "sum(rate(traces_span_metrics_duration_milliseconds_bucket{%s}[%s]))" % (_server(service, scope, ',le="%d"' % threshold_ms), window) +
+        " / sum(rate(traces_span_metrics_duration_milliseconds_count{%s}[%s]))" % (_server(service, scope), window)
+    )
+
+# How much a shopper feels this component failing, read from the label the component
+# declares (platform.WithLabels(criticality = ...), the demo chart's own classification).
+# Critical components page; everything else opens a ticket. The label has to be declared
+# before this hook in the component's list — hooks run in order.
+def _severity(component):
+    labels = component.metadata.labels if component.metadata else {}
+    if "criticality" in labels and labels["criticality"] == "critical":
+        return platform.Status.STATUS_CRIT
+    return platform.Status.STATUS_WARN
+
+def _objectives(component, threshold_ms, scope):
+    service = component.name
+    severity = _severity(component)
+    return (
+        platform.WithSLO(
+            "availability",
+            availability(service, scope, WINDOW),
+            # Starlark's % has no precision flags, so the percentage is built from tenths
+            description = "Share of requests %s answered without an error status, over 28 days. %s%% leaves about %d minutes of errors a month; provisional until there is history to set it from" % (service, int(AVAILABILITY_TARGET * 1000 + 0.5) / 10.0, int((1 - AVAILABILITY_TARGET) * 28 * 24 * 60 + 0.5)),
+            min = AVAILABILITY_TARGET,
+            unit = platform.Unit.UNIT_RATIO,
+            severity = severity,
+            burn_query = availability(service, scope, BURN),
+        ),
+        platform.WithSLO(
+            "latency",
+            latency(service, scope, threshold_ms, WINDOW),
+            description = "Share of requests %s answered within %dms, measured at its server span, so network time to the caller is not included. Provisional" % (service, threshold_ms),
+            min = LATENCY_TARGET,
+            unit = platform.Unit.UNIT_RATIO,
+            severity = severity,
+            burn_query = latency(service, scope, threshold_ms, BURN),
+        ),
+        # causes, not promises: on the dashboard to explain an objective that broke
+        platform.WithDiagnostic(
+            "requests per second",
+            "sum(rate(traces_span_metrics_calls_total{%s}[5m]))" % _server(service, scope),
+            description = "Traffic %s is serving. A drop to zero with the objectives still green means the traffic stopped arriving, which no ratio can show" % service,
+            unit = platform.Unit.UNIT_COUNT,
+        ),
+        platform.WithDiagnostic(
+            "errors by operation",
+            "sum by (span_name) (rate(traces_span_metrics_calls_total{%s}[5m]))" % _server(service, scope, ',status_code="STATUS_CODE_ERROR"'),
+            description = "Which of %s's operations are failing, when availability drops" % service,
+            unit = platform.Unit.UNIT_COUNT,
+        ),
+    )
+
+# WithRequestObjectives declares that this component serves requests, and what it promises
+# about them: availability, and latency under `threshold_ms`, both over 28 days with a
+# burn-rate alert — plus the two diagnostics that explain a broken one. It measures the
+# component it is declared on, so the component's name is never repeated.
+#
+# `scope` is a PromQL label matcher for requests the component answers that are not its
+# users' traffic, excluded from both sides of every ratio.
+def WithRequestObjectives(threshold_ms, scope = ""):
+    matcher = "," + scope if scope else ""
+
+    def do(component, next):
+        return next(platform.chain(component, *_objectives(component, threshold_ms, matcher)))
+
+    return platform.component_filter(do)

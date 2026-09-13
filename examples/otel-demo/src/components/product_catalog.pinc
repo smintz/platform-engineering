@@ -1,0 +1,89 @@
+load(
+    "//opentelemetry/sdk/v1/config.proto",
+    "BatchProcessor",
+    "Detector",
+    "Enabled",
+    "Exporter",
+    "LoggerProvider",
+    "MeterProvider",
+    "MetricReader",
+    "OtlpGrpcExporter",
+    "PeriodicReader",
+    "Processor",
+    "Propagator",
+    "PropagatorEntry",
+    "Resource",
+    "ResourceDetection",
+    "TracerProvider",
+    SdkConfig = "Config",
+)
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/astronomy_db.pinc", "AstronomyDbComponent")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "DemoImage", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/flagd.pinc", "FlagdComponent")
+load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/otel_collector.pinc", "Collector")
+
+# Every signal goes to the collector over gRPC, at the endpoint the collector hands over.
+def _otlp_grpc(**settings):
+    return Exporter(otlp_grpc = OtlpGrpcExporter(endpoint = "${OTEL_EXPORTER_OTLP_ENDPOINT}", **settings))
+
+# The OpenTelemetry SDK's declarative configuration, which this Go service reads instead of
+# the usual OTEL_* variables (OTEL_CONFIG_FILE below). The ${…} placeholders are the SDK's
+# own, expanded from the environment the workload is given.
+OTEL_SDK_CONFIG = SdkConfig(
+    file_format = "1.0",
+    log_level = "info",
+    logger_provider = LoggerProvider(processors = [Processor(batch = BatchProcessor(exporter = _otlp_grpc()))]),
+    meter_provider = MeterProvider(
+        readers = [
+            MetricReader(
+                periodic = PeriodicReader(
+                    exporter = _otlp_grpc(temporality_preference = "${OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE:-cumulative}"),
+                ),
+            ),
+        ],
+    ),
+    tracer_provider = TracerProvider(processors = [Processor(batch = BatchProcessor(exporter = _otlp_grpc()))]),
+    propagator = Propagator(
+        composite = [PropagatorEntry(tracecontext = Enabled()), PropagatorEntry(baggage = Enabled())],
+    ),
+    resource = Resource(
+        attributes_list = "${OTEL_RESOURCE_ATTRIBUTES}",
+        detection = ResourceDetection(
+            detectors = [
+                Detector(container = Enabled()),
+                Detector(host = Enabled()),
+                Detector(process = Enabled()),
+                Detector(service = Enabled()),
+            ],
+        ),
+    ),
+)
+
+# The product catalog (Go), read from astronomy-db. Declaring the database dependency is
+# all it takes to receive DB_CONNECTION_STRING.
+def ProductCatalogComponent(*hooks):
+    return platform.Component(
+        "product-catalog",
+        platform.WithDescription("Lists and looks up products"),
+        platform.WithLabels(criticality = "high"),
+        WithDemoWorkload(
+            DemoImage("product-catalog"),
+            8080,
+            WithEnv(
+                PRODUCT_CATALOG_PORT = "8080",
+                GOMEMLIMIT = "16MiB",
+                OTEL_SEMCONV_STABILITY_OPT_IN = "database",
+                OTEL_CONFIG_FILE = "/otel-config.yml",
+            ),
+            WithMemoryLimit("20Mi"),
+        ),
+        WithConfigFile("product-catalog", "/otel-config.yml", "otel-config.yml", OTEL_SDK_CONFIG, sub_path = "otel-config.yml"),
+        platform.WithDeps(Collector("grpc"), FlagdComponent, AstronomyDbComponent),
+        WithDependantEnv(PRODUCT_CATALOG_ADDR = "product-catalog:8080"),
+        WithRequestObjectives(200),
+        Defaults(*hooks),
+    )

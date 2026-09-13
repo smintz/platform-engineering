@@ -1,6 +1,7 @@
 platform=remote_repo(label="platform", url="../..", branch="main")
 
-# Only the drivers this stack uses: a runtime and a state. No CI or monitoring driver —
-# this example is applied by hand to a local cluster.
+# Only the drivers this stack uses: a runtime, a state and dashboards. No CI driver — this
+# example is applied by hand to a local cluster.
+grafana=remote_repo(label="grafana", url="../../drivers/monitoring/grafana", branch="main")
 kubernetes=remote_repo(label="kubernetes", url="../../drivers/runtime/kubernetes", branch="main")
 terraform_state=remote_repo(label="terraform_state", url="../../drivers/state/terraform", branch="main")

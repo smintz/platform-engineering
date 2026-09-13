@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package prometheus.v1;
+
+// Prometheus's configuration file
+// (https://prometheus.io/docs/prometheus/latest/configuration/configuration/), for a
+// Prometheus that receives everything over OTLP and scrapes nothing.
+message Config {
+    Global global = 1;
+    Otlp otlp = 2;
+    Storage storage = 3;
+}
+
+message Global {
+    // how often to scrape; also the default evaluation interval
+    string scrape_interval = 1 [json_name = "scrape_interval"];
+}
+
+// How metrics written to /api/v1/otlp become series.
+message Otlp {
+    // keep service.name, service.namespace and service.instance.id on target_info as well
+    bool keep_identifying_resource_attributes = 1 [json_name = "keep_identifying_resource_attributes"];
+
+    // resource attributes copied onto every series as labels (dots become underscores)
+    repeated string promote_resource_attributes = 2 [json_name = "promote_resource_attributes"];
+}
+
+message Storage {
+    Tsdb tsdb = 1;
+}
+
+message Tsdb {
+    // how far behind the newest sample a sample may arrive and still be accepted
+    string out_of_order_time_window = 1 [json_name = "out_of_order_time_window"];
+}
