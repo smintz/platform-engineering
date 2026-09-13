@@ -10,21 +10,16 @@
     },
     {
       "number": "2",
-      "name": "FinOps Cost Attribution",
-      "status": "pending"
-    },
-    {
-      "number": "3",
       "name": "Database Dependency Fan-Out",
       "status": "pending"
     },
     {
-      "number": "4",
+      "number": "3",
       "name": "Service Mesh Authorization",
       "status": "pending"
     },
     {
-      "number": "5",
+      "number": "4",
       "name": "Security-Authored Cross-Cutting Policy",
       "status": "pending"
     }
@@ -34,5 +29,5 @@
     "label": "Advance to the next step",
     "reason": "Phase 01 of 5 · executing"
   },
-  "updated_at": "2026-09-08T03:24:44.021Z"
+  "updated_at": "2026-09-13T09:20:19.034Z"
 }

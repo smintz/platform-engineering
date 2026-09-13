@@ -25,10 +25,9 @@ Security-authored cross-cutting policy comes last on purpose — it needs `Compo
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Trustworthy Foundations** - Compile/apply drift becomes a CI failure, and components carry selectable shape
-- [ ] **Phase 2: FinOps Cost Attribution** - A declared cost center fans out to every resource, and reviewers see cost deltas pre-merge
-- [ ] **Phase 3: Database Dependency Fan-Out** - A database dependency provisions, connects, credentials, monitors, and orders itself over a network path CI can reach
-- [ ] **Phase 4: Service Mesh Authorization** - A service-to-service dependency grants exactly the access that edge implies, nothing more
-- [ ] **Phase 5: Security-Authored Cross-Cutting Policy** - A security engineer targets components by shape, with auditable, non-empty coverage
+- [ ] **Phase 2: Database Dependency Fan-Out** - A database dependency provisions, connects, credentials, monitors, and orders itself over a network path CI can reach
+- [ ] **Phase 3: Service Mesh Authorization** - A service-to-service dependency grants exactly the access that edge implies, nothing more
+- [ ] **Phase 4: Security-Authored Cross-Cutting Policy** - A security engineer targets components by shape, with auditable, non-empty coverage
 
 ## Phase Details
 
@@ -68,22 +67,7 @@ Plans:
 
 - [x] 01-05-PLAN.md — `SelectComponents` returns every occurrence in the graph, and a committed fixture proves a mutation through the selection reaches both arms of a diamond (FOUND-03)
 
-### Phase 2: FinOps Cost Attribution
-
-**Goal**: A cost center declared once on a component propagates to its entire dependency subtree and is visible to reviewers before merge
-**Mode:** mvp
-**Depends on**: Phase 1
-**Requirements**: COST-01, COST-02, COST-03, COST-04
-**Success Criteria** (what must be TRUE):
-
-  1. An owner declares a cost center on one component and every component in that component's dependency subtree carries it, with no second declaration required
-  2. Every Terraform resource emitted by every driver — existing and new — carries the cost-attribution tags
-  3. Compiling a component that emits billable resources with no cost center attributed fails with a message naming the fix
-  4. A reviewer opening a pull request sees the estimated cost delta of the change
-
-**Plans**: TBD
-
-### Phase 3: Database Dependency Fan-Out
+### Phase 2: Database Dependency Fan-Out
 
 **Goal**: A developer declares a database dependency and receives provisioning, network access, credentials, monitoring, and correct apply ordering — without declaring any of them — over a network path CI can actually reach
 **Mode:** mvp
@@ -99,7 +83,7 @@ Plans:
 
 **Plans**: TBD
 
-### Phase 4: Service Mesh Authorization
+### Phase 3: Service Mesh Authorization
 
 **Goal**: A developer declares a service-to-service dependency and gets exactly the access that edge implies
 **Mode:** mvp
@@ -112,7 +96,7 @@ Plans:
 
 **Plans**: TBD
 
-### Phase 5: Security-Authored Cross-Cutting Policy
+### Phase 4: Security-Authored Cross-Cutting Policy
 
 **Goal**: A security engineer authors one hardening hook that applies across every component matching a declared shape, with visible, auditable coverage
 **Mode:** mvp
@@ -134,7 +118,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Trustworthy Foundations | 5/5 | In Progress|  |
-| 2. FinOps Cost Attribution | 0/? | Not started | - |
-| 3. Database Dependency Fan-Out | 0/? | Not started | - |
-| 4. Service Mesh Authorization | 0/? | Not started | - |
-| 5. Security-Authored Cross-Cutting Policy | 0/? | Not started | - |
+| 2. Database Dependency Fan-Out | 0/? | Not started | - |
+| 3. Service Mesh Authorization | 0/? | Not started | - |
+| 4. Security-Authored Cross-Cutting Policy | 0/? | Not started | - |
