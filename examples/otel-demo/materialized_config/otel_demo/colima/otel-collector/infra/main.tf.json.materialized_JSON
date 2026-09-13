@@ -13,7 +13,7 @@
           }
         }
       },
-      "kubernetes_deployment": {
+      "kubernetes_deployment_v1": {
         "otel-collector": {
           "metadata": {
             "labels": {
@@ -101,7 +101,7 @@
           }
         }
       },
-      "kubernetes_service": {
+      "kubernetes_service_v1": {
         "otel-collector": {
           "metadata": {
             "labels": {

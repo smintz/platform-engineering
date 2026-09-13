@@ -1,8 +1,8 @@
 load("@platform//terraform/v1/util.pinc", "util")
 load("//terraform/kubernetes/provider/v3/kubernetes.proto", "Kubernetes")
 load("//terraform/kubernetes/resources/v3/config.proto", "KubernetesConfigMapV1")
-load("//terraform/kubernetes/resources/v3/deployment.proto", "KubernetesDeployment")
-load("//terraform/kubernetes/resources/v3/service.proto", "KubernetesService")
+load("//terraform/kubernetes/resources/v3/deployment.proto", KubernetesDeployment="KubernetesDeploymentV1")
+load("//terraform/kubernetes/resources/v3/service.proto", KubernetesService="KubernetesServiceV1")
 
 # Kubernetes runtime driver: how a component's process is deployed and addressed.
 #
@@ -92,7 +92,7 @@ def Workload(name, image, port, provider = None):
 # WithContainerEnv always has: a hook describes the process, not which resource name the
 # workload happened to render it under.
 def _pods(config):
-    return [d.spec.template.spec for d in config.resource.kubernetes_deployment.values()]
+    return [d.spec.template.spec for d in config.resource.kubernetes_deployment_v1.values()]
 
 def _containers(config):
     return [c for pod in _pods(config) for c in pod.container]
@@ -140,7 +140,7 @@ def WithPort(name, port):
     def do(config, next):
         for container in _containers(config):
             container.port.append(Container.Port(name = name, container_port = port))
-        for service in config.resource.kubernetes_service.values():
+        for service in config.resource.kubernetes_service_v1.values():
             for existing in service.spec.port:
                 if not existing.name:
                     existing.name = "port-%d" % existing.port

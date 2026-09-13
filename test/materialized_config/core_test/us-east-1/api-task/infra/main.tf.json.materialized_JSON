@@ -3,7 +3,7 @@
   "value": {
     "@type": "type.googleapis.com/terraform.v1.Terraform",
     "resource": {
-      "kubernetes_deployment": {
+      "kubernetes_deployment_v1": {
         "api-task": {
           "metadata": {
             "labels": {
@@ -46,7 +46,7 @@
           }
         }
       },
-      "kubernetes_service": {
+      "kubernetes_service_v1": {
         "api-task": {
           "metadata": {
             "labels": {
