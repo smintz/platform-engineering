@@ -1,3 +1,8 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit", "WithPort")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/prometheus.pinc", "PrometheusComponent")
 load(
     "//otelcol/v1/config.proto",
     "BatchProcessor",
@@ -19,11 +24,6 @@ load(
     "SpanMetricsConnector",
     "Tls",
 )
-load("@kubernetes//kubernetes.pinc", "WithMemoryLimit", "WithPort")
-load("@platform//platform/platform.pinc", "platform")
-load("//components/defaults.pinc", "Defaults")
-load("//components/demo.pinc", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
-load("//components/prometheus.pinc", "PrometheusComponent")
 
 COLLECTOR_IMAGE = "otel/opentelemetry-collector-contrib:0.160.0"
 

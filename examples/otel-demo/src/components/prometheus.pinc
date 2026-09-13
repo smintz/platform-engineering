@@ -1,8 +1,8 @@
-load("//prometheus/v1/config.proto", "Config", "Global", "Otlp", "Storage", "Tsdb")
 load("@kubernetes//kubernetes.pinc", "WithCommand", "WithMemoryLimit")
 load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv")
+load("//prometheus/v1/config.proto", "Config", "Global", "Otlp", "Storage", "Tsdb")
 
 # The demo's own Prometheus configuration: nothing is scraped, everything arrives over OTLP.
 #

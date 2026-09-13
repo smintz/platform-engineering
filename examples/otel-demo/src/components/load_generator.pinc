@@ -1,7 +1,7 @@
 load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
 load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "Defaults")
-load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithEnv", "WithDependantEnv")
+load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
 load("//components/flagd.pinc", "FlagdComponent")
 load("//components/otel_collector.pinc", "Collector")
 
@@ -33,6 +33,6 @@ def LoadGeneratorComponent(*hooks):
             WithMemoryLimit("512Mi"),
         ),
         platform.WithDeps(Collector("http"), FlagdComponent),
-        WithDependantEnv(LOCUST_WEB_HOST="load-generator", LOCUST_WEB_PORT="8089"),
+        WithDependantEnv(LOCUST_WEB_HOST = "load-generator", LOCUST_WEB_PORT = "8089"),
         Defaults(*hooks),
     )

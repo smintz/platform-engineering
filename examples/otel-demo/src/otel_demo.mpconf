@@ -1,6 +1,6 @@
+load("@platform//platform/platform.pinc", "platform")
 load("//components/demo.pinc", "CONFIG_FILE_TYPES")
 load("//components/frontend_proxy.pinc", "FrontendProxyComponent")
-load("@platform//platform/platform.pinc", "platform")
 
 # The OpenTelemetry demo (https://github.com/open-telemetry/opentelemetry-demo), with a
 # Prometheus and Grafana stack, as platform components. One component per file under

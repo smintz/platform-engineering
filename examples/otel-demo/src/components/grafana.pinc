@@ -1,9 +1,9 @@
-load("//grafana/provisioning/v1/datasources.proto", "Datasource", "Datasources")
 load("@kubernetes//kubernetes.pinc", "WithMemoryLimit", "WithScratchDir")
 load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "DATASOURCES", "Defaults")
 load("//components/demo.pinc", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
 load("//components/prometheus.pinc", "PrometheusComponent")
+load("//grafana/provisioning/v1/datasources.proto", "Datasource", "Datasources")
 
 # The one datasource the dashboards query, provisioned when Grafana starts. Its name comes
 # from DATASOURCES — the same map the Grafana driver looks datasources up by — so the name

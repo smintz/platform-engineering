@@ -1,3 +1,11 @@
+load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/astronomy_db.pinc", "AstronomyDbComponent")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "DemoImage", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/flagd.pinc", "FlagdComponent")
+load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/otel_collector.pinc", "Collector")
 load(
     "//opentelemetry/sdk/v1/config.proto",
     "BatchProcessor",
@@ -17,14 +25,6 @@ load(
     "TracerProvider",
     SdkConfig = "Config",
 )
-load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
-load("@platform//platform/platform.pinc", "platform")
-load("//components/astronomy_db.pinc", "AstronomyDbComponent")
-load("//components/defaults.pinc", "Defaults")
-load("//components/demo.pinc", "DemoImage", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
-load("//components/flagd.pinc", "FlagdComponent")
-load("//components/objectives.pinc", "WithRequestObjectives")
-load("//components/otel_collector.pinc", "Collector")
 
 # Every signal goes to the collector over gRPC, at the endpoint the collector hands over.
 def _otlp_grpc(**settings):

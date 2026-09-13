@@ -1,10 +1,10 @@
-load("//flagd/v1/flags.proto", "Flag", "Flags", "State")
-load("//google/protobuf/struct.proto", "ListValue", "Struct", "Value")
 load("@kubernetes//kubernetes.pinc", "WithCommand", "WithMemoryLimit", "WithPort")
 load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
 load("//components/otel_collector.pinc", "Collector")
+load("//flagd/v1/flags.proto", "Flag", "Flags", "State")
+load("//google/protobuf/struct.proto", "ListValue", "Struct", "Value")
 
 # A flag served as on or off.
 def _toggle(description):
