@@ -79,6 +79,7 @@ message Dimension {
 message Exporters {
     DebugExporter debug = 1;
     OtlpHttpExporter otlp_http = 2 [json_name = "otlp_http"];
+    OtlpHttpExporter otlp_http_jaeger = 3 [json_name = "otlp_http/jaeger"];
 }
 
 message DebugExporter {

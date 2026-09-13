@@ -9,6 +9,10 @@ exporters:
     endpoint: ${env:PROMETHEUS_OTLP_ENDPOINT}
     tls:
       insecure: true
+  otlp_http/jaeger:
+    endpoint: ${env:JAEGER_OTLP_ENDPOINT}
+    tls:
+      insecure: true
 processors:
   batch: {}
   filter:
@@ -44,6 +48,7 @@ service:
       exporters:
       - debug
       - span_metrics
+      - otlp_http/jaeger
       processors:
       - batch
       receivers:

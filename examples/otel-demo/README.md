@@ -1,7 +1,7 @@
 # OpenTelemetry demo on the platform
 
 The [OpenTelemetry demo](https://github.com/open-telemetry/opentelemetry-demo)'s 20 core
-services (`compose.yaml`), plus a Prometheus and Grafana stack, declared as platform
+services (`compose.yaml`), plus a Prometheus, Jaeger and Grafana stack, declared as platform
 components and applied to a local cluster. Every request-serving service declares SLOs,
 and the platform renders them into Grafana dashboards and burn-rate alert rules.
 An exercise in how the platform's practices hold up against a real, dependency-heavy stack.
@@ -13,9 +13,10 @@ make monitoring   # dashboards and alert rules, applied to Grafana through a por
 make destroy
 kubectl port-forward svc/frontend-proxy 8080:8080   # storefront at http://localhost:8080
                                                     # Grafana at http://localhost:8080/grafana (admin/admin)
+                                                    # Jaeger at http://localhost:8080/jaeger/ui
 ```
 
-Sized for about 4.4 GiB of memory limits; a Colima VM with 6 CPU and 12 GiB is comfortable.
+Sized for about 4.8 GiB of memory limits; a Colima VM with 6 CPU and 12 GiB is comfortable.
 
 ## How to read it
 

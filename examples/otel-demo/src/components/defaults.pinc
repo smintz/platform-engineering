@@ -6,7 +6,7 @@ BACKEND = LocalBackend()
 
 # What this Grafana calls its datasources, keyed by the kind an objective asks for. The
 # name is provisioned in files/grafana-datasources.yaml.
-DATASOURCES = {"prometheus": "Prometheus"}
+DATASOURCES = {"prometheus": "Prometheus", "jaeger": "Jaeger"}
 
 # Defaults is what every component gets whether or not it asked: today, a dashboard and
 # alert rules for whatever objectives it declared. A component with none renders nothing,

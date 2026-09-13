@@ -10,6 +10,12 @@
         "access": "proxy",
         "url": "$PROMETHEUS_URL",
         "isDefault": true
+      },
+      {
+        "name": "Jaeger",
+        "type": "jaeger",
+        "access": "proxy",
+        "url": "$JAEGER_URL"
       }
     ]
   }

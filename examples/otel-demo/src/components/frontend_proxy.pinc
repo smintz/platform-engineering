@@ -7,6 +7,7 @@ load("//components/flagd_ui.pinc", "FlagdUiComponent")
 load("//components/frontend.pinc", "FrontendComponent")
 load("//components/grafana.pinc", "GrafanaComponent")
 load("//components/image_provider.pinc", "ImageProviderComponent")
+load("//components/jaeger.pinc", "JaegerComponent")
 load("//components/load_generator.pinc", "LoadGeneratorComponent")
 load("//components/objectives.pinc", "WithRequestObjectives")
 load("//components/otel_collector.pinc", "Collector")
@@ -24,7 +25,7 @@ load("//components/telemetry_docs.pinc", "TelemetryDocsComponent")
 def FrontendProxyComponent(*hooks):
     return platform.Component(
         "frontend-proxy",
-        platform.WithDescription("Envoy in front of the storefront, flag UI, docs and Grafana"),
+        platform.WithDescription("Envoy in front of the storefront, flag UI, docs, Grafana and Jaeger"),
         platform.WithLabels(criticality = "critical"),
         WithDemoWorkload(
             DemoImage("frontend-proxy"),
@@ -35,8 +36,6 @@ def FrontendProxyComponent(*hooks):
                 ENVOY_ADMIN_PORT = "10000",
                 # upstreams the proxy routes to that this example does not deploy; envoy
                 # resolves them lazily, so they cost a failed route rather than a failed start
-                JAEGER_HOST = "jaeger",
-                JAEGER_UI_PORT = "16686",
                 CHATBOT_HOST = "chatbot",
                 CHATBOT_PORT = "7860",
                 OPAMP_SERVER_HOST = "opamp-server",
@@ -54,6 +53,7 @@ def FrontendProxyComponent(*hooks):
             FrontendComponent,
             GrafanaComponent,
             ImageProviderComponent,
+            JaegerComponent,
             LoadGeneratorComponent,
             TelemetryDocsComponent,
         ),
