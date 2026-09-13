@@ -193,12 +193,16 @@ def dependency_filter(deps):
 # wrong upstream rather than re-running upstream's queries: one Alert List over every
 # dependency, worst first.
 #
-# Normal is in the state filter alongside the ones that mean trouble, so the panel is the
-# whole roster of what upstream alerts on rather than only what is failing. It costs the
-# "empty means fine" reading — a quiet panel and a panel with no matching rules look the
-# same at a glance either way — and buys the more useful question: an upstream that
-# promises nothing shows up as an absence here, where before it was indistinguishable from
-# an upstream that was simply healthy.
+# Only firing alerts are shown: the question the panel answers is "is something I depend on
+# failing right now", and a roster of every healthy upstream rule buries the one that is.
+# Pending has not failed yet, and an erroring rule is a broken query rather than a failing
+# upstream — both belong on the owner's dashboard, not on every dependant's. An empty panel
+# therefore reads "nothing upstream is failing"; an upstream that promises nothing looks the
+# same, which the dependency links in the header tell apart.
+#
+# Every state is set explicitly, off included. The fields are wrapped booleans because a
+# plain proto3 false is left out of the JSON, and Grafana fills a missing key with its own
+# default — which turns pending and error back on.
 #
 # The panel header carries a link per dependency, since the alerts themselves link to
 # their rule and the question a firing one raises is "what else is wrong over there". Only
@@ -222,11 +226,11 @@ def deps_panel(deps, grid_pos):
             # by importance: firing before pending, worst first
             sort_order = 3,
             state_filter = Panel.Options.StateFilter(
-                firing = True,
-                pending = True,
-                no_data = True,
-                error = True,
-                normal = True,
+                firing = BoolValue(value = True),
+                pending = BoolValue(value = False),
+                no_data = BoolValue(value = False),
+                error = BoolValue(value = False),
+                normal = BoolValue(value = False),
             ),
             alert_instance_label_filter = dependency_filter(deps),
             show_instances = True,

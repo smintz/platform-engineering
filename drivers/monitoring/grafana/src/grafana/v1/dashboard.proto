@@ -104,8 +104,8 @@ message Panel {
     // Limit to alerts belonging to this dashboard.
     bool dashboard_alerts = 11 [json_name = "dashboardAlerts"];
 
-    // Which alert states to show at all. A state left out is a state the panel stays
-    // silent about, so an empty panel means nothing is wrong.
+    // Which alert states to show at all. Set every state, off included: Grafana fills a
+    // missing one with its own default, which is on for firing, pending and error.
     StateFilter state_filter = 12 [json_name = "stateFilter"];
 
     // A PromQL-style matcher over alert instance labels, e.g. {component=~"rds|redis"}.
@@ -113,16 +113,18 @@ message Panel {
 
     bool show_instances = 14 [json_name = "showInstances"];
 
+    // Wrapped booleans: a plain proto3 false is left out of the JSON, and a state left out
+    // is not off — it is whatever Grafana defaults it to.
     message StateFilter {
-      bool firing = 1;
+      google.protobuf.BoolValue firing = 1;
 
-      bool pending = 2;
+      google.protobuf.BoolValue pending = 2;
 
-      bool no_data = 3 [json_name = "noData"];
+      google.protobuf.BoolValue no_data = 3 [json_name = "noData"];
 
-      bool normal = 4;
+      google.protobuf.BoolValue normal = 4;
 
-      bool error = 5;
+      google.protobuf.BoolValue error = 5;
     }
 
     message ReduceOptions {
