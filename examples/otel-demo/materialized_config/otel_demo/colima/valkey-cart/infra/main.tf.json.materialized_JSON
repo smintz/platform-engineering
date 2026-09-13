@@ -1,0 +1,103 @@
+{
+  "protoFile": "terraform/v1/terraform.proto",
+  "value": {
+    "@type": "type.googleapis.com/terraform.v1.Terraform",
+    "resource": {
+      "kubernetes_deployment": {
+        "valkey-cart": {
+          "metadata": {
+            "labels": {
+              "app": "valkey-cart"
+            },
+            "name": "valkey-cart"
+          },
+          "spec": {
+            "selector": {
+              "match_labels": {
+                "app": "valkey-cart"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "valkey-cart"
+                }
+              },
+              "spec": {
+                "container": [
+                  {
+                    "image": "ghcr.io/valkey-io/valkey:9.0.4-alpine3.23",
+                    "name": "valkey-cart",
+                    "env": [
+                      {
+                        "name": "OTEL_SERVICE_NAME",
+                        "value": "valkey-cart"
+                      },
+                      {
+                        "name": "OTEL_RESOURCE_ATTRIBUTES",
+                        "value": "service.version=3.0.0"
+                      },
+                      {
+                        "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                        "value": "cumulative"
+                      }
+                    ],
+                    "port": [
+                      {
+                        "container_port": "6379"
+                      }
+                    ],
+                    "resources": {
+                      "limits": {
+                        "memory": "20Mi"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "kubernetes_service": {
+        "valkey-cart": {
+          "metadata": {
+            "labels": {
+              "app": "valkey-cart"
+            },
+            "name": "valkey-cart"
+          },
+          "spec": {
+            "selector": {
+              "app": "valkey-cart"
+            },
+            "port": [
+              {
+                "port": "6379",
+                "target_port": "6379"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "provider": {
+      "kubernetes": [
+        {
+          "config_path": "~/.kube/config"
+        }
+      ]
+    },
+    "terraform": {
+      "required_providers": {
+        "kubernetes": {
+          "source": "registry.terraform.io/hashicorp/kubernetes",
+          "version": "3.2.1"
+        }
+      },
+      "backend": {
+        "local": {}
+      }
+    }
+  }
+}

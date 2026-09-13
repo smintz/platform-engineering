@@ -1,0 +1,141 @@
+{
+  "resource": {
+    "kubernetes_config_map_v1": {
+      "otel-collector": {
+        "data": {
+          "config.yaml": "${file(\"${path.module}/../../../../../files/otelcol-config.yml\")}"
+        },
+        "metadata": {
+          "name": "otel-collector"
+        }
+      }
+    },
+    "kubernetes_deployment": {
+      "otel-collector": {
+        "metadata": {
+          "labels": {
+            "app": "otel-collector"
+          },
+          "name": "otel-collector"
+        },
+        "spec": {
+          "selector": {
+            "match_labels": {
+              "app": "otel-collector"
+            }
+          },
+          "template": {
+            "metadata": {
+              "labels": {
+                "app": "otel-collector"
+              }
+            },
+            "spec": {
+              "container": [
+                {
+                  "image": "otel/opentelemetry-collector-contrib:0.160.0",
+                  "name": "otel-collector",
+                  "env": [
+                    {
+                      "name": "OTEL_SERVICE_NAME",
+                      "value": "otel-collector"
+                    },
+                    {
+                      "name": "OTEL_RESOURCE_ATTRIBUTES",
+                      "value": "service.version=3.0.0"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                      "value": "cumulative"
+                    },
+                    {
+                      "name": "GOMEMLIMIT",
+                      "value": "160MiB"
+                    }
+                  ],
+                  "port": [
+                    {
+                      "container_port": "4317"
+                    },
+                    {
+                      "container_port": "4318",
+                      "name": "otlp-http"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "memory": "200Mi"
+                    }
+                  },
+                  "volume_mount": [
+                    {
+                      "mount_path": "/etc/otelcol-contrib/config.yaml",
+                      "name": "otel-collector",
+                      "read_only": true,
+                      "sub_path": "config.yaml"
+                    }
+                  ]
+                }
+              ],
+              "volume": [
+                {
+                  "name": "otel-collector",
+                  "config_map": {
+                    "name": "${kubernetes_config_map_v1.otel-collector.metadata[0].name}"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "kubernetes_service": {
+      "otel-collector": {
+        "metadata": {
+          "labels": {
+            "app": "otel-collector"
+          },
+          "name": "otel-collector"
+        },
+        "spec": {
+          "selector": {
+            "app": "otel-collector"
+          },
+          "port": [
+            {
+              "name": "port-4317",
+              "port": "4317",
+              "target_port": "4317"
+            },
+            {
+              "name": "otlp-http",
+              "port": "4318",
+              "target_port": "4318"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "provider": {
+    "kubernetes": [
+      {
+        "config_path": "~/.kube/config"
+      }
+    ]
+  },
+  "terraform": {
+    "required_providers": {
+      "kubernetes": {
+        "source": "registry.terraform.io/hashicorp/kubernetes",
+        "version": "3.2.1"
+      }
+    },
+    "backend": {
+      "local": {
+        
+      }
+    }
+  }
+}

@@ -1,0 +1,334 @@
+load("@kubernetes//kubernetes.pinc", "WithCommand", "WithConfigFiles", "WithContainerEnv", "WithMemoryLimit", "WithPort", "Workload")
+load("@platform//platform/platform.pinc", "platform")
+load("@terraform_state//terraform.pinc", "WithState")
+
+# The OpenTelemetry demo (https://github.com/open-telemetry/opentelemetry-demo) as platform
+# components. The service set and its dependency edges are the demo's compose.yaml; images,
+# ports, memory and environment are its Helm chart's, because the chart is the demo's own
+# statement of how these images run on Kubernetes.
+#
+# The shape to read for: nobody here writes another service's address. A dependency hands
+# its own address to whatever depends on it (`address` below, a ForDownstream hook), so
+# checkout declares that it needs cart and gets CART_ADDR — the same way redis hands
+# REDIS_URL to api-task in test/src/core_test.mpconf.
+
+VERSION = "3.0.0"
+IMAGE = "ghcr.io/open-telemetry/demo:" + VERSION + "-%s"
+COLLECTOR_IMAGE = "otel/opentelemetry-collector-contrib:0.160.0"
+
+# Every state lives at outputs/otel_demo/<domain>/<name>/infra, so the files next to this
+# example are five directories up from the config that mounts them. Terraform reads them at
+# plan time, which keeps the upstream files as files rather than Starlark strings.
+# ponytail: the contents are therefore not in the compiled artifact; inline them if the
+# generated Terraform must be self-contained.
+def File(name):
+    return '${file("${path.module}/../../../../../files/%s")}' % name
+
+# Set on every demo process: what the chart puts in its `default.env`.
+COMMON_ENV = {
+    "OTEL_RESOURCE_ATTRIBUTES": "service.version=" + VERSION,
+    "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE": "cumulative",
+}
+
+def _env(env):
+    return [WithContainerEnv(k, v) for k, v in env.items()]
+
+# Service is one demo process as a component factory. `address` is what this service hands
+# to its dependants; `deps` are the factories it depends on; `workload` is any further
+# Terraform hook on its Deployment (a command, a second port, config files).
+def Service(name, port, memory, image = None, env = {}, deps = [], address = {}, workload = []):
+    def factory(*hooks):
+        own = {"OTEL_SERVICE_NAME": name}
+        own.update(COMMON_ENV)
+        own.update(env)
+        extra = []
+        if deps:
+            extra.append(platform.WithDeps(*deps))
+        if address:
+            extra.append(platform.ForDownstream(platform.WithConfig(None, *_env(address))))
+        return platform.Component(
+            name,
+            WithState(lambda component: Workload(name, image or IMAGE % name, port)),
+            platform.WithConfig(None, WithMemoryLimit(memory), *(_env(own) + workload)),
+            *(extra + list(hooks))
+        )
+
+    return factory
+
+# The collector is a dependency of almost everything, and each dependant speaks OTLP over
+# either gRPC or HTTP. Which one is the dependant's choice, so the collector is a
+# parameterized factory: every copy renders the same collector, and only what it hands
+# downstream differs.
+def Collector(protocol):
+    return Service(
+        "otel-collector",
+        4317,
+        "200Mi",
+        image = COLLECTOR_IMAGE,
+        env = {"GOMEMLIMIT": "160MiB"},
+        workload = [
+            WithPort("otlp-http", 4318),
+            WithConfigFiles(
+                "otel-collector",
+                "/etc/otelcol-contrib/config.yaml",
+                {"config.yaml": File("otelcol-config.yml")},
+                sub_path = "config.yaml",
+            ),
+        ],
+        address = {
+            "OTEL_EXPORTER_OTLP_ENDPOINT": "http://otel-collector:%d" % {"grpc": 4317, "http": 4318}[protocol],
+            "OTEL_COLLECTOR_HOST": "otel-collector",
+            "OTEL_COLLECTOR_PORT_GRPC": "4317",
+            "OTEL_COLLECTOR_PORT_HTTP": "4318",
+        },
+    )
+
+GRPC = Collector("grpc")
+HTTP = Collector("http")
+
+# --- data stores and platform services -------------------------------------------------
+
+Flagd = Service(
+    "flagd",
+    8013,
+    "75Mi",
+    image = "ghcr.io/open-feature/flagd:v0.16.0",
+    env = {"GOMEMLIMIT": "60MiB", "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf"},
+    deps = [HTTP],
+    workload = [
+        WithCommand("/flagd-build", "start", "--port", "8013", "--ofrep-port", "8016", "--uri", "file:./etc/flagd/demo.flagd.json"),
+        WithPort("ofrep", 8016),
+        WithConfigFiles("flagd", "/etc/flagd", {"demo.flagd.json": File("demo.flagd.json")}),
+    ],
+    address = {"FLAGD_HOST": "flagd", "FLAGD_PORT": "8013"},
+)
+
+FlagdUi = Service(
+    "flagd-ui",
+    4000,
+    "200Mi",
+    env = {
+        "FLAGD_UI_PORT": "4000",
+        # the demo's published Phoenix signing key, not a credential of anything real
+        "SECRET_KEY_BASE": "yYrECL4qbNwleYInGJYvVnSkwJuSQJ4ijPTx5tirGUXrbznFIBFVJdPl5t6O9ASw",
+        "PHX_HOST": "localhost",
+    },
+    deps = [HTTP, Flagd],
+    workload = [WithConfigFiles("flagd-ui", "/app/data", {"demo.flagd.json": File("demo.flagd.json")})],
+    address = {"FLAGD_UI_HOST": "flagd-ui", "FLAGD_UI_PORT": "4000"},
+)
+
+ValkeyCart = Service(
+    "valkey-cart",
+    6379,
+    "20Mi",
+    image = "ghcr.io/valkey-io/valkey:9.0.4-alpine3.23",
+    address = {"VALKEY_ADDR": "valkey-cart:6379"},
+)
+
+AstronomyDb = Service(
+    "astronomy-db",
+    5432,
+    "100Mi",
+    image = "postgres:18.4",
+    # the demo's published passwords, seeded by init.sql
+    env = {"POSTGRES_PASSWORD": "changeit"},
+    workload = [WithConfigFiles("astronomy-db", "/docker-entrypoint-initdb.d", {"init.sql": File("init.sql")})],
+    address = {"DB_CONNECTION_STRING": "postgres://astronomy_user:astronomy_password@astronomy-db/astronomy_db?sslmode=disable"},
+)
+
+# --- backend services -------------------------------------------------------------------
+
+Currency = Service(
+    "currency",
+    8080,
+    "20Mi",
+    env = {"CURRENCY_PORT": "8080", "VERSION": VERSION, "IPV6_ENABLED": "false"},
+    deps = [GRPC],
+    address = {"CURRENCY_ADDR": "currency:8080"},
+)
+
+Email = Service(
+    "email",
+    8080,
+    "100Mi",
+    env = {"EMAIL_PORT": "8080", "APP_ENV": "production"},
+    deps = [HTTP, Flagd],
+    address = {"EMAIL_ADDR": "http://email:8080"},
+)
+
+Payment = Service(
+    "payment",
+    8080,
+    "140Mi",
+    env = {
+        "PAYMENT_PORT": "8080",
+        "IPV6_ENABLED": "false",
+        "NODE_OPTIONS": "--require @opentelemetry/auto-instrumentations-node/register",
+        "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+    },
+    deps = [GRPC, Flagd],
+    address = {"PAYMENT_ADDR": "payment:8080"},
+)
+
+Quote = Service(
+    "quote",
+    8080,
+    "40Mi",
+    env = {
+        "QUOTE_PORT": "8080",
+        "OTEL_PHP_AUTOLOAD_ENABLED": "true",
+        "OTEL_PHP_INTERNAL_METRICS_ENABLED": "true",
+        "IPV6_ENABLED": "false",
+    },
+    deps = [HTTP],
+    address = {"QUOTE_ADDR": "http://quote:8080"},
+)
+
+Shipping = Service(
+    "shipping",
+    8080,
+    "20Mi",
+    env = {"SHIPPING_PORT": "8080", "IPV6_ENABLED": "false", "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf"},
+    deps = [HTTP, Flagd, Quote],
+    address = {"SHIPPING_ADDR": "http://shipping:8080"},
+)
+
+ProductCatalog = Service(
+    "product-catalog",
+    8080,
+    "20Mi",
+    env = {
+        "PRODUCT_CATALOG_PORT": "8080",
+        "GOMEMLIMIT": "16MiB",
+        "OTEL_SEMCONV_STABILITY_OPT_IN": "database",
+        "OTEL_CONFIG_FILE": "/otel-config.yml",
+    },
+    deps = [GRPC, Flagd, AstronomyDb],
+    workload = [WithConfigFiles("product-catalog", "/otel-config.yml", {"otel-config.yml": File("otel-config.yml")}, sub_path = "otel-config.yml")],
+    address = {"PRODUCT_CATALOG_ADDR": "product-catalog:8080"},
+)
+
+Cart = Service(
+    "cart",
+    8080,
+    "160Mi",
+    env = {"CART_PORT": "8080", "ASPNETCORE_URLS": "http://*:8080"},
+    deps = [GRPC, Flagd, ValkeyCart],
+    address = {"CART_ADDR": "cart:8080"},
+)
+
+Checkout = Service(
+    "checkout",
+    8080,
+    "20Mi",
+    env = {"CHECKOUT_PORT": "8080", "GOMEMLIMIT": "16MiB", "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf"},
+    deps = [HTTP, Flagd, Cart, Currency, Email, Payment, ProductCatalog, Shipping],
+    address = {"CHECKOUT_ADDR": "checkout:8080"},
+)
+
+Ad = Service(
+    "ad",
+    8080,
+    "300Mi",
+    env = {"AD_PORT": "8080", "AD_PROMETHEUS_PORT": "9465", "OTEL_LOGS_EXPORTER": "otlp"},
+    deps = [HTTP, Flagd],
+    address = {"AD_ADDR": "ad:8080"},
+)
+
+Recommendation = Service(
+    "recommendation",
+    8080,
+    "500Mi",
+    env = {
+        "RECOMMENDATION_PORT": "8080",
+        "OTEL_PYTHON_LOG_CORRELATION": "true",
+        "PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION": "python",
+    },
+    deps = [GRPC, Flagd, ProductCatalog],
+    address = {"RECOMMENDATION_ADDR": "recommendation:8080"},
+)
+
+ImageProvider = Service(
+    "image-provider",
+    8081,
+    "50Mi",
+    env = {"IMAGE_PROVIDER_PORT": "8081"},
+    deps = [GRPC],
+    address = {"IMAGE_PROVIDER_HOST": "image-provider", "IMAGE_PROVIDER_PORT": "8081"},
+)
+
+TelemetryDocs = Service(
+    "telemetry-docs",
+    8000,
+    "100Mi",
+    env = {"TELEMETRY_DOCS_PORT": "8000"},
+    deps = [GRPC],
+    address = {"TELEMETRY_DOCS_HOST": "telemetry-docs", "TELEMETRY_DOCS_PORT": "8000"},
+)
+
+# --- edge -------------------------------------------------------------------------------
+
+Frontend = Service(
+    "frontend",
+    8080,
+    "250Mi",
+    env = {
+        "FRONTEND_PORT": "8080",
+        "PORT": "8080",
+        "FRONTEND_ADDR": "frontend:8080",
+        "ENV_PLATFORM": "kubernetes",
+        "WEB_OTEL_SERVICE_NAME": "frontend-web",
+        "PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT": "http://localhost:8080/otlp-http/v1/traces",
+    },
+    deps = [GRPC, Flagd, Ad, Cart, Checkout, Currency, ProductCatalog, Quote, Recommendation, Shipping, ImageProvider],
+    address = {"FRONTEND_HOST": "frontend", "FRONTEND_PORT": "8080"},
+)
+
+# The load generator drives traffic at frontend-proxy, which in turn depends on it — the
+# one address here that flows up the graph instead of down it, so it is written by hand.
+LoadGenerator = Service(
+    "load-generator",
+    8089,
+    "512Mi",
+    env = {
+        "LOAD_GENERATOR_VUS": "5",
+        "K6_TARGET_URL": "http://frontend-proxy:8080",
+        "K6_BROWSER_ENABLED": "false",
+        "FLAGD_OFREP_PORT": "8016",
+        "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf",
+        "K6_OTEL_EXPORTER_PROTOCOL": "http/protobuf",
+        "K6_OTEL_HTTP_EXPORTER_ENDPOINT": "otel-collector:4318",
+        "K6_OTEL_HTTP_EXPORTER_INSECURE": "true",
+        "K6_OTEL_METRIC_PREFIX": "k6.",
+    },
+    deps = [HTTP, Flagd],
+)
+
+FrontendProxy = Service(
+    "frontend-proxy",
+    8080,
+    "90Mi",
+    env = {
+        "ENVOY_PORT": "8080",
+        "ENVOY_ADDR": "0.0.0.0",
+        "ENVOY_ADMIN_PORT": "10000",
+        # upstreams the proxy routes to that this example does not deploy; envoy resolves
+        # them lazily, so they cost a failed route rather than a failed start
+        "GRAFANA_HOST": "grafana",
+        "GRAFANA_PORT": "80",
+        "JAEGER_HOST": "jaeger",
+        "JAEGER_UI_PORT": "16686",
+        "CHATBOT_HOST": "chatbot",
+        "CHATBOT_PORT": "7860",
+        "OPAMP_SERVER_HOST": "opamp-server",
+        "OPAMP_SERVER_UI_PORT": "4321",
+        "FIREPIT_HOST": "firepit",
+        "FIREPIT_PORT": "8080",
+    },
+    deps = [GRPC, Flagd, FlagdUi, Frontend, ImageProvider, LoadGenerator, TelemetryDocs],
+    workload = [WithPort("admin", 10000)],
+)
+
+def main():
+    return platform.GetConfigs(FrontendProxy(platform.WithFailureDomain("colima")).msg)

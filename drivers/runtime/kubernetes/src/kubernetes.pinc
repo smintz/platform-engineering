@@ -1,5 +1,6 @@
 load("@platform//terraform/v1/util.pinc", "util")
 load("//terraform/kubernetes/provider/v3/kubernetes.proto", "Kubernetes")
+load("//terraform/kubernetes/resources/v3/config.proto", "KubernetesConfigMapV1")
 load("//terraform/kubernetes/resources/v3/deployment.proto", "KubernetesDeployment")
 load("//terraform/kubernetes/resources/v3/service.proto", "KubernetesService")
 
@@ -87,15 +88,99 @@ def Workload(name, image, port, provider = None):
         ),
     )
 
+# Every hook below edits every Deployment in the config it runs against, the way
+# WithContainerEnv always has: a hook describes the process, not which resource name the
+# workload happened to render it under.
+def _pods(config):
+    return [d.spec.template.spec for d in config.resource.kubernetes_deployment.values()]
+
+def _containers(config):
+    return [c for pod in _pods(config) for c in pod.container]
+
 # WithContainerEnv sets a variable on every container in the config it runs against. Meant
 # for a dependency's ForDownstream hooks — the same channel ecs.pinc spells WithTaskEnv:
 # the dependency knows its own address and hands it over without knowing which workload
 # the dependant deploys, or how many containers that workload turned out to have.
 def WithContainerEnv(name, value):
     def do(config, next):
-        for deployment in config.resource.kubernetes_deployment.values():
-            for container in deployment.spec.template.spec.container:
-                container.env.append(Container.Env(name = name, value = value))
+        for container in _containers(config):
+            container.env.append(Container.Env(name = name, value = value))
         return next(config)
 
     return do
+
+# WithCommand replaces the image's entrypoint. The whole argv, not a suffix: an image whose
+# entrypoint is a shell script and one whose entrypoint is the binary need different lists,
+# and only the caller knows which it is running.
+def WithCommand(*command):
+    def do(config, next):
+        for container in _containers(config):
+            container.command = list(command)
+        return next(config)
+
+    return do
+
+# WithMemoryLimit caps the container's memory. A limit rather than a request: it is what
+# the kernel enforces, and what makes an over-budget process restart instead of starving
+# its neighbours on a shared node.
+def WithMemoryLimit(memory):
+    def do(config, next):
+        for container in _containers(config):
+            if not container.resources:
+                container.resources = Container.Resources()
+            container.resources.limits["memory"] = memory
+        return next(config)
+
+    return do
+
+# WithPort exposes one more port on the workload and its Service. Kubernetes requires every
+# port of a multi-port Service to be named, so the first one — unnamed, as Workload renders
+# it — is named after its number the moment a second one arrives.
+def WithPort(name, port):
+    def do(config, next):
+        for container in _containers(config):
+            container.port.append(Container.Port(name = name, container_port = port))
+        for service in config.resource.kubernetes_service.values():
+            for existing in service.spec.port:
+                if not existing.name:
+                    existing.name = "port-%d" % existing.port
+            service.spec.port.append(
+                KubernetesService.Spec.Port(name = name, port = port, target_port = str(port)),
+            )
+        return next(config)
+
+    return do
+
+# WithConfigFiles mounts files into every container: a ConfigMap named `name` holding
+# `data` (file name -> contents), mounted read-only at `mount_path`. With `sub_path`, only
+# that one key is mounted, at exactly `mount_path` — for a process that reads a single file
+# from a directory the image already populates.
+#
+# The volume names the ConfigMap through a Terraform reference rather than the literal
+# name, so Terraform creates the ConfigMap before the Deployment that mounts it.
+# ponytail: a changed ConfigMap does not restart the pods reading it; add a content-hash
+# annotation on the pod template if a config edit must roll the workload.
+def WithConfigFiles(name, mount_path, data, sub_path = ""):
+    def mount(config, next):
+        ref = "${kubernetes_config_map_v1.%s.metadata[0].name}" % name
+        for pod in _pods(config):
+            pod.volume.append(Pod.Volume(name = name, config_map = Pod.Volume.ConfigMap(name = ref)))
+        for container in _containers(config):
+            container.volume_mount.append(Container.VolumeMount(
+                name = name,
+                mount_path = mount_path,
+                sub_path = sub_path,
+                read_only = True,
+            ))
+        return next(config)
+
+    return util.Group(
+        util.Resource(
+            name,
+            KubernetesConfigMapV1(
+                metadata = KubernetesConfigMapV1.Metadata(name = name),
+                data = data,
+            ),
+        ),
+        mount,
+    )

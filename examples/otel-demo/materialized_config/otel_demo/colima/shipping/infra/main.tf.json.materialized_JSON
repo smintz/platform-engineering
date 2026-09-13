@@ -1,0 +1,143 @@
+{
+  "protoFile": "terraform/v1/terraform.proto",
+  "value": {
+    "@type": "type.googleapis.com/terraform.v1.Terraform",
+    "resource": {
+      "kubernetes_deployment": {
+        "shipping": {
+          "metadata": {
+            "labels": {
+              "app": "shipping"
+            },
+            "name": "shipping"
+          },
+          "spec": {
+            "selector": {
+              "match_labels": {
+                "app": "shipping"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "shipping"
+                }
+              },
+              "spec": {
+                "container": [
+                  {
+                    "image": "ghcr.io/open-telemetry/demo:3.0.0-shipping",
+                    "name": "shipping",
+                    "env": [
+                      {
+                        "name": "OTEL_SERVICE_NAME",
+                        "value": "shipping"
+                      },
+                      {
+                        "name": "OTEL_RESOURCE_ATTRIBUTES",
+                        "value": "service.version=3.0.0"
+                      },
+                      {
+                        "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                        "value": "cumulative"
+                      },
+                      {
+                        "name": "SHIPPING_PORT",
+                        "value": "8080"
+                      },
+                      {
+                        "name": "IPV6_ENABLED",
+                        "value": "false"
+                      },
+                      {
+                        "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                        "value": "http/protobuf"
+                      },
+                      {
+                        "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                        "value": "http://otel-collector:4318"
+                      },
+                      {
+                        "name": "OTEL_COLLECTOR_HOST",
+                        "value": "otel-collector"
+                      },
+                      {
+                        "name": "OTEL_COLLECTOR_PORT_GRPC",
+                        "value": "4317"
+                      },
+                      {
+                        "name": "OTEL_COLLECTOR_PORT_HTTP",
+                        "value": "4318"
+                      },
+                      {
+                        "name": "FLAGD_HOST",
+                        "value": "flagd"
+                      },
+                      {
+                        "name": "FLAGD_PORT",
+                        "value": "8013"
+                      },
+                      {
+                        "name": "QUOTE_ADDR",
+                        "value": "http://quote:8080"
+                      }
+                    ],
+                    "port": [
+                      {
+                        "container_port": "8080"
+                      }
+                    ],
+                    "resources": {
+                      "limits": {
+                        "memory": "20Mi"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "kubernetes_service": {
+        "shipping": {
+          "metadata": {
+            "labels": {
+              "app": "shipping"
+            },
+            "name": "shipping"
+          },
+          "spec": {
+            "selector": {
+              "app": "shipping"
+            },
+            "port": [
+              {
+                "port": "8080",
+                "target_port": "8080"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "provider": {
+      "kubernetes": [
+        {
+          "config_path": "~/.kube/config"
+        }
+      ]
+    },
+    "terraform": {
+      "required_providers": {
+        "kubernetes": {
+          "source": "registry.terraform.io/hashicorp/kubernetes",
+          "version": "3.2.1"
+        }
+      },
+      "backend": {
+        "local": {}
+      }
+    }
+  }
+}
