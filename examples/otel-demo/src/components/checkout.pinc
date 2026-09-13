@@ -24,7 +24,7 @@ def CheckoutComponent(*hooks):
         WithDemoWorkload(
             DemoImage("checkout"),
             8080,
-            WithEnv(CHECKOUT_PORT = "8080", GOMEMLIMIT = "16MiB", OTEL_EXPORTER_OTLP_PROTOCOL = "http/protobuf"),
+            WithEnv(CHECKOUT_PORT = "8080", GOMEMLIMIT = "16MiB"),
             WithMemoryLimit("20Mi"),
         ),
         platform.WithDeps(

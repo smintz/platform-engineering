@@ -99,7 +99,7 @@ def FlagdComponent(*hooks):
         WithDemoWorkload(
             "ghcr.io/open-feature/flagd:v0.16.0",
             8013,
-            WithEnv(GOMEMLIMIT = "60MiB", OTEL_EXPORTER_OTLP_PROTOCOL = "http/protobuf"),
+            WithEnv(GOMEMLIMIT = "60MiB"),
             WithMemoryLimit("75Mi"),
             WithCommand("/flagd-build", "start", "--port", "8013", "--ofrep-port", "8016", "--uri", "file:./etc/flagd/demo.flagd.json"),
             WithPort("ofrep", 8016),

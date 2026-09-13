@@ -83,6 +83,9 @@ COLLECTOR_CONFIG = Config(
 def Collector(protocol):
     port = {"grpc": 4317, "http": 4318}[protocol]
 
+    # the SDKs' name for the protocol; http means protobuf over HTTP, the one every SDK speaks
+    sdk_protocol = {"grpc": "grpc", "http": "http/protobuf"}[protocol]
+
     def OtelCollectorComponent(*hooks):
         return platform.Component(
             "otel-collector",
@@ -98,6 +101,7 @@ def Collector(protocol):
             platform.WithDeps(PrometheusComponent, JaegerComponent),
             WithDependantEnv(
                 OTEL_EXPORTER_OTLP_ENDPOINT = "http://otel-collector:%d" % port,
+                OTEL_EXPORTER_OTLP_PROTOCOL = sdk_protocol,
                 OTEL_COLLECTOR_HOST = "otel-collector",
                 OTEL_COLLECTOR_PORT_GRPC = "4317",
                 OTEL_COLLECTOR_PORT_HTTP = "4318",

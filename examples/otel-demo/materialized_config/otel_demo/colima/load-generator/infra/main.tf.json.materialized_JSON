@@ -58,10 +58,6 @@
                         "value": "8016"
                       },
                       {
-                        "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
-                        "value": "http/protobuf"
-                      },
-                      {
                         "name": "K6_OTEL_EXPORTER_PROTOCOL",
                         "value": "http/protobuf"
                       },
@@ -80,6 +76,10 @@
                       {
                         "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
                         "value": "http://otel-collector:4318"
+                      },
+                      {
+                        "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                        "value": "http/protobuf"
                       },
                       {
                         "name": "OTEL_COLLECTOR_HOST",

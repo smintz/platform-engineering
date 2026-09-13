@@ -24,7 +24,6 @@ def LoadGeneratorComponent(*hooks):
                 K6_TARGET_URL = "http://frontend-proxy:8080",
                 K6_BROWSER_ENABLED = "false",
                 FLAGD_OFREP_PORT = "8016",
-                OTEL_EXPORTER_OTLP_PROTOCOL = "http/protobuf",
                 K6_OTEL_EXPORTER_PROTOCOL = "http/protobuf",
                 K6_OTEL_HTTP_EXPORTER_ENDPOINT = "otel-collector:4318",
                 K6_OTEL_HTTP_EXPORTER_INSECURE = "true",

@@ -16,7 +16,7 @@ def ShippingComponent(*hooks):
         WithDemoWorkload(
             DemoImage("shipping"),
             8080,
-            WithEnv(SHIPPING_PORT = "8080", IPV6_ENABLED = "false", OTEL_EXPORTER_OTLP_PROTOCOL = "http/protobuf"),
+            WithEnv(SHIPPING_PORT = "8080", IPV6_ENABLED = "false"),
             WithMemoryLimit("20Mi"),
         ),
         platform.WithDeps(Collector("http"), FlagdComponent, QuoteComponent),
