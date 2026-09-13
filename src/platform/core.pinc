@@ -243,7 +243,14 @@ def SelectComponents(component, predicate):
 # configs keyed by "<domain>/<name>/<config name>". Components store their configs under
 # the bare config name; the prefix is only applied here, once the whole component chain
 # has run and domain/name are final.
-def GetConfigs(component):
+# `types` registers a workspace's own config messages the same way CONFIG_TYPES registers
+# Terraform: a service's config file, say, set on the component under a key like
+# "infra/config.yaml" and rendered beside its state in the format the extension names. The
+# platform cannot know those messages, so whoever declares them passes them in.
+def GetConfigs(component, types = {}):
+    known = {}
+    known.update(CONFIG_TYPES)
+    known.update(types)
     configs = {}
 
     def collect_configs(component):
@@ -253,9 +260,9 @@ def GetConfigs(component):
             # a driver parks on the component as working state — the ECS task spec a
             # sidecar contributes to, say. Only the first kind is registered here, and only
             # it is rendered; the rest is somebody's scratch space and none of our business.
-            if cfg_any.type_url not in CONFIG_TYPES:
+            if cfg_any.type_url not in known:
                 continue
-            proto = CONFIG_TYPES[cfg_any.type_url]
+            proto = known[cfg_any.type_url]
             cfg = any.unpack(cfg_any, proto())
 
             # a component that provisions nothing of its own — its whole job is the hooks

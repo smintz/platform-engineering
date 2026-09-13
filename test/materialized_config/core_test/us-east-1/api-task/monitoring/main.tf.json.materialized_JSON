@@ -42,7 +42,8 @@
                   "model": "{\"expr\":\"sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[1h]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
-                    "from": "3600"
+                    "from": "3600",
+                    "to": "1"
                   }
                 },
                 {
@@ -50,7 +51,8 @@
                   "model": "{\"expr\":\"sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[5m]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
-                    "from": "300"
+                    "from": "300",
+                    "to": "1"
                   }
                 },
                 {
@@ -58,7 +60,8 @@
                   "model": "{\"expression\":\"$A < 0.928 && $B < 0.928\",\"refId\":\"C\",\"type\":\"math\"}",
                   "ref_id": "C",
                   "relative_time_range": {
-                    "from": "3600"
+                    "from": "3600",
+                    "to": "1"
                   }
                 }
               ]
@@ -83,7 +86,8 @@
                   "model": "{\"expr\":\"sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[6h]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
-                    "from": "21600"
+                    "from": "21600",
+                    "to": "1"
                   }
                 },
                 {
@@ -91,7 +95,8 @@
                   "model": "{\"expr\":\"sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[30m]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
-                    "from": "1800"
+                    "from": "1800",
+                    "to": "1"
                   }
                 },
                 {
@@ -99,7 +104,8 @@
                   "model": "{\"expression\":\"$A < 0.97 && $B < 0.97\",\"refId\":\"C\",\"type\":\"math\"}",
                   "ref_id": "C",
                   "relative_time_range": {
-                    "from": "21600"
+                    "from": "21600",
+                    "to": "1"
                   }
                 }
               ]
@@ -124,7 +130,8 @@
                   "model": "{\"expr\":\"sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[3d]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
-                    "from": "259200"
+                    "from": "259200",
+                    "to": "1"
                   }
                 },
                 {
@@ -132,7 +139,8 @@
                   "model": "{\"expr\":\"sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[6h]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
-                    "from": "21600"
+                    "from": "21600",
+                    "to": "1"
                   }
                 },
                 {
@@ -140,7 +148,8 @@
                   "model": "{\"expression\":\"$A < 0.995 && $B < 0.995\",\"refId\":\"C\",\"type\":\"math\"}",
                   "ref_id": "C",
                   "relative_time_range": {
-                    "from": "259200"
+                    "from": "259200",
+                    "to": "1"
                   }
                 }
               ]
@@ -165,7 +174,8 @@
                   "model": "{\"expr\":\"sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[1h]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
-                    "from": "3600"
+                    "from": "3600",
+                    "to": "1"
                   }
                 },
                 {
@@ -173,7 +183,8 @@
                   "model": "{\"expr\":\"sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[5m]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
-                    "from": "300"
+                    "from": "300",
+                    "to": "1"
                   }
                 },
                 {
@@ -181,7 +192,8 @@
                   "model": "{\"expression\":\"$A < 0.856 && $B < 0.856\",\"refId\":\"C\",\"type\":\"math\"}",
                   "ref_id": "C",
                   "relative_time_range": {
-                    "from": "3600"
+                    "from": "3600",
+                    "to": "1"
                   }
                 }
               ]
@@ -206,7 +218,8 @@
                   "model": "{\"expr\":\"sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[6h]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
-                    "from": "21600"
+                    "from": "21600",
+                    "to": "1"
                   }
                 },
                 {
@@ -214,7 +227,8 @@
                   "model": "{\"expr\":\"sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[30m]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
-                    "from": "1800"
+                    "from": "1800",
+                    "to": "1"
                   }
                 },
                 {
@@ -222,7 +236,8 @@
                   "model": "{\"expression\":\"$A < 0.94 && $B < 0.94\",\"refId\":\"C\",\"type\":\"math\"}",
                   "ref_id": "C",
                   "relative_time_range": {
-                    "from": "21600"
+                    "from": "21600",
+                    "to": "1"
                   }
                 }
               ]
@@ -247,7 +262,8 @@
                   "model": "{\"expr\":\"sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[3d]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
-                    "from": "259200"
+                    "from": "259200",
+                    "to": "1"
                   }
                 },
                 {
@@ -255,7 +271,8 @@
                   "model": "{\"expr\":\"sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[6h]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
-                    "from": "21600"
+                    "from": "21600",
+                    "to": "1"
                   }
                 },
                 {
@@ -263,7 +280,8 @@
                   "model": "{\"expression\":\"$A < 0.99 && $B < 0.99\",\"refId\":\"C\",\"type\":\"math\"}",
                   "ref_id": "C",
                   "relative_time_range": {
-                    "from": "259200"
+                    "from": "259200",
+                    "to": "1"
                   }
                 }
               ]

@@ -654,6 +654,10 @@ def TerraformPipeline(
         drift_cron = "0 3 * * *",
         paths = None,
         private_runner = ""):
+    # GetConfigs also returns the plain config files a component renders beside its state
+    # (a Struct under the same directory). Terraform applies the directory and those ride
+    # along; only the Terraform configs are states, so only they become jobs.
+    configs = {key: config for key, config in configs.items() if type(config) == "terraform.v1.Terraform"}
     if not configs:
         fail("TerraformPipeline: no Terraform configs to build a pipeline from")
 

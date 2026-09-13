@@ -88,8 +88,13 @@ def windowed_query(objective, window):
 
 # `from` is a Starlark keyword, so the only way to name that field is through a dict, where
 # it is just a string.
+#
+# `to` is 1, not 0. The provider requires the attribute, and an int64 of 0 is proto3's
+# default, which the compiler leaves out of the output — so "ending now" renders as a range
+# with no end and every apply fails with 'The argument "to" is required'. One second before
+# evaluation is "now" to any window this driver asks for, and it survives serialization.
 def _range(seconds):
-    return Data.RelativeTimeRange(**{"from": seconds, "to": 0})
+    return Data.RelativeTimeRange(**{"from": seconds, "to": 1})
 
 # One query stage, in whichever dialect the objective's datasource speaks — the same three
 # spellings the dashboard driver uses, because an alert that queries differently from the

@@ -151,6 +151,20 @@ def WithPort(name, port):
 
     return do
 
+# WithScratchDir mounts a writable directory that lives as long as the pod rather than the
+# container: a process that crashes and is restarted finds what it wrote still there, and
+# only replacing the pod — a new image, a changed spec — starts it empty. For state a
+# process can rebuild but should not lose on every restart.
+def WithScratchDir(name, mount_path):
+    def do(config, next):
+        for pod in _pods(config):
+            pod.volume.append(Pod.Volume(name = name, empty_dir = Pod.Volume.EmptyDir()))
+        for container in _containers(config):
+            container.volume_mount.append(Container.VolumeMount(name = name, mount_path = mount_path))
+        return next(config)
+
+    return do
+
 # WithConfigFiles mounts files into every container: a ConfigMap named `name` holding
 # `data` (file name -> contents), mounted read-only at `mount_path`. With `sub_path`, only
 # that one key is mounted, at exactly `mount_path` — for a process that reads a single file

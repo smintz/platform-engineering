@@ -39,7 +39,8 @@
                 "model": "{\"expr\":\"avg_over_time(redis_up{job=\\\"redis\\\"}[1h])\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                 "ref_id": "A",
                 "relative_time_range": {
-                  "from": "3600"
+                  "from": "3600",
+                  "to": "1"
                 }
               },
               {
@@ -47,7 +48,8 @@
                 "model": "{\"expr\":\"avg_over_time(redis_up{job=\\\"redis\\\"}[5m])\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                 "ref_id": "B",
                 "relative_time_range": {
-                  "from": "300"
+                  "from": "300",
+                  "to": "1"
                 }
               },
               {
@@ -55,7 +57,8 @@
                 "model": "{\"expression\":\"$A \u003c 0.9856 \u0026\u0026 $B \u003c 0.9856\",\"refId\":\"C\",\"type\":\"math\"}",
                 "ref_id": "C",
                 "relative_time_range": {
-                  "from": "3600"
+                  "from": "3600",
+                  "to": "1"
                 }
               }
             ]
@@ -80,7 +83,8 @@
                 "model": "{\"expr\":\"avg_over_time(redis_up{job=\\\"redis\\\"}[6h])\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                 "ref_id": "A",
                 "relative_time_range": {
-                  "from": "21600"
+                  "from": "21600",
+                  "to": "1"
                 }
               },
               {
@@ -88,7 +92,8 @@
                 "model": "{\"expr\":\"avg_over_time(redis_up{job=\\\"redis\\\"}[30m])\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                 "ref_id": "B",
                 "relative_time_range": {
-                  "from": "1800"
+                  "from": "1800",
+                  "to": "1"
                 }
               },
               {
@@ -96,7 +101,8 @@
                 "model": "{\"expression\":\"$A \u003c 0.994 \u0026\u0026 $B \u003c 0.994\",\"refId\":\"C\",\"type\":\"math\"}",
                 "ref_id": "C",
                 "relative_time_range": {
-                  "from": "21600"
+                  "from": "21600",
+                  "to": "1"
                 }
               }
             ]
@@ -121,7 +127,8 @@
                 "model": "{\"expr\":\"avg_over_time(redis_up{job=\\\"redis\\\"}[3d])\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                 "ref_id": "A",
                 "relative_time_range": {
-                  "from": "259200"
+                  "from": "259200",
+                  "to": "1"
                 }
               },
               {
@@ -129,7 +136,8 @@
                 "model": "{\"expr\":\"avg_over_time(redis_up{job=\\\"redis\\\"}[6h])\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                 "ref_id": "B",
                 "relative_time_range": {
-                  "from": "21600"
+                  "from": "21600",
+                  "to": "1"
                 }
               },
               {
@@ -137,7 +145,8 @@
                 "model": "{\"expression\":\"$A \u003c 0.999 \u0026\u0026 $B \u003c 0.999\",\"refId\":\"C\",\"type\":\"math\"}",
                 "ref_id": "C",
                 "relative_time_range": {
-                  "from": "259200"
+                  "from": "259200",
+                  "to": "1"
                 }
               }
             ]
