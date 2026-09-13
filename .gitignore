@@ -49,3 +49,7 @@ terraform.rc
 
 # GSD research cache
 .planning/research/.cache/
+
+# GSD runtime state — per-session, holds a live pid and dispatch sentinel
+.gsd/
+.planning/milestone.lock
