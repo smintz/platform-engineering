@@ -2,6 +2,7 @@ load("@kubernetes//kubernetes.pinc", "WithMemoryLimit", "WithPort")
 load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/jaeger.pinc", "JaegerComponent")
 load("//components/prometheus.pinc", "PrometheusComponent")
 load(
     "//otelcol/v1/config.proto",
@@ -28,7 +29,7 @@ load(
 COLLECTOR_IMAGE = "otel/opentelemetry-collector-contrib:0.160.0"
 
 # The collector's pipeline: receive OTLP from every service, derive request metrics from the
-# traces, and send metrics to Prometheus.
+# traces, and send metrics to Prometheus and traces to Jaeger.
 COLLECTOR_CONFIG = Config(
     receivers = Receivers(
         otlp = OtlpReceiver(
@@ -60,18 +61,20 @@ COLLECTOR_CONFIG = Config(
         debug = DebugExporter(verbosity = "basic"),
         # the endpoint is set by the Prometheus component on whatever depends on it
         otlp_http = OtlpHttpExporter(endpoint = "${env:PROMETHEUS_OTLP_ENDPOINT}", tls = Tls(insecure = True)),
+        # and this one by the Jaeger component
+        otlp_http_jaeger = OtlpHttpExporter(endpoint = "${env:JAEGER_OTLP_ENDPOINT}", tls = Tls(insecure = True)),
     ),
     service = Service(
         pipelines = {
-            "traces": Pipeline(receivers = ["otlp"], processors = ["batch"], exporters = ["debug", "span_metrics"]),
+            "traces": Pipeline(receivers = ["otlp"], processors = ["batch"], exporters = ["debug", "span_metrics", "otlp_http/jaeger"]),
             "metrics": Pipeline(receivers = ["otlp", "span_metrics"], processors = ["filter", "batch"], exporters = ["otlp_http"]),
             "logs": Pipeline(receivers = ["otlp"], processors = ["batch"], exporters = ["debug"]),
         },
     ),
 )
 
-# The collector receives every service's telemetry and sends it to Prometheus, whose address
-# it is handed.
+# The collector receives every service's telemetry and sends it to Prometheus and Jaeger,
+# whose addresses it is handed.
 #
 # It is a dependency of almost everything, and each dependant speaks OTLP over either gRPC
 # or HTTP. Which one is the dependant's choice, so Collector takes the protocol and returns
@@ -83,7 +86,7 @@ def Collector(protocol):
     def OtelCollectorComponent(*hooks):
         return platform.Component(
             "otel-collector",
-            platform.WithDescription("Receives OTLP from every service, derives span metrics, exports to Prometheus"),
+            platform.WithDescription("Receives OTLP from every service, derives span metrics, exports to Prometheus and Jaeger"),
             WithDemoWorkload(
                 COLLECTOR_IMAGE,
                 4317,
@@ -92,7 +95,7 @@ def Collector(protocol):
                 WithPort("otlp-http", 4318),
             ),
             WithConfigFile("otel-collector", "/etc/otelcol-contrib/config.yaml", "config.yaml", COLLECTOR_CONFIG, sub_path = "config.yaml"),
-            platform.WithDeps(PrometheusComponent),
+            platform.WithDeps(PrometheusComponent, JaegerComponent),
             WithDependantEnv(
                 OTEL_EXPORTER_OTLP_ENDPOINT = "http://otel-collector:%d" % port,
                 OTEL_COLLECTOR_HOST = "otel-collector",

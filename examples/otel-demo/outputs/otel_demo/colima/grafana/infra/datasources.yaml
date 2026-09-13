@@ -5,3 +5,7 @@ datasources:
   name: Prometheus
   type: prometheus
   url: $PROMETHEUS_URL
+- access: proxy
+  name: Jaeger
+  type: jaeger
+  url: $JAEGER_URL

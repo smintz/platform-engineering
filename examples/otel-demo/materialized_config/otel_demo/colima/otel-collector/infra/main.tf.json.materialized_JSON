@@ -62,6 +62,22 @@
                       {
                         "name": "PROMETHEUS_OTLP_ENDPOINT",
                         "value": "http://prometheus:9090/api/v1/otlp"
+                      },
+                      {
+                        "name": "JAEGER_HOST",
+                        "value": "jaeger"
+                      },
+                      {
+                        "name": "JAEGER_UI_PORT",
+                        "value": "16686"
+                      },
+                      {
+                        "name": "JAEGER_URL",
+                        "value": "http://jaeger:16686/jaeger/ui"
+                      },
+                      {
+                        "name": "JAEGER_OTLP_ENDPOINT",
+                        "value": "http://jaeger:4318"
                       }
                     ],
                     "port": [

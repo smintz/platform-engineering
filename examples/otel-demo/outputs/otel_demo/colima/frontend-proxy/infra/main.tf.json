@@ -51,14 +51,6 @@
                       "value": "10000"
                     },
                     {
-                      "name": "JAEGER_HOST",
-                      "value": "jaeger"
-                    },
-                    {
-                      "name": "JAEGER_UI_PORT",
-                      "value": "16686"
-                    },
-                    {
                       "name": "CHATBOT_HOST",
                       "value": "chatbot"
                     },
@@ -137,6 +129,22 @@
                     {
                       "name": "IMAGE_PROVIDER_PORT",
                       "value": "8081"
+                    },
+                    {
+                      "name": "JAEGER_HOST",
+                      "value": "jaeger"
+                    },
+                    {
+                      "name": "JAEGER_UI_PORT",
+                      "value": "16686"
+                    },
+                    {
+                      "name": "JAEGER_URL",
+                      "value": "http://jaeger:16686/jaeger/ui"
+                    },
+                    {
+                      "name": "JAEGER_OTLP_ENDPOINT",
+                      "value": "http://jaeger:4318"
                     },
                     {
                       "name": "LOCUST_WEB_HOST",

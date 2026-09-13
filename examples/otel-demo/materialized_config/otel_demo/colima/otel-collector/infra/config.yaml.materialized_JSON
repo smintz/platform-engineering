@@ -42,6 +42,12 @@
         "tls": {
           "insecure": true
         }
+      },
+      "otlp_http/jaeger": {
+        "endpoint": "${env:JAEGER_OTLP_ENDPOINT}",
+        "tls": {
+          "insecure": true
+        }
       }
     },
     "service": {
@@ -79,7 +85,8 @@
           ],
           "exporters": [
             "debug",
-            "span_metrics"
+            "span_metrics",
+            "otlp_http/jaeger"
           ]
         }
       }

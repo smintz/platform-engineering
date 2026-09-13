@@ -2,13 +2,15 @@ load("@kubernetes//kubernetes.pinc", "WithMemoryLimit", "WithScratchDir")
 load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "DATASOURCES", "Defaults")
 load("//components/demo.pinc", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/jaeger.pinc", "JaegerComponent")
 load("//components/prometheus.pinc", "PrometheusComponent")
 load("//grafana/provisioning/v1/datasources.proto", "Datasource", "Datasources")
 
-# The one datasource the dashboards query, provisioned when Grafana starts. Its name comes
-# from DATASOURCES — the same map the Grafana driver looks datasources up by — so the name
-# the dashboards ask for and the name Grafana provisions cannot drift apart. The URL is
-# handed to Grafana by the Prometheus component it depends on.
+# The datasources, provisioned when Grafana starts: Prometheus, which the dashboards query,
+# and Jaeger, for the traces behind them. Their names come from DATASOURCES — the same map
+# the Grafana driver looks datasources up by — so the name the dashboards ask for and the
+# name Grafana provisions cannot drift apart. Each URL is handed to Grafana by the
+# component it depends on.
 DATASOURCES_CONFIG = Datasources(
     api_version = 1,
     datasources = [
@@ -18,6 +20,12 @@ DATASOURCES_CONFIG = Datasources(
             access = "proxy",
             url = "$PROMETHEUS_URL",
             is_default = True,
+        ),
+        Datasource(
+            name = DATASOURCES["jaeger"],
+            type = "jaeger",
+            access = "proxy",
+            url = "$JAEGER_URL",
         ),
     ],
 )
@@ -50,7 +58,7 @@ def GrafanaComponent(*hooks):
             WithScratchDir("grafana-data", "/var/lib/grafana"),
         ),
         WithConfigFile("grafana-datasources", "/etc/grafana/provisioning/datasources", "datasources.yaml", DATASOURCES_CONFIG),
-        platform.WithDeps(PrometheusComponent),
+        platform.WithDeps(PrometheusComponent, JaegerComponent),
         WithDependantEnv(GRAFANA_HOST = "grafana", GRAFANA_PORT = "3000"),
         Defaults(*hooks),
     )

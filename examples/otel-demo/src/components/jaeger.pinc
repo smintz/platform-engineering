@@ -1,0 +1,39 @@
+load("@kubernetes//kubernetes.pinc", "WithCommand", "WithMemoryLimit", "WithPort")
+load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "Defaults")
+load("//components/demo.pinc", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+
+# Jaeger stores the traces: the collector sends them over OTLP, Grafana reads them through
+# its Jaeger datasource, and the storefront proxy serves its UI under /jaeger/ui, as the
+# demo does.
+#
+# The image's built-in all-in-one configuration is what the example wants, so there is no
+# config file: --set changes the two values that differ. That configuration listens on
+# localhost unless JAEGER_LISTEN_HOST says otherwise.
+# ponytail: in-memory, so traces are lost with the pod; a storage backend (Badger on a
+# PersistentVolumeClaim) if they have to outlive it.
+def JaegerComponent(*hooks):
+    return platform.Component(
+        "jaeger",
+        platform.WithDescription("Trace store and UI, receiving OTLP from the collector"),
+        WithDemoWorkload(
+            "jaegertracing/jaeger:2.20.0",
+            16686,
+            WithEnv(JAEGER_LISTEN_HOST = "0.0.0.0"),
+            WithCommand(
+                "/cmd/jaeger/jaeger-linux",
+                "--set=extensions.jaeger_query.base_path=/jaeger/ui",
+                # bounds the in-memory store under the limit below
+                "--set=extensions.jaeger_storage.backends.some_storage.memory.max_traces=5000",
+            ),
+            WithMemoryLimit("400Mi"),
+            WithPort("otlp-http", 4318),
+        ),
+        WithDependantEnv(
+            JAEGER_HOST = "jaeger",
+            JAEGER_UI_PORT = "16686",
+            JAEGER_URL = "http://jaeger:16686/jaeger/ui",
+            JAEGER_OTLP_ENDPOINT = "http://jaeger:4318",
+        ),
+        Defaults(*hooks),
+    )
