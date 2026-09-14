@@ -4,7 +4,7 @@ load("//components/astronomy_db.pinc", "AstronomyDbComponent")
 load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "DemoImage", "WithConfigFile", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
 load("//components/flagd.pinc", "FlagdComponent")
-load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/objectives.pinc", "WithObjectives", "WithRequestObjectives", "go_memory", "histogram_under", "ratio_slo")
 load("//components/otel_collector.pinc", "Collector")
 load(
     "//opentelemetry/sdk/v1/config.proto",
@@ -63,6 +63,26 @@ OTEL_SDK_CONFIG = SdkConfig(
     ),
 )
 
+def _objectives(service, severity):
+    get_product = 'service_name="%s",rpc_method="oteldemo.ProductCatalogService/GetProduct"' % service
+    return (
+        ratio_slo(
+            "product lookup latency",
+            lambda window: histogram_under("rpc_server_call_duration_seconds", get_product, "0.01", window),
+            0.9,
+            severity,
+            "Share of single-product lookups answered within 10ms, from the catalog's own gRPC histogram. The call every product page and every order line makes, so it is held to a tighter bound than listing",
+        ),
+        platform.WithDiagnostic(
+            "database connections",
+            'sum by (status) (db_sql_connection_open{service_name="%s"})' % service,
+            description = "Connections the catalog holds to astronomy-db, idle and in use. The pool is unbounded, so contention shows as in-use connections climbing rather than as a queue",
+            unit = platform.Unit.UNIT_COUNT,
+            legend = "{{status}}",
+        ),
+        go_memory(service),
+    )
+
 # The product catalog (Go), read from astronomy-db. Declaring the database dependency is
 # all it takes to receive DB_CONNECTION_STRING.
 def ProductCatalogComponent(*hooks):
@@ -85,5 +105,6 @@ def ProductCatalogComponent(*hooks):
         platform.WithDeps(Collector("grpc"), FlagdComponent, AstronomyDbComponent),
         WithDependantEnv(PRODUCT_CATALOG_ADDR = "product-catalog:8080"),
         WithRequestObjectives(200),
+        WithObjectives(_objectives),
         Defaults(*hooks),
     )

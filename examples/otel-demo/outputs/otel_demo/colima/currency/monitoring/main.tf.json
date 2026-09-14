@@ -2,7 +2,7 @@
   "resource": {
     "grafana_dashboard": {
       "slos": {
-        "config_json": "{\"uid\":\"currency\",\"title\":\"currency SLOs\",\"tags\":[\"slo\",\"colima\",\"currency\"],\"schemaVersion\":39,\"editable\":false,\"refresh\":\"1m\",\"panels\":[{\"type\":\"row\",\"title\":\"SLOs\",\"gridPos\":{\"h\":1,\"w\":24},\"collapsed\":false},{\"type\":\"stat\",\"description\":\"Share of requests currency answered without an error status, over 28 days. 99.5% leaves about 202 minutes of errors a month; provisional until there is history to set it from\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[28d])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[28d]))\",\"legendFormat\":\"availability\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.995}]},\"unit\":\"percentunit\",\"min\":0.995}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"stat\",\"description\":\"Share of requests currency answered within 100ms, measured at its server span, so network time to the caller is not included. Provisional\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"x\":4,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"100\\\"}[28d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[28d]))\",\"legendFormat\":\"latency\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.99}]},\"unit\":\"percentunit\",\"min\":0.99}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"row\",\"title\":\"Dependencies\",\"gridPos\":{\"h\":1,\"w\":24,\"y\":5},\"collapsed\":false},{\"type\":\"alertlist\",\"title\":\"Upstream alerts\",\"gridPos\":{\"h\":8,\"w\":24,\"y\":6},\"options\":{\"viewMode\":\"list\",\"groupMode\":\"default\",\"maxItems\":20,\"sortOrder\":3,\"stateFilter\":{\"firing\":true,\"pending\":false,\"noData\":false,\"normal\":false,\"error\":false},\"alertInstanceLabelFilter\":\"{component=~\\\"otel-collector|prometheus|jaeger\\\"}\",\"showInstances\":true}},{\"type\":\"row\",\"title\":\"Diagnostics\",\"gridPos\":{\"h\":1,\"w\":24,\"y\":14},\"collapsed\":false},{\"type\":\"timeseries\",\"title\":\"requests per second\",\"description\":\"Traffic currency is serving. A drop to zero with the objectives still green means the traffic stopped arriving, which no ratio can show\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"y\":15},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[5m]))\",\"legendFormat\":\"__auto\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}},{\"type\":\"timeseries\",\"title\":\"errors by operation\",\"description\":\"Which of currency's operations are failing, when availability drops\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"x\":12,\"y\":15},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum by (span_name) (rate(traces_span_metrics_calls_total{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code=\\\"STATUS_CODE_ERROR\\\"}[5m]))\",\"legendFormat\":\"{{span_name}}\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}}]}",
+        "config_json": "{\"uid\":\"currency\",\"title\":\"currency SLOs\",\"tags\":[\"slo\",\"colima\",\"currency\"],\"schemaVersion\":39,\"editable\":false,\"refresh\":\"1m\",\"panels\":[{\"type\":\"row\",\"title\":\"SLOs\",\"gridPos\":{\"h\":1,\"w\":24},\"collapsed\":false},{\"type\":\"stat\",\"description\":\"Share of requests currency answered without an error status, over 28 days. 99.5% leaves about 202 minutes of errors a month; provisional until there is history to set it from\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[28d])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[28d]))\",\"legendFormat\":\"availability\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.995}]},\"unit\":\"percentunit\",\"min\":0.995}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"stat\",\"description\":\"Share of requests currency answered within 100ms, measured at its server span, so network time to the caller is not included. Provisional\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"x\":4,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"100\\\"}[28d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[28d]))\",\"legendFormat\":\"latency\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.99}]},\"unit\":\"percentunit\",\"min\":0.99}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"stat\",\"description\":\"Share of conversions answered within 10ms, at currency's server span. The tight threshold beside the component's loose one; every price on every page is converted. Target 90% over 28 days, provisional\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"x\":8,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"10\\\"}[28d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[28d]))\",\"legendFormat\":\"conversion latency\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.9}]},\"unit\":\"percentunit\",\"min\":0.9}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"row\",\"title\":\"Dependencies\",\"gridPos\":{\"h\":1,\"w\":24,\"y\":5},\"collapsed\":false},{\"type\":\"alertlist\",\"title\":\"Upstream alerts\",\"gridPos\":{\"h\":8,\"w\":24,\"y\":6},\"options\":{\"viewMode\":\"list\",\"groupMode\":\"default\",\"maxItems\":20,\"sortOrder\":3,\"stateFilter\":{\"firing\":true,\"pending\":false,\"noData\":false,\"normal\":false,\"error\":false},\"alertInstanceLabelFilter\":\"{component=~\\\"otel-collector|prometheus|jaeger\\\"}\",\"showInstances\":true}},{\"type\":\"row\",\"title\":\"Diagnostics\",\"gridPos\":{\"h\":1,\"w\":24,\"y\":14},\"collapsed\":false},{\"type\":\"timeseries\",\"title\":\"requests per second\",\"description\":\"Traffic currency is serving. A drop to zero with the objectives still green means the traffic stopped arriving, which no ratio can show\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"y\":15},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[5m]))\",\"legendFormat\":\"__auto\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}},{\"type\":\"timeseries\",\"title\":\"errors by operation\",\"description\":\"Which of currency's operations are failing, when availability drops\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"x\":12,\"y\":15},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum by (span_name) (rate(traces_span_metrics_calls_total{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code=\\\"STATUS_CODE_ERROR\\\"}[5m]))\",\"legendFormat\":\"{{span_name}}\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}},{\"type\":\"timeseries\",\"title\":\"conversions by currency\",\"description\":\"Conversions served, by target currency: whether the traffic behind a latency change moved with it\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"y\":23},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum by (demo_exchange_to) (rate(demo_exchange_conversions_counter_total{service_name=\\\"currency\\\"}[5m]))\",\"legendFormat\":\"{{demo_exchange_to}}\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}}]}",
         "message": "Managed by protoconf",
         "overwrite": true
       }
@@ -275,6 +275,94 @@
               {
                 "datasource_uid": "-100",
                 "model": "{\"expression\":\"$A \u003c 0.99 \u0026\u0026 $B \u003c 0.99\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 5% of the 28-day error budget is gone. The target is 90%, so the budget is 10% of events; both the 6h and 30m windows are below 0.4. Share of conversions answered within 10ms, at currency's server span. The tight threshold beside the component's loose one; every price on every page is converted. Target 90% over 28 days, provisional",
+              "summary": "conversion latency is burning its error budget 6x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "currency",
+              "objective": "conversion latency",
+              "severity": "page"
+            },
+            "name": "currency: conversion latency · slow burn",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"10\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"10\\\"}[30m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "1800",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.4 \u0026\u0026 $B \u003c 0.4\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 10% of the 28-day error budget is gone. The target is 90%, so the budget is 10% of events; both the 3d and 6h windows are below 0.9. Share of conversions answered within 10ms, at currency's server span. The tight threshold beside the component's loose one; every price on every page is converted. Target 90% over 28 days, provisional",
+              "summary": "conversion latency is burning its error budget 1x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "currency",
+              "objective": "conversion latency",
+              "severity": "ticket"
+            },
+            "name": "currency: conversion latency · budget leak",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"10\\\"}[3d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"10\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"currency\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.9 \u0026\u0026 $B \u003c 0.9\",\"refId\":\"C\",\"type\":\"math\"}",
                 "ref_id": "C",
                 "relative_time_range": {
                   "from": "259200",

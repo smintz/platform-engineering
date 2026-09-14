@@ -19,8 +19,10 @@ load(
     "OtlpProtocols",
     "OtlpReceiver",
     "Pipeline",
+    "PostgresqlReceiver",
     "Processors",
     "Receivers",
+    "RedisReceiver",
     "Service",
     "SpanMetricsConnector",
     "Tls",
@@ -38,6 +40,20 @@ COLLECTOR_CONFIG = Config(
                 http = Endpoint(endpoint = "0.0.0.0:4318"),
             ),
         ),
+        # The data stores' own view of themselves: connections, cache hits, memory. They
+        # explain a store's objectives, which are measured at its clients' spans.
+        #
+        # The addresses are written by hand: the collector reads the stores without
+        # depending on them, and a dependency edge would put their alerts on every
+        # service's dashboard. The Postgres credentials are the demo's published
+        # monitoring user, created by files/init.sql.
+        postgresql = PostgresqlReceiver(
+            endpoint = "astronomy-db:5432",
+            username = "monitoring_user",
+            password = "monitoring_password",
+            tls = Tls(insecure = True),
+        ),
+        redis = RedisReceiver(endpoint = "valkey-cart:6379"),
     ),
     processors = Processors(
         batch = BatchProcessor(),
@@ -55,7 +71,10 @@ COLLECTOR_CONFIG = Config(
         # Envoy tags every ingress span with the cluster it routed to. Carrying it lets the
         # proxy's objective count storefront requests without the observability UIs behind
         # the same listener; spans without the tag get no extra label.
-        span_metrics = SpanMetricsConnector(dimensions = [Dimension(name = "upstream_cluster")]),
+        #
+        # server.address names what a client span called. It lets a data store's objectives
+        # select the calls made to it by its own name, whoever its clients are.
+        span_metrics = SpanMetricsConnector(dimensions = [Dimension(name = "upstream_cluster"), Dimension(name = "server.address")]),
     ),
     exporters = Exporters(
         debug = DebugExporter(verbosity = "basic"),
@@ -67,7 +86,7 @@ COLLECTOR_CONFIG = Config(
     service = Service(
         pipelines = {
             "traces": Pipeline(receivers = ["otlp"], processors = ["batch"], exporters = ["debug", "span_metrics", "otlp_http/jaeger"]),
-            "metrics": Pipeline(receivers = ["otlp", "span_metrics"], processors = ["filter", "batch"], exporters = ["otlp_http"]),
+            "metrics": Pipeline(receivers = ["otlp", "span_metrics", "postgresql", "redis"], processors = ["filter", "batch"], exporters = ["otlp_http"]),
             "logs": Pipeline(receivers = ["otlp"], processors = ["batch"], exporters = ["debug"]),
         },
     ),

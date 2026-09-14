@@ -9,9 +9,38 @@ load("//components/grafana.pinc", "GrafanaComponent")
 load("//components/image_provider.pinc", "ImageProviderComponent")
 load("//components/jaeger.pinc", "JaegerComponent")
 load("//components/load_generator.pinc", "LoadGeneratorComponent")
-load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/objectives.pinc", "AVAILABILITY_TARGET", "WithObjectives", "WithRequestObjectives", "ratio_slo", "server_spans")
 load("//components/otel_collector.pinc", "Collector")
 load("//components/telemetry_docs.pinc", "TelemetryDocsComponent")
+
+# The proxy's own spans fall silent when it is down, so its request objectives cannot see
+# the outage that matters most. The load generator is the one client measured from outside:
+# each of its requests got a response or did not. Its name is written by hand, like the
+# proxy address that flows up the graph in load_generator.pinc.
+def _shopper_side(window):
+    shopper = 'service_name="load-generator"'
+    return (
+        'sum(rate(k6_http_reqs_total{%s,status!~"5..|0"}[%s]))' % (shopper, window) +
+        " / sum(rate(k6_http_reqs_total{%s}[%s]))" % (shopper, window)
+    )
+
+def _objectives(service, severity):
+    return (
+        ratio_slo(
+            "shopper-side availability",
+            _shopper_side,
+            AVAILABILITY_TARGET,
+            severity,
+            "Share of the load generator's storefront requests that got a response other than a server error, measured at the client. It sees a proxy that is down or unreachable, which no server span can, but only for synthetic traffic; a 4xx is an answer, not an outage",
+        ),
+        platform.WithDiagnostic(
+            "requests by upstream",
+            "sum by (upstream_cluster) (rate(traces_span_metrics_calls_total{%s}[5m]))" % server_spans(service),
+            description = "Where the proxy sent its traffic: the storefront, Grafana, Jaeger, the flag UI. A shift here explains a change in the objectives before any error does",
+            unit = platform.Unit.UNIT_COUNT,
+            legend = "{{upstream_cluster}}",
+        ),
+    )
 
 # The storefront's front door (Envoy): every shopper request enters here, so its objective
 # is the one a shopper feels most directly. It is also the root of the graph — the
@@ -58,5 +87,6 @@ def FrontendProxyComponent(*hooks):
             TelemetryDocsComponent,
         ),
         WithRequestObjectives(1000, scope = 'upstream_cluster!="grafana"'),
+        WithObjectives(_objectives),
         Defaults(*hooks),
     )

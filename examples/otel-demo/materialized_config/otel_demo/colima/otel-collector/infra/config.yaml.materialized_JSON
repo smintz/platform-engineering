@@ -12,6 +12,17 @@
             "endpoint": "0.0.0.0:4318"
           }
         }
+      },
+      "postgresql": {
+        "endpoint": "astronomy-db:5432",
+        "username": "monitoring_user",
+        "password": "monitoring_password",
+        "tls": {
+          "insecure": true
+        }
+      },
+      "redis": {
+        "endpoint": "valkey-cart:6379"
       }
     },
     "processors": {
@@ -29,6 +40,9 @@
         "dimensions": [
           {
             "name": "upstream_cluster"
+          },
+          {
+            "name": "server.address"
           }
         ]
       }
@@ -66,7 +80,9 @@
         "metrics": {
           "receivers": [
             "otlp",
-            "span_metrics"
+            "span_metrics",
+            "postgresql",
+            "redis"
           ],
           "processors": [
             "filter",

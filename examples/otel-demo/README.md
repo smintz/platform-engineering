@@ -100,6 +100,21 @@ component with no objectives renders no dashboard.
 - **Per service (12 request-serving ones):** availability (non-error server spans / all
   server spans) and latency (share under a per-service threshold), both over 28 days with a
   `burn_query`, plus two diagnostics (request rate, errors by operation).
+- **Beyond the request pair:** each service adds its own with `WithObjectives`, in its own
+  file. They cover what the pair averages away: checkout submissions, add to cart,
+  shipments, and order confirmations and email delivery, which checkout does not fail an
+  order over. Where a service has a second vantage point, it is used: the load generator
+  for the proxy, whose own spans fall silent when it is down, and a service's own
+  histograms. Most also carry a tight latency threshold at a loose target (90% under 10ms)
+  beside the loose one. Their diagnostics are runtime saturation (Go memory against
+  GOMEMLIMIT, the Node event loop, V8 and JVM heaps, .NET GC) and the business counters
+  that say whether traffic moved.
+- **Data stores:** `astronomy-db` and `valkey-cart` promise query and command availability
+  and latency, measured at their clients' spans. The spans are selected by
+  `server_address`, a span-metrics dimension, so neither store names its clients. The
+  collector's `postgresql` and `redis` receivers supply their diagnostics: connections, cache
+  hits, memory, rollbacks. Their addresses in the collector config are written by hand,
+  another address that does not flow down the graph.
 - **Severity:** from the demo's own `service.criticality` label — critical services page,
   the rest ticket.
 - **Targets are provisional** (99.5% availability, 99% under threshold). Nothing measured

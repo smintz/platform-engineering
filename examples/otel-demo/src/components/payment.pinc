@@ -3,8 +3,27 @@ load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
 load("//components/flagd.pinc", "FlagdComponent")
-load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/objectives.pinc", "WithObjectives", "WithRequestObjectives", "node_event_loop", "ratio_slo", "server_spans", "span_under")
 load("//components/otel_collector.pinc", "Collector")
+
+def _objectives(service, severity):
+    return (
+        ratio_slo(
+            "charge latency",
+            lambda window: span_under(server_spans(service), 10, window),
+            0.9,
+            severity,
+            "Share of charges answered within 10ms, at payment's server span. The tight threshold beside the component's loose one: a charge holds the whole order open",
+        ),
+        node_event_loop(service),
+        platform.WithDiagnostic(
+            "transactions by currency",
+            'sum by (demo_payment_currency) (rate(demo_payment_transactions_total{service_name="%s"}[5m]))' % service,
+            description = "Successful charges, by currency. A currency dropping to zero while the others carry on points at conversion rather than payment",
+            unit = platform.Unit.UNIT_COUNT,
+            legend = "{{demo_payment_currency}}",
+        ),
+    )
 
 # Charges the card (Node.js). Critical: a failure here is an order the shopper could not
 # place, so its objectives page.
@@ -26,5 +45,6 @@ def PaymentComponent(*hooks):
         platform.WithDeps(Collector("grpc"), FlagdComponent),
         WithDependantEnv(PAYMENT_ADDR = "payment:8080"),
         WithRequestObjectives(200),
+        WithObjectives(_objectives),
         Defaults(*hooks),
     )

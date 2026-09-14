@@ -8,12 +8,40 @@ load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
 load("//components/flagd.pinc", "FlagdComponent")
 load("//components/image_provider.pinc", "ImageProviderComponent")
-load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/objectives.pinc", "AVAILABILITY_TARGET", "WithObjectives", "WithRequestObjectives", "node_event_loop", "ratio_slo", "server_spans", "span_success", "span_under")
 load("//components/otel_collector.pinc", "Collector")
 load("//components/product_catalog.pinc", "ProductCatalogComponent")
 load("//components/quote.pinc", "QuoteComponent")
 load("//components/recommendation.pinc", "RecommendationComponent")
 load("//components/shipping.pinc", "ShippingComponent")
+
+CHECKOUT = 'span_name="POST /api/checkout"'
+PRODUCT_PAGE = 'span_name="GET /api/products/[productId]/index"'
+
+def _objectives(service, severity):
+    return (
+        ratio_slo(
+            "checkout availability",
+            lambda window: span_success(server_spans(service, CHECKOUT), window),
+            AVAILABILITY_TARGET,
+            severity,
+            "Share of checkout submissions the storefront answered without an error. The one request that turns a cart into an order, held apart from the page traffic that outnumbers it twenty to one",
+        ),
+        ratio_slo(
+            "product page latency",
+            lambda window: span_under(server_spans(service, PRODUCT_PAGE), 10, window),
+            0.9,
+            severity,
+            "Share of product page requests answered within 10ms, at the storefront's server span. The tight threshold beside the component's loose one: most shoppers should get a fast page, not merely one that is not slow",
+        ),
+        node_event_loop(service),
+        platform.WithDiagnostic(
+            "heap used of limit",
+            'sum(v8js_memory_heap_used_bytes{service_name="%s"}) / sum(v8js_memory_heap_limit_bytes{service_name="%s"})' % (service, service),
+            description = "V8 heap against its limit. Close to 1, garbage collection stalls rendering, and past it the process dies",
+            unit = platform.Unit.UNIT_RATIO,
+        ),
+    )
 
 # The storefront (Next.js): the page and the /api routes the shopper's browser calls. Its
 # dependency list is the shop — every backend a page can reach.
@@ -50,5 +78,6 @@ def FrontendComponent(*hooks):
         ),
         WithDependantEnv(FRONTEND_HOST = "frontend", FRONTEND_PORT = "8080"),
         WithRequestObjectives(800),
+        WithObjectives(_objectives),
         Defaults(*hooks),
     )

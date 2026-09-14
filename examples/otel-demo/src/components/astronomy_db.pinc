@@ -2,6 +2,57 @@ load("@kubernetes//kubernetes.pinc", "WithConfigFiles", "WithMemoryLimit")
 load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "File", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
+load("//components/objectives.pinc", "AVAILABILITY_TARGET", "WithObjectives", "calls_to", "ratio_slo", "span_success", "span_under")
+
+# A database's users are its clients, so its promises are measured at their spans: every
+# query made to it, by whoever made it (the product catalog, today). What that misses is a
+# client that never managed to open a connection, which records no query at all; the
+# catalog's own objectives see that one. The diagnostics are the database's view of itself,
+# read by the collector's postgresql receiver.
+def _objectives(service, severity):
+    queries = calls_to(service)
+    return (
+        ratio_slo(
+            "query availability",
+            lambda window: span_success(queries, window),
+            AVAILABILITY_TARGET,
+            severity,
+            "Share of queries to the database that its clients saw succeed",
+        ),
+        ratio_slo(
+            "query latency",
+            lambda window: span_under(queries, 10, window),
+            0.99,
+            severity,
+            "Share of queries answered within 10ms, as their clients timed them. The catalog's are single-row lookups by key, so a slower one is the database, not the query",
+        ),
+        platform.WithDiagnostic(
+            "connections of max",
+            "sum(postgresql_backends) / max(postgresql_connection_max)",
+            description = "Open connections against max_connections. At 1 the next client is refused, which its spans record as failed queries",
+            unit = platform.Unit.UNIT_RATIO,
+        ),
+        platform.WithDiagnostic(
+            "cache hit ratio",
+            'sum(rate(postgresql_blocks_read_total{source=~".*_hit"}[5m])) / sum(rate(postgresql_blocks_read_total[5m]))',
+            description = "Share of block reads served from shared buffers rather than disk. A drop means the working set no longer fits in memory, and query latency follows",
+            unit = platform.Unit.UNIT_RATIO,
+        ),
+        platform.WithDiagnostic(
+            "rollbacks per second",
+            "sum by (postgresql_database_name) (rate(postgresql_rollbacks_total[5m]))",
+            description = "Transactions rolled back, by database. Failed writes and aborted requests land here before they surface as errors anywhere else",
+            unit = platform.Unit.UNIT_COUNT,
+            legend = "{{postgresql_database_name}}",
+        ),
+        platform.WithDiagnostic(
+            "database size",
+            "sum by (postgresql_database_name) (postgresql_db_size_bytes)",
+            description = "Size on disk, by database. The pod's storage is its own, so growth here is what eventually fills it",
+            unit = platform.Unit.UNIT_BYTES,
+            legend = "{{postgresql_database_name}}",
+        ),
+    )
 
 # The product catalog's PostgreSQL, seeded at first start by files/init.sql. It hands its
 # dependants a complete connection string, so the catalog never assembles one.
@@ -22,5 +73,6 @@ def AstronomyDbComponent(*hooks):
         WithDependantEnv(
             DB_CONNECTION_STRING = "postgres://astronomy_user:astronomy_password@astronomy-db/astronomy_db?sslmode=disable",
         ),
+        WithObjectives(_objectives),
         Defaults(*hooks),
     )

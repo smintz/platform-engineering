@@ -6,7 +6,7 @@ load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
 load("//components/email.pinc", "EmailComponent")
 load("//components/flagd.pinc", "FlagdComponent")
-load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/objectives.pinc", "WithObjectives", "WithRequestObjectives", "go_memory", "ratio_slo", "server_spans", "span_under")
 load("//components/otel_collector.pinc", "Collector")
 load("//components/payment.pinc", "PaymentComponent")
 load("//components/product_catalog.pinc", "ProductCatalogComponent")
@@ -16,6 +16,41 @@ load("//components/shipping.pinc", "ShippingComponent")
 # written here — cart, currency, email, payment, product-catalog and shipping each hand
 # over their own when WithDeps wires them in. Its latency bound is the loosest of the
 # backends because it waits on all of them.
+# Checkout sends the confirmation inside PlaceOrder but does not fail the order when the
+# email does, so a lost confirmation is invisible to every request objective. Emails the
+# email service accepted, out of orders placed — capped at 1, since the two counters are
+# sampled apart and can cross by a request.
+def _confirmation_coverage(window):
+    emails = 'http_client_request_duration_seconds_count{service_name="checkout",server_address="email",http_response_status_code=~"2.."}'
+    orders = 'rpc_server_call_duration_seconds_count{service_name="checkout",rpc_method="oteldemo.CheckoutService/PlaceOrder",rpc_response_status_code="OK"}'
+    return "clamp_max(sum(rate(%s[%s])) / sum(rate(%s[%s])), 1)" % (emails, window, orders, window)
+
+def _objectives(service, severity):
+    return (
+        ratio_slo(
+            "order confirmation coverage",
+            _confirmation_coverage,
+            0.99,
+            severity,
+            "Share of placed orders whose confirmation email the email service accepted, counted by checkout. An order without its confirmation leaves the shopper unsure it went through",
+        ),
+        ratio_slo(
+            "order latency",
+            lambda window: span_under(server_spans(service), 50, window),
+            0.9,
+            severity,
+            "Share of orders placed within 50ms, at checkout's server span. The tight threshold beside the component's loose one",
+        ),
+        platform.WithDiagnostic(
+            "downstream errors by method",
+            'sum by (rpc_method) (rate(rpc_client_call_duration_seconds_count{service_name="%s",rpc_response_status_code!="OK"}[5m])) or sum by (rpc_method) (rate(rpc_client_call_duration_seconds_count{service_name="%s"}[5m])) * 0' % (service, service),
+            description = "Failed calls checkout made, by the method it called: which of cart, payment, currency or the catalog is failing orders. A method with no failures reads 0 rather than dropping out",
+            unit = platform.Unit.UNIT_COUNT,
+            legend = "{{rpc_method}}",
+        ),
+        go_memory(service),
+    )
+
 def CheckoutComponent(*hooks):
     return platform.Component(
         "checkout",
@@ -39,5 +74,6 @@ def CheckoutComponent(*hooks):
         ),
         WithDependantEnv(CHECKOUT_ADDR = "checkout:8080"),
         WithRequestObjectives(1000),
+        WithObjectives(_objectives),
         Defaults(*hooks),
     )

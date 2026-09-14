@@ -3,9 +3,32 @@ load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
 load("//components/flagd.pinc", "FlagdComponent")
-load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/objectives.pinc", "WithObjectives", "WithRequestObjectives", "ratio_slo", "server_spans", "span_under")
 load("//components/otel_collector.pinc", "Collector")
 load("//components/product_catalog.pinc", "ProductCatalogComponent")
+
+def _objectives(service, severity):
+    return (
+        ratio_slo(
+            "recommendation latency",
+            lambda window: span_under(server_spans(service), 10, window),
+            0.9,
+            severity,
+            "Share of recommendation requests answered within 10ms, at recommendation's server span. The tight threshold beside the component's loose one",
+        ),
+        platform.WithDiagnostic(
+            "memory used",
+            'sum(process_memory_usage_bytes{service_name="%s"})' % service,
+            description = "Resident memory of the process. The recommendationCacheFailure flag makes its cache grow without bound, and this is where that shows long before the OOM kill",
+            unit = platform.Unit.UNIT_BYTES,
+        ),
+        platform.WithDiagnostic(
+            "catalog call errors",
+            'sum(rate(traces_span_metrics_calls_total{service_name="%s",span_kind="SPAN_KIND_CLIENT",span_name="/oteldemo.ProductCatalogService/ListProducts",status_code="STATUS_CODE_ERROR"}[5m])) or vector(0)' % service,
+            description = "Failed product listings from the catalog. Recommendations cannot be made without one, so these become this service's own errors",
+            unit = platform.Unit.UNIT_COUNT,
+        ),
+    )
 
 # Recommends related products (Python), looked up in the product catalog.
 def RecommendationComponent(*hooks):
@@ -26,5 +49,6 @@ def RecommendationComponent(*hooks):
         platform.WithDeps(Collector("grpc"), FlagdComponent, ProductCatalogComponent),
         WithDependantEnv(RECOMMENDATION_ADDR = "recommendation:8080"),
         WithRequestObjectives(400),
+        WithObjectives(_objectives),
         Defaults(*hooks),
     )

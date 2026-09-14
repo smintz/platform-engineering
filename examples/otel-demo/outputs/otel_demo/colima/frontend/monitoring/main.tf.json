@@ -2,7 +2,7 @@
   "resource": {
     "grafana_dashboard": {
       "slos": {
-        "config_json": "{\"uid\":\"frontend\",\"title\":\"frontend SLOs\",\"tags\":[\"slo\",\"colima\",\"frontend\"],\"schemaVersion\":39,\"editable\":false,\"refresh\":\"1m\",\"panels\":[{\"type\":\"row\",\"title\":\"SLOs\",\"gridPos\":{\"h\":1,\"w\":24},\"collapsed\":false},{\"type\":\"stat\",\"description\":\"Share of requests frontend answered without an error status, over 28 days. 99.5% leaves about 202 minutes of errors a month; provisional until there is history to set it from\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[28d])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[28d]))\",\"legendFormat\":\"availability\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.995}]},\"unit\":\"percentunit\",\"min\":0.995}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"stat\",\"description\":\"Share of requests frontend answered within 800ms, measured at its server span, so network time to the caller is not included. Provisional\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"x\":4,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"800\\\"}[28d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[28d]))\",\"legendFormat\":\"latency\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.99}]},\"unit\":\"percentunit\",\"min\":0.99}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"row\",\"title\":\"Dependencies\",\"gridPos\":{\"h\":1,\"w\":24,\"y\":5},\"collapsed\":false},{\"type\":\"alertlist\",\"title\":\"Upstream alerts\",\"gridPos\":{\"h\":8,\"w\":24,\"y\":6},\"options\":{\"viewMode\":\"list\",\"groupMode\":\"default\",\"maxItems\":20,\"sortOrder\":3,\"stateFilter\":{\"firing\":true,\"pending\":false,\"noData\":false,\"normal\":false,\"error\":false},\"alertInstanceLabelFilter\":\"{component=~\\\"otel-collector|prometheus|jaeger|flagd|ad|cart|valkey-cart|checkout|currency|email|payment|product-catalog|astronomy-db|shipping|quote|recommendation|image-provider\\\"}\",\"showInstances\":true},\"links\":[{\"title\":\"ad dashboard\",\"url\":\"/d/ad\"},{\"title\":\"cart dashboard\",\"url\":\"/d/cart\"},{\"title\":\"checkout dashboard\",\"url\":\"/d/checkout\"},{\"title\":\"currency dashboard\",\"url\":\"/d/currency\"},{\"title\":\"email dashboard\",\"url\":\"/d/email\"},{\"title\":\"payment dashboard\",\"url\":\"/d/payment\"},{\"title\":\"product-catalog dashboard\",\"url\":\"/d/product-catalog\"},{\"title\":\"shipping dashboard\",\"url\":\"/d/shipping\"},{\"title\":\"quote dashboard\",\"url\":\"/d/quote\"},{\"title\":\"recommendation dashboard\",\"url\":\"/d/recommendation\"}]},{\"type\":\"row\",\"title\":\"Diagnostics\",\"gridPos\":{\"h\":1,\"w\":24,\"y\":14},\"collapsed\":false},{\"type\":\"timeseries\",\"title\":\"requests per second\",\"description\":\"Traffic frontend is serving. A drop to zero with the objectives still green means the traffic stopped arriving, which no ratio can show\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"y\":15},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[5m]))\",\"legendFormat\":\"__auto\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}},{\"type\":\"timeseries\",\"title\":\"errors by operation\",\"description\":\"Which of frontend's operations are failing, when availability drops\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"x\":12,\"y\":15},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum by (span_name) (rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code=\\\"STATUS_CODE_ERROR\\\"}[5m]))\",\"legendFormat\":\"{{span_name}}\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}}]}",
+        "config_json": "{\"uid\":\"frontend\",\"title\":\"frontend SLOs\",\"tags\":[\"slo\",\"colima\",\"frontend\"],\"schemaVersion\":39,\"editable\":false,\"refresh\":\"1m\",\"panels\":[{\"type\":\"row\",\"title\":\"SLOs\",\"gridPos\":{\"h\":1,\"w\":24},\"collapsed\":false},{\"type\":\"stat\",\"description\":\"Share of requests frontend answered without an error status, over 28 days. 99.5% leaves about 202 minutes of errors a month; provisional until there is history to set it from\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[28d])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[28d]))\",\"legendFormat\":\"availability\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.995}]},\"unit\":\"percentunit\",\"min\":0.995}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"stat\",\"description\":\"Share of requests frontend answered within 800ms, measured at its server span, so network time to the caller is not included. Provisional\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"x\":4,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"800\\\"}[28d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[28d]))\",\"legendFormat\":\"latency\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.99}]},\"unit\":\"percentunit\",\"min\":0.99}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"stat\",\"description\":\"Share of checkout submissions the storefront answered without an error. The one request that turns a cart into an order, held apart from the page traffic that outnumbers it twenty to one. Target 99.5% over 28 days, provisional\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"x\":8,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"POST /api/checkout\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[28d])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"POST /api/checkout\\\"}[28d]))\",\"legendFormat\":\"checkout availability\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.995}]},\"unit\":\"percentunit\",\"min\":0.995}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"stat\",\"description\":\"Share of product page requests answered within 10ms, at the storefront's server span. The tight threshold beside the component's loose one: most shoppers should get a fast page, not merely one that is not slow. Target 90% over 28 days, provisional\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"x\":12,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"GET /api/products/[productId]/index\\\",le=\\\"10\\\"}[28d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"GET /api/products/[productId]/index\\\"}[28d]))\",\"legendFormat\":\"product page latency\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.9}]},\"unit\":\"percentunit\",\"min\":0.9}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"row\",\"title\":\"Dependencies\",\"gridPos\":{\"h\":1,\"w\":24,\"y\":5},\"collapsed\":false},{\"type\":\"alertlist\",\"title\":\"Upstream alerts\",\"gridPos\":{\"h\":8,\"w\":24,\"y\":6},\"options\":{\"viewMode\":\"list\",\"groupMode\":\"default\",\"maxItems\":20,\"sortOrder\":3,\"stateFilter\":{\"firing\":true,\"pending\":false,\"noData\":false,\"normal\":false,\"error\":false},\"alertInstanceLabelFilter\":\"{component=~\\\"otel-collector|prometheus|jaeger|flagd|ad|cart|valkey-cart|checkout|currency|email|payment|product-catalog|astronomy-db|shipping|quote|recommendation|image-provider\\\"}\",\"showInstances\":true},\"links\":[{\"title\":\"ad dashboard\",\"url\":\"/d/ad\"},{\"title\":\"cart dashboard\",\"url\":\"/d/cart\"},{\"title\":\"valkey-cart dashboard\",\"url\":\"/d/valkey-cart\"},{\"title\":\"checkout dashboard\",\"url\":\"/d/checkout\"},{\"title\":\"currency dashboard\",\"url\":\"/d/currency\"},{\"title\":\"email dashboard\",\"url\":\"/d/email\"},{\"title\":\"payment dashboard\",\"url\":\"/d/payment\"},{\"title\":\"product-catalog dashboard\",\"url\":\"/d/product-catalog\"},{\"title\":\"astronomy-db dashboard\",\"url\":\"/d/astronomy-db\"},{\"title\":\"shipping dashboard\",\"url\":\"/d/shipping\"},{\"title\":\"quote dashboard\",\"url\":\"/d/quote\"},{\"title\":\"recommendation dashboard\",\"url\":\"/d/recommendation\"}]},{\"type\":\"row\",\"title\":\"Diagnostics\",\"gridPos\":{\"h\":1,\"w\":24,\"y\":14},\"collapsed\":false},{\"type\":\"timeseries\",\"title\":\"requests per second\",\"description\":\"Traffic frontend is serving. A drop to zero with the objectives still green means the traffic stopped arriving, which no ratio can show\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"y\":15},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[5m]))\",\"legendFormat\":\"__auto\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}},{\"type\":\"timeseries\",\"title\":\"errors by operation\",\"description\":\"Which of frontend's operations are failing, when availability drops\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"x\":12,\"y\":15},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum by (span_name) (rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code=\\\"STATUS_CODE_ERROR\\\"}[5m]))\",\"legendFormat\":\"{{span_name}}\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}},{\"type\":\"timeseries\",\"title\":\"event loop delay p99\",\"description\":\"How long work waits for frontend's event loop. Every request on the process queues behind it, so it climbs before latency does\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"y\":23},\"targets\":[{\"refId\":\"A\",\"expr\":\"max(nodejs_eventloop_delay_p99_seconds{service_name=\\\"frontend\\\"})\",\"legendFormat\":\"__auto\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"s\"}}},{\"type\":\"timeseries\",\"title\":\"heap used of limit\",\"description\":\"V8 heap against its limit. Close to 1, garbage collection stalls rendering, and past it the process dies\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"x\":12,\"y\":23},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(v8js_memory_heap_used_bytes{service_name=\\\"frontend\\\"}) / sum(v8js_memory_heap_limit_bytes{service_name=\\\"frontend\\\"})\",\"legendFormat\":\"__auto\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"percentunit\"}}}]}",
         "message": "Managed by protoconf",
         "overwrite": true
       }
@@ -275,6 +275,226 @@
               {
                 "datasource_uid": "-100",
                 "model": "{\"expression\":\"$A \u003c 0.99 \u0026\u0026 $B \u003c 0.99\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 2% of the 28-day error budget is gone. The target is 99.5%, so the budget is 0.5% of events; both the 1h and 5m windows are below 0.928. Share of checkout submissions the storefront answered without an error. The one request that turns a cart into an order, held apart from the page traffic that outnumbers it twenty to one. Target 99.5% over 28 days, provisional",
+              "summary": "checkout availability is burning its error budget 14.4x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "frontend",
+              "objective": "checkout availability",
+              "severity": "page"
+            },
+            "name": "frontend: checkout availability · fast burn",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"POST /api/checkout\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[1h])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"POST /api/checkout\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "3600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"POST /api/checkout\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[5m])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"POST /api/checkout\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "300",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.928 \u0026\u0026 $B \u003c 0.928\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "3600",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 5% of the 28-day error budget is gone. The target is 99.5%, so the budget is 0.5% of events; both the 6h and 30m windows are below 0.97. Share of checkout submissions the storefront answered without an error. The one request that turns a cart into an order, held apart from the page traffic that outnumbers it twenty to one. Target 99.5% over 28 days, provisional",
+              "summary": "checkout availability is burning its error budget 6x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "frontend",
+              "objective": "checkout availability",
+              "severity": "page"
+            },
+            "name": "frontend: checkout availability · slow burn",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"POST /api/checkout\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"POST /api/checkout\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"POST /api/checkout\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[30m])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"POST /api/checkout\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "1800",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.97 \u0026\u0026 $B \u003c 0.97\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 10% of the 28-day error budget is gone. The target is 99.5%, so the budget is 0.5% of events; both the 3d and 6h windows are below 0.995. Share of checkout submissions the storefront answered without an error. The one request that turns a cart into an order, held apart from the page traffic that outnumbers it twenty to one. Target 99.5% over 28 days, provisional",
+              "summary": "checkout availability is burning its error budget 1x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "frontend",
+              "objective": "checkout availability",
+              "severity": "ticket"
+            },
+            "name": "frontend: checkout availability · budget leak",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"POST /api/checkout\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[3d])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"POST /api/checkout\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"POST /api/checkout\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"POST /api/checkout\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.995 \u0026\u0026 $B \u003c 0.995\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 5% of the 28-day error budget is gone. The target is 90%, so the budget is 10% of events; both the 6h and 30m windows are below 0.4. Share of product page requests answered within 10ms, at the storefront's server span. The tight threshold beside the component's loose one: most shoppers should get a fast page, not merely one that is not slow. Target 90% over 28 days, provisional",
+              "summary": "product page latency is burning its error budget 6x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "frontend",
+              "objective": "product page latency",
+              "severity": "page"
+            },
+            "name": "frontend: product page latency · slow burn",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"GET /api/products/[productId]/index\\\",le=\\\"10\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"GET /api/products/[productId]/index\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"GET /api/products/[productId]/index\\\",le=\\\"10\\\"}[30m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"GET /api/products/[productId]/index\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "1800",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.4 \u0026\u0026 $B \u003c 0.4\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 10% of the 28-day error budget is gone. The target is 90%, so the budget is 10% of events; both the 3d and 6h windows are below 0.9. Share of product page requests answered within 10ms, at the storefront's server span. The tight threshold beside the component's loose one: most shoppers should get a fast page, not merely one that is not slow. Target 90% over 28 days, provisional",
+              "summary": "product page latency is burning its error budget 1x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "frontend",
+              "objective": "product page latency",
+              "severity": "ticket"
+            },
+            "name": "frontend: product page latency · budget leak",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"GET /api/products/[productId]/index\\\",le=\\\"10\\\"}[3d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"GET /api/products/[productId]/index\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"GET /api/products/[productId]/index\\\",le=\\\"10\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",span_name=\\\"GET /api/products/[productId]/index\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.9 \u0026\u0026 $B \u003c 0.9\",\"refId\":\"C\",\"type\":\"math\"}",
                 "ref_id": "C",
                 "relative_time_range": {
                   "from": "259200",
