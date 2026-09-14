@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.resources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaFrontendO11yApp version is 0
+message GrafanaFrontendO11yApp {
+  // A list of allowed origins for CORS.
+  repeated string allowed_origins = 1 [json_name = "allowed_origins"];
+
+  // The collector URL Grafana Cloud Frontend Observability. Use this endpoint to send
+  // your Telemetry.
+  string collector_endpoint = 2 [json_name = "collector_endpoint"];
+
+  // The extra attributes to append in each signal.
+  map<string, string> extra_log_attributes = 3 [json_name = "extra_log_attributes"];
+
+  // The Terraform Resource ID. This is auto-generated from Frontend Observability
+  // API.
+  int64 id = 4;
+
+  // The name of Frontend Observability App. Part of the Terraform Resource ID.
+  string name = 5;
+
+  // The key-value settings of the Frontend Observability app. Available Settings:
+  // .level=0-4,geolocation.country_denylist=<comma-separated-list-of-country-codes>}`
+  map<string, string> settings = 6;
+
+  // The Stack ID of the Grafana Cloud instance. Part of the Terraform Resource ID.
+  int64 stack_id = 7 [json_name = "stack_id"];
+
+  google.protobuf.Value for_each = 8 [json_name = "for_each"];
+
+  repeated string depends_on = 9 [json_name = "depends_on"];
+
+  int32 count = 10;
+
+  string provider = 11;
+
+  terraform.v1.Lifecycle lifecycle = 12;
+}

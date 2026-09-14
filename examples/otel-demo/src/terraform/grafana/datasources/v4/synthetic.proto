@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.datasources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaSyntheticMonitoringProbe version is 0
+message GrafanaSyntheticMonitoringProbe {
+  // Disables browser checks for this probe.
+  bool disable_browser_checks = 1 [json_name = "disable_browser_checks"];
+
+  // Disables scripted checks for this probe.
+  bool disable_scripted_checks = 2 [json_name = "disable_scripted_checks"];
+
+  // The ID of the probe.
+  string id = 3;
+
+  // Custom labels to be included with collected metrics and logs.
+  map<string, string> labels = 4;
+
+  // Latitude coordinates.
+  int64 latitude = 5;
+
+  // Longitude coordinates.
+  int64 longitude = 6;
+
+  // Name of the probe.
+  string name = 7;
+
+  // Public probes are run by Grafana Labs and can be used by all users. Only Grafana
+  // Labs managed public probes will be set to `true`.
+  bool public = 8;
+
+  // Region of the probe.
+  string region = 9;
+
+  // The tenant ID of the probe.
+  int64 tenant_id = 10 [json_name = "tenant_id"];
+
+  google.protobuf.Value for_each = 11 [json_name = "for_each"];
+
+  repeated string depends_on = 12 [json_name = "depends_on"];
+
+  int32 count = 13;
+
+  string provider = 14;
+
+  terraform.v1.Lifecycle lifecycle = 15;
+}
+
+// GrafanaSyntheticMonitoringProbes version is 0
+message GrafanaSyntheticMonitoringProbes {
+  // If true, only probes that are not deprecated will be returned. Defaults to
+  // `true`.
+  bool filter_deprecated = 1 [json_name = "filter_deprecated"];
+
+  string id = 2;
+
+  // Map of probes with their names as keys and IDs as values.
+  map<string, string> probes = 3;
+
+  google.protobuf.Value for_each = 4 [json_name = "for_each"];
+
+  repeated string depends_on = 5 [json_name = "depends_on"];
+
+  int32 count = 6;
+
+  string provider = 7;
+
+  terraform.v1.Lifecycle lifecycle = 8;
+}

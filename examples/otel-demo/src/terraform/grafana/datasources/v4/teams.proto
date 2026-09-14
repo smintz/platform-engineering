@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.datasources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaTeams version is 0
+message GrafanaTeams {
+  string id = 1;
+
+  // The Organization ID. If not set, the default organization is used for basic
+  // authentication, or the one that owns your service account for token
+  // authentication.
+  string org_id = 2 [json_name = "org_id"];
+
+  // A keyword to filter teams by name (substring match). If omitted, all teams are
+  // returned.
+  string query = 3;
+
+  // The list of matching Grafana teams.
+  repeated Teams teams = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message Teams {
+    // email: string
+    string email = 1;
+
+    // id: number
+    int64 id = 2;
+
+    // member_count: number
+    int64 member_count = 3 [json_name = "member_count"];
+
+    // name: string
+    string name = 4;
+
+    // org_id: number
+    int64 org_id = 5 [json_name = "org_id"];
+
+    // uid: string
+    string uid = 6;
+  }
+}

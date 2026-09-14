@@ -1,0 +1,437 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.resources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaSsoSettings version is 0
+message GrafanaSsoSettings {
+  string id = 1;
+
+  // The name of the SSO provider. Supported values: github, gitlab, google, azuread,
+  // okta, generic_oauth, saml, ldap.
+  string provider_name = 2 [json_name = "provider_name"];
+
+  LdapSettings ldap_settings = 3 [json_name = "ldap_settings"];
+
+  Oauth2Settings oauth2_settings = 4 [json_name = "oauth2_settings"];
+
+  SamlSettings saml_settings = 5 [json_name = "saml_settings"];
+
+  google.protobuf.Value for_each = 6 [json_name = "for_each"];
+
+  repeated string depends_on = 7 [json_name = "depends_on"];
+
+  int32 count = 8;
+
+  string provider = 9;
+
+  terraform.v1.Lifecycle lifecycle = 10;
+
+  message LdapSettings {
+    // Whether to allow new Grafana user creation through LDAP login. If set to false,
+    // then only existing Grafana users can log in with LDAP.
+    bool allow_sign_up = 1 [json_name = "allow_sign_up"];
+
+    // Define whether this configuration is enabled for LDAP. Defaults to `true`.
+    bool enabled = 2;
+
+    // Prevent synchronizing users’ organization roles from LDAP.
+    bool skip_org_role_sync = 3 [json_name = "skip_org_role_sync"];
+
+    Config config = 4;
+
+    message Config {
+      repeated Servers servers = 1;
+
+      message Servers {
+        // The LDAP server attributes. The following attributes can be configured: email,
+        // member_of, name, surname, username.
+        map<string, string> attributes = 1;
+
+        // The search user bind DN.
+        string bind_dn = 2 [json_name = "bind_dn"];
+
+        // The search user bind password.
+        string bind_password = 3 [json_name = "bind_password"];
+
+        // The path to the client certificate.
+        string client_cert = 4 [json_name = "client_cert"];
+
+        // The Base64 encoded value of the client certificate.
+        string client_cert_value = 5 [json_name = "client_cert_value"];
+
+        // The path to the client private key.
+        string client_key = 6 [json_name = "client_key"];
+
+        // The Base64 encoded value of the client private key.
+        string client_key_value = 7 [json_name = "client_key_value"];
+
+        // An array of the base DNs to search through for groups. Typically uses ou=groups.
+        repeated string group_search_base_dns = 8 [json_name = "group_search_base_dns"];
+
+        // Group search filter, to retrieve the groups of which the user is a member (only
+        // set if memberOf attribute is not available).
+        string group_search_filter = 9 [json_name = "group_search_filter"];
+
+        // The %s in the search filter will be replaced with the attribute defined in this
+        // field.
+        string group_search_filter_user_attribute = 10 [json_name = "group_search_filter_user_attribute"];
+
+        // The LDAP server host.
+        string host = 11;
+
+        // Minimum TLS version allowed. Accepted values are: TLS1.2, TLS1.3.
+        string min_tls_version = 12 [json_name = "min_tls_version"];
+
+        // The LDAP server port.
+        int64 port = 13;
+
+        // The path to the root CA certificate.
+        string root_ca_cert = 14 [json_name = "root_ca_cert"];
+
+        // The Base64 encoded values of the root CA certificates.
+        repeated string root_ca_cert_value = 15 [json_name = "root_ca_cert_value"];
+
+        // An array of base DNs to search through.
+        repeated string search_base_dns = 16 [json_name = "search_base_dns"];
+
+        // The user search filter, for example "(cn=%s)" or "(sAMAccountName=%s)" or
+        // "(uid=%s)".
+        string search_filter = 17 [json_name = "search_filter"];
+
+        // If set to true, the SSL cert validation will be skipped.
+        bool ssl_skip_verify = 18 [json_name = "ssl_skip_verify"];
+
+        // If set to true, use LDAP with STARTTLS instead of LDAPS.
+        bool start_tls = 19 [json_name = "start_tls"];
+
+        // The timeout in seconds for connecting to the LDAP host.
+        int64 timeout = 20;
+
+        // Accepted TLS ciphers. For a complete list of supported ciphers, refer to:
+        // https://go.dev/src/crypto/tls/cipher_suites.go.
+        repeated string tls_ciphers = 21 [json_name = "tls_ciphers"];
+
+        // Set to true if LDAP server should use an encrypted TLS connection (either with
+        // STARTTLS or LDAPS).
+        bool use_ssl = 22 [json_name = "use_ssl"];
+
+        repeated GroupMappings group_mappings = 23 [json_name = "group_mappings"];
+
+        message GroupMappings {
+          // If set to true, it makes the user of group_dn Grafana server admin.
+          bool grafana_admin = 1 [json_name = "grafana_admin"];
+
+          // LDAP distinguished name (DN) of LDAP group. If you want to match all (or no LDAP
+          // groups) then you can use wildcard ("*").
+          string group_dn = 2 [json_name = "group_dn"];
+
+          // The Grafana organization database id.
+          int64 org_id = 3 [json_name = "org_id"];
+
+          // Assign users of group_dn the organization role Admin, Editor, or Viewer.
+          string org_role = 4 [json_name = "org_role"];
+        }
+      }
+    }
+  }
+
+  message Oauth2Settings {
+    // If enabled, it will automatically sync the Grafana server administrator role.
+    bool allow_assign_grafana_admin = 1 [json_name = "allow_assign_grafana_admin"];
+
+    // If not enabled, only existing Grafana users can log in using OAuth.
+    bool allow_sign_up = 2 [json_name = "allow_sign_up"];
+
+    // List of comma- or space-separated domains. The user should belong to at least one
+    // domain to log in.
+    string allowed_domains = 3 [json_name = "allowed_domains"];
+
+    // List of comma- or space-separated groups. The user should be a member of at least
+    // one group to log in. For Generic OAuth, if you configure allowed_groups, you must
+    // also configure groups_attribute_path.
+    string allowed_groups = 4 [json_name = "allowed_groups"];
+
+    // List of comma- or space-separated organizations. The user should be a member of
+    // at least one organization to log in.
+    string allowed_organizations = 5 [json_name = "allowed_organizations"];
+
+    // The user information endpoint of your OAuth2 provider. Required for okta and
+    // generic_oauth providers.
+    string api_url = 6 [json_name = "api_url"];
+
+    // It determines how client_id and client_secret are sent to Oauth2 provider.
+    // Possible values are AutoDetect, InParams, InHeader. Default is AutoDetect.
+    string auth_style = 7 [json_name = "auth_style"];
+
+    // The authorization endpoint of your OAuth2 provider. Required for azuread, okta
+    // and generic_oauth providers.
+    string auth_url = 8 [json_name = "auth_url"];
+
+    // Log in automatically, skipping the login screen.
+    bool auto_login = 9 [json_name = "auto_login"];
+
+    // The client Id of your OAuth2 app.
+    string client_id = 10 [json_name = "client_id"];
+
+    // The client secret of your OAuth2 app.
+    string client_secret = 11 [json_name = "client_secret"];
+
+    // Custom fields to configure for OAuth2 such as the
+    // configure-authentication/azuread/#force-fetching-groups-from-microsoft-graph-api)
+    // field.
+    map<string, string> custom = 12;
+
+    // Define allowed groups.
+    bool define_allowed_groups = 13 [json_name = "define_allowed_groups"];
+
+    // Define allowed teams ids.
+    bool define_allowed_teams_ids = 14 [json_name = "define_allowed_teams_ids"];
+
+    // Name of the key to use for user email lookup within the attributes map of OAuth2
+    // ID token. Only applicable to Generic OAuth.
+    string email_attribute_name = 15 [json_name = "email_attribute_name"];
+
+    // JMESPath expression to use for user email lookup from the user information. Only
+    // applicable to Generic OAuth.
+    string email_attribute_path = 16 [json_name = "email_attribute_path"];
+
+    // If enabled, no scopes will be sent to the OAuth2 provider.
+    bool empty_scopes = 17 [json_name = "empty_scopes"];
+
+    // Define whether this configuration is enabled for the specified provider. Defaults
+    // to `true`.
+    bool enabled = 18;
+
+    // JMESPath expression to use for user group lookup. If you configure
+    // allowed_groups, you must also configure groups_attribute_path.
+    string groups_attribute_path = 19 [json_name = "groups_attribute_path"];
+
+    // The name of the key used to extract the ID token from the returned OAuth2 token.
+    // Only applicable to Generic OAuth.
+    string id_token_attribute_name = 20 [json_name = "id_token_attribute_name"];
+
+    // JMESPath expression to use for user login lookup from the user ID token. Only
+    // applicable to Generic OAuth.
+    string login_attribute_path = 21 [json_name = "login_attribute_path"];
+
+    // Indicates the type of user interaction when the user logs in with the IdP.
+    // Available values are `login`, `consent` and `select_account`.
+    string login_prompt = 22 [json_name = "login_prompt"];
+
+    // Helpful if you use more than one identity providers or SSO protocols.
+    string name = 23;
+
+    // JMESPath expression to use for user name lookup from the user ID token. This name
+    // will be used as the user’s display name. Only applicable to Generic OAuth.
+    string name_attribute_path = 24 [json_name = "name_attribute_path"];
+
+    // JMESPath expression to use for the organization mapping lookup from the user ID
+    // token. The extracted list will be used for the organization mapping (to match
+    // "Organization" in the "org_mapping"). Only applicable to Generic OAuth and Okta.
+    string org_attribute_path = 25 [json_name = "org_attribute_path"];
+
+    // List of comma- or space-separated Organization:OrgIdOrOrgName:Role mappings.
+    // Organization can be * meaning “All users”. Role is optional and can have the
+    // following values: None, Viewer, Editor or Admin.
+    string org_mapping = 26 [json_name = "org_mapping"];
+
+    // JMESPath expression to use for Grafana role lookup.
+    string role_attribute_path = 27 [json_name = "role_attribute_path"];
+
+    // If enabled, denies user login if the Grafana role cannot be extracted using Role
+    // attribute path.
+    bool role_attribute_strict = 28 [json_name = "role_attribute_strict"];
+
+    // List of comma- or space-separated OAuth2 scopes.
+    string scopes = 29;
+
+    // The URL to redirect the user to after signing out from Grafana.
+    string signout_redirect_url = 30 [json_name = "signout_redirect_url"];
+
+    // Prevent synchronizing users’ organization roles from your IdP.
+    bool skip_org_role_sync = 31 [json_name = "skip_org_role_sync"];
+
+    // String list of Team Ids. If set, the user must be a member of one of the given
+    // teams to log in. If you configure team_ids, you must also configure teams_url and
+    // team_ids_attribute_path.
+    string team_ids = 32 [json_name = "team_ids"];
+
+    // The JMESPath expression to use for Grafana Team Id lookup within the results
+    // returned by the teams_url endpoint. Only applicable to Generic OAuth.
+    string team_ids_attribute_path = 33 [json_name = "team_ids_attribute_path"];
+
+    // The URL used to query for Team Ids. If not set, the default value is /teams. If
+    // you configure teams_url, you must also configure team_ids_attribute_path. Only
+    // applicable to Generic OAuth.
+    string teams_url = 34 [json_name = "teams_url"];
+
+    // The path to the trusted certificate authority list. Is not applicable on Grafana
+    // Cloud.
+    string tls_client_ca = 35 [json_name = "tls_client_ca"];
+
+    // The path to the certificate. Is not applicable on Grafana Cloud.
+    string tls_client_cert = 36 [json_name = "tls_client_cert"];
+
+    // The path to the key. Is not applicable on Grafana Cloud.
+    string tls_client_key = 37 [json_name = "tls_client_key"];
+
+    // If enabled, the client accepts any certificate presented by the server and any
+    // host name in that certificate. You should only use this for testing, because this
+    // mode leaves SSL/TLS susceptible to man-in-the-middle attacks.
+    bool tls_skip_verify_insecure = 38 [json_name = "tls_skip_verify_insecure"];
+
+    // The token endpoint of your OAuth2 provider. Required for azuread, okta and
+    // generic_oauth providers.
+    string token_url = 39 [json_name = "token_url"];
+
+    // If enabled, Grafana will use Proof Key for Code Exchange (PKCE) with the OAuth2
+    // Authorization Code Grant.
+    bool use_pkce = 40 [json_name = "use_pkce"];
+
+    // If enabled, Grafana will fetch a new access token using the refresh token
+    // provided by the OAuth2 provider.
+    bool use_refresh_token = 41 [json_name = "use_refresh_token"];
+  }
+
+  message SamlSettings {
+    // Whether SAML IdP-initiated login is allowed.
+    bool allow_idp_initiated = 1 [json_name = "allow_idp_initiated"];
+
+    // Whether to allow new Grafana user creation through SAML login. If set to false,
+    // then only existing Grafana users can log in with SAML.
+    bool allow_sign_up = 2 [json_name = "allow_sign_up"];
+
+    // List of comma- or space-separated organizations. User should be a member of at
+    // least one organization to log in.
+    string allowed_organizations = 3 [json_name = "allowed_organizations"];
+
+    // Friendly name or name of the attribute within the SAML assertion to use as the
+    // user email.
+    string assertion_attribute_email = 4 [json_name = "assertion_attribute_email"];
+
+    // Friendly name of the attribute within the SAML assertion to use as the external
+    // user ID. Only used for SCIM provisioned users.
+    string assertion_attribute_external_uid = 5 [json_name = "assertion_attribute_external_uid"];
+
+    // Friendly name or name of the attribute within the SAML assertion to use as the
+    // user groups.
+    string assertion_attribute_groups = 6 [json_name = "assertion_attribute_groups"];
+
+    // Friendly name or name of the attribute within the SAML assertion to use as the
+    // user login handle.
+    string assertion_attribute_login = 7 [json_name = "assertion_attribute_login"];
+
+    // Friendly name or name of the attribute within the SAML assertion to use as the
+    // user name. Alternatively, this can be a template with variables that match the
+    // names of attributes within the SAML assertion.
+    string assertion_attribute_name = 8 [json_name = "assertion_attribute_name"];
+
+    // Friendly name or name of the attribute within the SAML assertion to use as the
+    // user organization.
+    string assertion_attribute_org = 9 [json_name = "assertion_attribute_org"];
+
+    // Friendly name or name of the attribute within the SAML assertion to use as the
+    // user roles.
+    string assertion_attribute_role = 10 [json_name = "assertion_attribute_role"];
+
+    // Whether SAML auto login is enabled.
+    bool auto_login = 11 [json_name = "auto_login"];
+
+    // Base64-encoded string for the SP X.509 certificate.
+    string certificate = 12;
+
+    // Path for the SP X.509 certificate.
+    string certificate_path = 13 [json_name = "certificate_path"];
+
+    // The client Id of your OAuth2 app.
+    string client_id = 14 [json_name = "client_id"];
+
+    // The client secret of your OAuth2 app.
+    string client_secret = 15 [json_name = "client_secret"];
+
+    // Define whether this configuration is enabled for SAML. Defaults to `true`.
+    bool enabled = 16;
+
+    // The entity ID is a globally unique identifier for the service provider. It is
+    // used to identify the service provider to the identity provider. Defaults to the
+    // URL of the Grafana instance if not set.
+    string entity_id = 17 [json_name = "entity_id"];
+
+    // If enabled, Grafana will fetch groups from Microsoft Graph API instead of using
+    // the groups claim from the ID token.
+    bool force_use_graph_api = 18 [json_name = "force_use_graph_api"];
+
+    // Base64-encoded string for the IdP SAML metadata XML.
+    string idp_metadata = 19 [json_name = "idp_metadata"];
+
+    // Path for the IdP SAML metadata XML.
+    string idp_metadata_path = 20 [json_name = "idp_metadata_path"];
+
+    // URL for the IdP SAML metadata XML.
+    string idp_metadata_url = 21 [json_name = "idp_metadata_url"];
+
+    // Duration, since the IdP issued a response and the SP is allowed to process it.
+    // For example: 90s, 1h.
+    string max_issue_delay = 22 [json_name = "max_issue_delay"];
+
+    // Duration, for how long the SP metadata is valid. For example: 48h, 5d.
+    string metadata_valid_duration = 23 [json_name = "metadata_valid_duration"];
+
+    // Name used to refer to the SAML authentication.
+    string name = 24;
+
+    // The Name ID Format to request within the SAML assertion. Defaults to
+    // urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+    string name_id_format = 25 [json_name = "name_id_format"];
+
+    // List of comma- or space-separated Organization:OrgId:Role mappings. Organization
+    // can be * meaning “All users”. Role is optional and can have the following values:
+    // Viewer, Editor or Admin.
+    string org_mapping = 26 [json_name = "org_mapping"];
+
+    // Base64-encoded string for the SP private key.
+    string private_key = 27 [json_name = "private_key"];
+
+    // Path for the SP private key.
+    string private_key_path = 28 [json_name = "private_key_path"];
+
+    // Relay state for IdP-initiated login. Should match relay state configured in IdP.
+    string relay_state = 29 [json_name = "relay_state"];
+
+    // List of comma- or space-separated roles which will be mapped into the Admin role.
+    string role_values_admin = 30 [json_name = "role_values_admin"];
+
+    // List of comma- or space-separated roles which will be mapped into the Editor
+    // role.
+    string role_values_editor = 31 [json_name = "role_values_editor"];
+
+    // List of comma- or space-separated roles which will be mapped into the Grafana
+    // Admin (Super Admin) role.
+    string role_values_grafana_admin = 32 [json_name = "role_values_grafana_admin"];
+
+    // List of comma- or space-separated roles which will be mapped into the None role.
+    string role_values_none = 33 [json_name = "role_values_none"];
+
+    // List of comma- or space-separated roles which will be mapped into the Viewer
+    // role.
+    string role_values_viewer = 34 [json_name = "role_values_viewer"];
+
+    // Signature algorithm used for signing requests to the IdP. Supported values are
+    // rsa-sha1, rsa-sha256, rsa-sha512.
+    string signature_algorithm = 35 [json_name = "signature_algorithm"];
+
+    // Whether SAML Single Logout is enabled.
+    bool single_logout = 36 [json_name = "single_logout"];
+
+    // Prevent synchronizing users’ organization roles from your IdP.
+    bool skip_org_role_sync = 37 [json_name = "skip_org_role_sync"];
+
+    // The token endpoint of your OAuth2 provider. Required for Azure AD providers.
+    string token_url = 38 [json_name = "token_url"];
+  }
+}

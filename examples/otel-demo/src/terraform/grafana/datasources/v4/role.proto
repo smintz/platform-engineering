@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.datasources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaRole version is 0
+message GrafanaRole {
+  // Description of the role.
+  string description = 1;
+
+  // Display name of the role. Available with Grafana 8.5+.
+  string display_name = 2 [json_name = "display_name"];
+
+  // Boolean to state whether the role is available across all organizations or not.
+  bool global = 3;
+
+  // Group of the role. Available with Grafana 8.5+.
+  string group = 4;
+
+  // Boolean to state whether the role should be visible in the Grafana UI or not.
+  // Available with Grafana 8.5+.
+  bool hidden = 5;
+
+  string id = 6;
+
+  // Name of the role
+  string name = 7;
+
+  // The Organization ID. If not set, the Org ID defined in the provider block will be
+  // used.
+  string org_id = 8 [json_name = "org_id"];
+
+  // Specific set of actions granted by the role.
+  repeated Permissions permissions = 9;
+
+  // Unique identifier of the role. Used for assignments.
+  string uid = 10;
+
+  // Version of the role. The server manages this automatically.
+  int64 version = 11;
+
+  google.protobuf.Value for_each = 12 [json_name = "for_each"];
+
+  repeated string depends_on = 13 [json_name = "depends_on"];
+
+  int32 count = 14;
+
+  string provider = 15;
+
+  terraform.v1.Lifecycle lifecycle = 16;
+
+  message Permissions {
+    // action: string
+    string action = 1;
+
+    // scope: string
+    string scope = 2;
+  }
+}

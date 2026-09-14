@@ -1,0 +1,981 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.datasources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaCloudAccessPolicies version is 0
+message GrafanaCloudAccessPolicies {
+  repeated AccessPolicies access_policies = 1 [json_name = "access_policies"];
+
+  // The ID of this datasource. This is an internal identifier used by the provider to
+  // track this datasource.
+  string id = 2;
+
+  // If set, only access policies with the specified name will be returned. This is
+  // faster than filtering in Terraform.
+  string name_filter = 3 [json_name = "name_filter"];
+
+  // If set, only access policies in the specified region will be returned. Otherwise,
+  // fetches from all available regions (more resource intensive).
+  string region_filter = 4 [json_name = "region_filter"];
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message AccessPolicies {
+    // display_name: string
+    string display_name = 1 [json_name = "display_name"];
+
+    // id: string
+    string id = 2;
+
+    // name: string
+    string name = 3;
+
+    // region: string
+    string region = 4;
+
+    // status: string
+    string status = 5;
+  }
+}
+
+// GrafanaCloudIps version is 0
+message GrafanaCloudIps {
+  // Set of IP addresses that are used for hosted alerts.
+  repeated string hosted_alerts = 1 [json_name = "hosted_alerts"];
+
+  // Set of IP addresses that are used for hosted Grafana.
+  repeated string hosted_grafana = 2 [json_name = "hosted_grafana"];
+
+  // Set of IP addresses that are used for hosted logs.
+  repeated string hosted_logs = 3 [json_name = "hosted_logs"];
+
+  // Set of IP addresses that are used for hosted metrics.
+  repeated string hosted_metrics = 4 [json_name = "hosted_metrics"];
+
+  // Set of IP addresses that are used for the OTLP Gateway.
+  repeated string hosted_otlp = 5 [json_name = "hosted_otlp"];
+
+  // Set of IP addresses that are used for hosted profiles.
+  repeated string hosted_profiles = 6 [json_name = "hosted_profiles"];
+
+  // Set of IP addresses that are used for hosted traces.
+  repeated string hosted_traces = 7 [json_name = "hosted_traces"];
+
+  // The ID of this datasource. This is an internal identifier used by the provider to
+  // track this datasource.
+  string id = 8;
+
+  google.protobuf.Value for_each = 9 [json_name = "for_each"];
+
+  repeated string depends_on = 10 [json_name = "depends_on"];
+
+  int32 count = 11;
+
+  string provider = 12;
+
+  terraform.v1.Lifecycle lifecycle = 13;
+}
+
+// GrafanaCloudOrganization version is 0
+message GrafanaCloudOrganization {
+  // The date and time the organization was created.
+  string created_at = 1 [json_name = "created_at"];
+
+  // The organization ID.
+  string id = 2;
+
+  // The organization name.
+  string name = 3;
+
+  // The organization slug.
+  string slug = 4;
+
+  // The date and time the organization was last updated.
+  string updated_at = 5 [json_name = "updated_at"];
+
+  // The organization URL.
+  string url = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  int32 count = 9;
+
+  string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+}
+
+// GrafanaCloudPrivateDataSourceConnectNetworks version is 0
+message GrafanaCloudPrivateDataSourceConnectNetworks {
+  // The ID of this datasource. This is an internal identifier used by the provider to
+  // track this datasource.
+  string id = 1;
+
+  // If set, only private data source connect networks with the specified name will be
+  // returned. This is faster than filtering in Terraform.
+  string name_filter = 2 [json_name = "name_filter"];
+
+  repeated PrivateDataSourceConnectNetworks private_data_source_connect_networks = 3 [json_name = "private_data_source_connect_networks"];
+
+  // If set, only private data source connect networks in the specified region will be
+  // returned. This is faster than filtering in Terraform.
+  string region_filter = 4 [json_name = "region_filter"];
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  int32 count = 7;
+
+  string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+
+  message PrivateDataSourceConnectNetworks {
+    // display_name: string
+    string display_name = 1 [json_name = "display_name"];
+
+    // id: string
+    string id = 2;
+
+    // name: string
+    string name = 3;
+
+    // region: string
+    string region = 4;
+
+    // status: string
+    string status = 5;
+  }
+}
+
+// GrafanaCloudProviderAwsAccount version is 0
+message GrafanaCloudProviderAwsAccount {
+  // The Terraform Resource ID. This has the format "{{ stack_id }}:{{ resource_id
+  // }}".
+  string id = 1;
+
+  // An optional human-readable name for this AWS Account resource.
+  string name = 2;
+
+  // A set of regions that this AWS Account resource applies to.
+  repeated string regions = 3;
+
+  // The ID given by the Grafana Cloud Provider API to this AWS Account resource.
+  string resource_id = 4 [json_name = "resource_id"];
+
+  // An IAM Role ARN string to represent with this AWS Account resource.
+  string role_arn = 5 [json_name = "role_arn"];
+
+  // The StackID of the Grafana Cloud instance. Part of the Terraform Resource ID.
+  string stack_id = 6 [json_name = "stack_id"];
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  int32 count = 9;
+
+  string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+}
+
+// GrafanaCloudProviderAwsCloudwatchScrapeJob version is 0
+message GrafanaCloudProviderAwsCloudwatchScrapeJob {
+  // The ID assigned by the Grafana Cloud Provider API to an AWS Account resource that
+  // should be associated with this AWS CloudWatch Scrape Job. This can be provided by
+  // the `resource_id` attribute of the `grafana_cloud_provider_aws_account` resource.
+  string aws_account_resource_id = 1 [json_name = "aws_account_resource_id"];
+
+  // When the AWS CloudWatch Scrape Job is disabled, this will show the reason that it
+  // is in that state.
+  string disabled_reason = 2 [json_name = "disabled_reason"];
+
+  // Whether the AWS CloudWatch Scrape Job is enabled or not.
+  bool enabled = 3;
+
+  // When enabled, AWS resource tags are exported as Prometheus labels to metrics
+  // formatted as `aws_<service_name>_info`.
+  bool export_tags = 4 [json_name = "export_tags"];
+
+  // The Terraform Resource ID. This has the format "{{ stack_id }}:{{ name }}".
+  string id = 5;
+
+  // The name of the AWS CloudWatch Scrape Job. Part of the Terraform Resource ID.
+  string name = 6;
+
+  // The set of AWS region names that this AWS CloudWatch Scrape Job is configured to
+  // scrape.
+  repeated string regions = 7;
+
+  // When true, the `regions` attribute will be the set of regions configured in the
+  // override. When false, the `regions` attribute will be the set of regions
+  // belonging to the AWS Account resource that is associated with this AWS CloudWatch
+  // Scrape Job.
+  bool regions_subset_override_used = 8 [json_name = "regions_subset_override_used"];
+
+  // The AWS ARN of the IAM role associated with the AWS Account resource that is
+  // being used by this AWS CloudWatch Scrape Job.
+  string role_arn = 9 [json_name = "role_arn"];
+
+  // The Stack ID of the Grafana Cloud instance. Part of the Terraform Resource ID.
+  string stack_id = 10 [json_name = "stack_id"];
+
+  // A set of static labels to add to all metrics exported by this scrape job.
+  map<string, string> static_labels = 11 [json_name = "static_labels"];
+
+  repeated CustomNamespace custom_namespace = 12 [json_name = "custom_namespace"];
+
+  repeated Service service = 13;
+
+  google.protobuf.Value for_each = 14 [json_name = "for_each"];
+
+  repeated string depends_on = 15 [json_name = "depends_on"];
+
+  int32 count = 16;
+
+  string provider = 17;
+
+  terraform.v1.Lifecycle lifecycle = 18;
+
+  message CustomNamespace {
+    // The name of the custom namespace to scrape.
+    string name = 1;
+
+    // The interval in seconds to scrape the custom namespace.
+    int64 scrape_interval_seconds = 2 [json_name = "scrape_interval_seconds"];
+
+    repeated Metric metric = 3;
+
+    message Metric {
+      // The name of the metric to scrape.
+      string name = 1;
+
+      // A set of statistics to scrape.
+      repeated string statistics = 2;
+    }
+  }
+
+  message Service {
+    // The name of the service to scrape. See
+    // ud/monitor-infrastructure/monitor-cloud-provider/aws/cloudwatch-metrics/services/
+    // for supported services, metrics, and their statistics.
+    string name = 1;
+
+    // The interval in seconds to scrape the service. See
+    // ud/monitor-infrastructure/monitor-cloud-provider/aws/cloudwatch-metrics/services/
+    // for supported scrape intervals.
+    int64 scrape_interval_seconds = 2 [json_name = "scrape_interval_seconds"];
+
+    // A set of tags to add to all metrics exported by this scrape job, for use in
+    // PromQL queries.
+    repeated string tags_to_add_to_metrics = 3 [json_name = "tags_to_add_to_metrics"];
+
+    repeated Metric metric = 4;
+
+    repeated ResourceDiscoveryTagFilter resource_discovery_tag_filter = 5 [json_name = "resource_discovery_tag_filter"];
+
+    message Metric {
+      // The name of the metric to scrape.
+      string name = 1;
+
+      // A set of statistics to scrape.
+      repeated string statistics = 2;
+    }
+
+    message ResourceDiscoveryTagFilter {
+      // The key of the tag filter.
+      string key = 1;
+
+      // The value of the tag filter.
+      string value = 2;
+    }
+  }
+}
+
+// GrafanaCloudProviderAwsCloudwatchScrapeJobs version is 0
+message GrafanaCloudProviderAwsCloudwatchScrapeJobs {
+  // The Terraform Resource ID. This has the format "{{ stack_id }}".
+  string id = 1;
+
+  // The Stack ID of the Grafana Cloud instance. Part of the Terraform Resource ID.
+  string stack_id = 2 [json_name = "stack_id"];
+
+  repeated ScrapeJob scrape_job = 3 [json_name = "scrape_job"];
+
+  google.protobuf.Value for_each = 4 [json_name = "for_each"];
+
+  repeated string depends_on = 5 [json_name = "depends_on"];
+
+  int32 count = 6;
+
+  string provider = 7;
+
+  terraform.v1.Lifecycle lifecycle = 8;
+
+  message ScrapeJob {
+    // The ID assigned by the Grafana Cloud Provider API to an AWS Account resource that
+    // should be associated with this AWS CloudWatch Scrape Job. This can be provided by
+    // the `resource_id` attribute of the `grafana_cloud_provider_aws_account` resource.
+    string aws_account_resource_id = 1 [json_name = "aws_account_resource_id"];
+
+    // When the AWS CloudWatch Scrape Job is disabled, this will show the reason that it
+    // is in that state.
+    string disabled_reason = 2 [json_name = "disabled_reason"];
+
+    // Whether the AWS CloudWatch Scrape Job is enabled or not.
+    bool enabled = 3;
+
+    // When enabled, AWS resource tags are exported as Prometheus labels to metrics
+    // formatted as `aws_<service_name>_info`.
+    bool export_tags = 4 [json_name = "export_tags"];
+
+    // The Terraform Resource ID. This has the format "{{ stack_id }}:{{ name }}".
+    string id = 5;
+
+    // The name of the AWS CloudWatch Scrape Job. Part of the Terraform Resource ID.
+    string name = 6;
+
+    // The set of AWS region names that this AWS CloudWatch Scrape Job is configured to
+    // scrape.
+    repeated string regions = 7;
+
+    // When true, the `regions` attribute will be the set of regions configured in the
+    // override. When false, the `regions` attribute will be the set of regions
+    // belonging to the AWS Account resource that is associated with this AWS CloudWatch
+    // Scrape Job.
+    bool regions_subset_override_used = 8 [json_name = "regions_subset_override_used"];
+
+    // The AWS ARN of the IAM role associated with the AWS Account resource that is
+    // being used by this AWS CloudWatch Scrape Job.
+    string role_arn = 9 [json_name = "role_arn"];
+
+    // The Stack ID of the Grafana Cloud instance. Part of the Terraform Resource ID.
+    string stack_id = 10 [json_name = "stack_id"];
+
+    // A set of static labels to add to all metrics exported by this scrape job.
+    map<string, string> static_labels = 11 [json_name = "static_labels"];
+
+    repeated CustomNamespace custom_namespace = 12 [json_name = "custom_namespace"];
+
+    repeated Service service = 13;
+
+    message CustomNamespace {
+      // The name of the custom namespace to scrape.
+      string name = 1;
+
+      // The interval in seconds to scrape the custom namespace.
+      int64 scrape_interval_seconds = 2 [json_name = "scrape_interval_seconds"];
+
+      repeated Metric metric = 3;
+
+      message Metric {
+        // The name of the metric to scrape.
+        string name = 1;
+
+        // A set of statistics to scrape.
+        repeated string statistics = 2;
+      }
+    }
+
+    message Service {
+      // The name of the service to scrape. See
+      // ud/monitor-infrastructure/monitor-cloud-provider/aws/cloudwatch-metrics/services/
+      // for supported services, metrics, and their statistics.
+      string name = 1;
+
+      // The interval in seconds to scrape the service. See
+      // ud/monitor-infrastructure/monitor-cloud-provider/aws/cloudwatch-metrics/services/
+      // for supported scrape intervals.
+      int64 scrape_interval_seconds = 2 [json_name = "scrape_interval_seconds"];
+
+      // A set of tags to add to all metrics exported by this scrape job, for use in
+      // PromQL queries.
+      repeated string tags_to_add_to_metrics = 3 [json_name = "tags_to_add_to_metrics"];
+
+      repeated Metric metric = 4;
+
+      repeated ResourceDiscoveryTagFilter resource_discovery_tag_filter = 5 [json_name = "resource_discovery_tag_filter"];
+
+      message Metric {
+        // The name of the metric to scrape.
+        string name = 1;
+
+        // A set of statistics to scrape.
+        repeated string statistics = 2;
+      }
+
+      message ResourceDiscoveryTagFilter {
+        // The key of the tag filter.
+        string key = 1;
+
+        // The value of the tag filter.
+        string value = 2;
+      }
+    }
+  }
+}
+
+// GrafanaCloudProviderAzureCredential version is 0
+message GrafanaCloudProviderAzureCredential {
+  // The client ID of the Azure Credential.
+  string client_id = 1 [json_name = "client_id"];
+
+  // The client secret of the Azure Credential.
+  string client_secret = 2 [json_name = "client_secret"];
+
+  // Whether the Azure Credential is enabled or not.
+  bool enabled = 3;
+
+  // The Terraform Resource ID. This has the format "{{ stack_id }}:{{ resource_id
+  // }}".
+  string id = 4;
+
+  // The name of the Azure Credential.
+  string name = 5;
+
+  // The ID given by the Grafana Cloud Provider API to this Azure Credential resource.
+  string resource_id = 6 [json_name = "resource_id"];
+
+  // The list of resource tags to add to metrics.
+  repeated string resource_tags_to_add_to_metrics = 7 [json_name = "resource_tags_to_add_to_metrics"];
+
+  // The StackID of the Grafana Cloud instance. Part of the Terraform Resource ID.
+  string stack_id = 8 [json_name = "stack_id"];
+
+  // A set of static labels to add to all metrics exported using this credential.
+  map<string, string> static_labels = 9 [json_name = "static_labels"];
+
+  // The tenant ID of the Azure Credential.
+  string tenant_id = 10 [json_name = "tenant_id"];
+
+  repeated AutoDiscoveryConfiguration auto_discovery_configuration = 11 [json_name = "auto_discovery_configuration"];
+
+  repeated ResourceDiscoveryTagFilter resource_discovery_tag_filter = 12 [json_name = "resource_discovery_tag_filter"];
+
+  google.protobuf.Value for_each = 13 [json_name = "for_each"];
+
+  repeated string depends_on = 14 [json_name = "depends_on"];
+
+  int32 count = 15;
+
+  string provider = 16;
+
+  terraform.v1.Lifecycle lifecycle = 17;
+
+  message AutoDiscoveryConfiguration {
+    // The list of resource type configurations.
+    repeated ResourceTypeConfigurations resource_type_configurations = 1 [json_name = "resource_type_configurations"];
+
+    // The subscription ID of the Azure account.
+    string subscription_id = 2 [json_name = "subscription_id"];
+
+    message ResourceTypeConfigurations {
+      // metric_configuration: list of object
+      repeated MetricConfiguration metric_configuration = 1 [json_name = "metric_configuration"];
+
+      // resource_type_name: string
+      string resource_type_name = 2 [json_name = "resource_type_name"];
+
+      message MetricConfiguration {
+        // aggregations: list of string
+        repeated string aggregations = 1;
+
+        // dimensions: list of string
+        repeated string dimensions = 2;
+
+        // name: string
+        string name = 3;
+      }
+    }
+  }
+
+  message ResourceDiscoveryTagFilter {
+    // The key of the tag filter.
+    string key = 1;
+
+    // The value of the tag filter.
+    string value = 2;
+  }
+}
+
+// GrafanaCloudStack version is 0
+message GrafanaCloudStack {
+  // Allowlist API endpoint that returns the source IP addresses to allow for the
+  // Alertmanager instances.
+  string alertmanager_allowlist_url = 1 [json_name = "alertmanager_allowlist_url"];
+
+  // Comma-separated list of CNAMEs that can be whitelisted to access the Alertmanager
+  // instances (Optional)
+  string alertmanager_ip_allow_list_cname = 2 [json_name = "alertmanager_ip_allow_list_cname"];
+
+  // Name of the Alertmanager instance configured for this stack.
+  string alertmanager_name = 3 [json_name = "alertmanager_name"];
+
+  // Status of the Alertmanager instance configured for this stack.
+  string alertmanager_status = 4 [json_name = "alertmanager_status"];
+
+  // Base URL of the Alertmanager instance configured for this stack.
+  string alertmanager_url = 5 [json_name = "alertmanager_url"];
+
+  // User ID of the Alertmanager instance configured for this stack.
+  int64 alertmanager_user_id = 6 [json_name = "alertmanager_user_id"];
+
+  // Base URL of the Cloud Provider API for this stack's cluster. This can be used
+  // with the `cloud_provider_url` provider config option to manage Cloud Provider
+  // resources for this stack.
+  string cloud_provider_url = 7 [json_name = "cloud_provider_url"];
+
+  // Name of the cluster where this stack resides.
+  string cluster_name = 8 [json_name = "cluster_name"];
+
+  // Slug of the cluster where this stack resides.
+  string cluster_slug = 9 [json_name = "cluster_slug"];
+
+  // Base URL of the Connections API for this stack's cluster. This can be used with
+  // the `connections_api_url` provider config option to manage Connections resources
+  // for this stack.
+  string connections_api_url = 10 [json_name = "connections_api_url"];
+
+  // Whether to enable delete protection for the stack, preventing accidental
+  // deletion.
+  bool delete_protection = 11 [json_name = "delete_protection"];
+
+  // Description of stack.
+  string description = 12;
+
+  // Allowlist API endpoint that returns the source IP addresses to allow for the
+  // Fleet Management instance.
+  string fleet_management_allowlist_url = 13 [json_name = "fleet_management_allowlist_url"];
+
+  // Name of the Fleet Management instance configured for this stack.
+  string fleet_management_name = 14 [json_name = "fleet_management_name"];
+
+  // Availability Zone IDs for Fleet Management when using AWS PrivateLink (only for
+  // AWS stacks)
+  repeated string fleet_management_private_connectivity_info_availability_zone_ids = 15 [
+    json_name = "fleet_management_private_connectivity_info_availability_zone_ids"
+  ];
+
+  // Availability Zones for Fleet Management when using AWS PrivateLink (only for AWS
+  // stacks)
+  repeated string fleet_management_private_connectivity_info_availability_zones = 16 [
+    json_name = "fleet_management_private_connectivity_info_availability_zones"
+  ];
+
+  // Private DNS for Fleet Management when using AWS PrivateLink (only for AWS stacks)
+  string fleet_management_private_connectivity_info_private_dns = 17 [
+    json_name = "fleet_management_private_connectivity_info_private_dns"
+  ];
+
+  // Regions for Fleet Management when using AWS PrivateLink (only for AWS stacks)
+  repeated string fleet_management_private_connectivity_info_regions = 18 [
+    json_name = "fleet_management_private_connectivity_info_regions"
+  ];
+
+  // Service Name for Fleet Management when using AWS PrivateLink (only for AWS
+  // stacks)
+  string fleet_management_private_connectivity_info_service_name = 19 [
+    json_name = "fleet_management_private_connectivity_info_service_name"
+  ];
+
+  // Status of the Fleet Management instance configured for this stack.
+  string fleet_management_status = 20 [json_name = "fleet_management_status"];
+
+  // Base URL of the Fleet Management instance configured for this stack.
+  string fleet_management_url = 21 [json_name = "fleet_management_url"];
+
+  // User ID of the Fleet Management instance configured for this stack.
+  int64 fleet_management_user_id = 22 [json_name = "fleet_management_user_id"];
+
+  // Allowlist API endpoint that returns the source IP addresses to allow for the
+  // grafana instance.
+  string grafanas_allowlist_url = 23 [json_name = "grafanas_allowlist_url"];
+
+  // Comma-separated list of CNAMEs that can be whitelisted to access the grafana
+  // instance (Optional)
+  string grafanas_ip_allow_list_cname = 24 [json_name = "grafanas_ip_allow_list_cname"];
+
+  // Allowlist API endpoint that returns the source IP addresses to allow for the
+  // Graphite instance.
+  string graphite_allowlist_url = 25 [json_name = "graphite_allowlist_url"];
+
+  // Comma-separated list of CNAMEs that can be whitelisted to access the Graphite
+  // instance (Optional)
+  string graphite_ip_allow_list_cname = 26 [json_name = "graphite_ip_allow_list_cname"];
+
+  string graphite_name = 27 [json_name = "graphite_name"];
+
+  // Availability Zone IDs for Graphite when using AWS PrivateLink (only for AWS
+  // stacks)
+  repeated string graphite_private_connectivity_info_availability_zone_ids = 28 [
+    json_name = "graphite_private_connectivity_info_availability_zone_ids"
+  ];
+
+  // Availability Zones for Graphite when using AWS PrivateLink (only for AWS stacks)
+  repeated string graphite_private_connectivity_info_availability_zones = 29 [
+    json_name = "graphite_private_connectivity_info_availability_zones"
+  ];
+
+  // Private DNS for Graphite when using AWS PrivateLink (only for AWS stacks)
+  string graphite_private_connectivity_info_private_dns = 30 [
+    json_name = "graphite_private_connectivity_info_private_dns"
+  ];
+
+  // Regions for Graphite when using AWS PrivateLink (only for AWS stacks)
+  repeated string graphite_private_connectivity_info_regions = 31 [
+    json_name = "graphite_private_connectivity_info_regions"
+  ];
+
+  // Service Name for Graphite when using AWS PrivateLink (only for AWS stacks)
+  string graphite_private_connectivity_info_service_name = 32 [
+    json_name = "graphite_private_connectivity_info_service_name"
+  ];
+
+  string graphite_status = 33 [json_name = "graphite_status"];
+
+  string graphite_url = 34 [json_name = "graphite_url"];
+
+  int64 graphite_user_id = 35 [json_name = "graphite_user_id"];
+
+  // The stack id assigned to this stack by Grafana.
+  string id = 36;
+
+  // Base URL of the InfluxDB instance configured for this stack. The username is the
+  // same as the metrics' (`prometheus_user_id` attribute of this resource). See
+  // ana.com/docs/grafana-cloud/send-data/metrics/metrics-influxdb/push-from-telegraf/
+  // for docs on how to use this.
+  string influx_url = 37 [json_name = "influx_url"];
+
+  // A map of labels to assign to the stack. Label keys and values must match the
+  // following regexp: "^[a-zA-Z0-9/\\-._]+$" and stacks cannot have more than 10
+  // labels.
+  map<string, string> labels = 38;
+
+  // Allowlist API endpoint that returns the source IP addresses to allow for the Logs
+  // instance.
+  string logs_allowlist_url = 39 [json_name = "logs_allowlist_url"];
+
+  // Comma-separated list of CNAMEs that can be whitelisted to access the Logs
+  // instance (Optional)
+  string logs_ip_allow_list_cname = 40 [json_name = "logs_ip_allow_list_cname"];
+
+  string logs_name = 41 [json_name = "logs_name"];
+
+  // Availability Zone IDs for Logs when using AWS PrivateLink (only for AWS stacks)
+  repeated string logs_private_connectivity_info_availability_zone_ids = 42 [
+    json_name = "logs_private_connectivity_info_availability_zone_ids"
+  ];
+
+  // Availability Zones for Logs when using AWS PrivateLink (only for AWS stacks)
+  repeated string logs_private_connectivity_info_availability_zones = 43 [
+    json_name = "logs_private_connectivity_info_availability_zones"
+  ];
+
+  // Private DNS for Logs when using AWS PrivateLink (only for AWS stacks)
+  string logs_private_connectivity_info_private_dns = 44 [
+    json_name = "logs_private_connectivity_info_private_dns"
+  ];
+
+  // Regions for Logs when using AWS PrivateLink (only for AWS stacks)
+  repeated string logs_private_connectivity_info_regions = 45 [
+    json_name = "logs_private_connectivity_info_regions"
+  ];
+
+  // Service Name for Logs when using AWS PrivateLink (only for AWS stacks)
+  string logs_private_connectivity_info_service_name = 46 [
+    json_name = "logs_private_connectivity_info_service_name"
+  ];
+
+  string logs_status = 47 [json_name = "logs_status"];
+
+  string logs_url = 48 [json_name = "logs_url"];
+
+  int64 logs_user_id = 49 [json_name = "logs_user_id"];
+
+  // Name of stack. Conventionally matches the url of the instance (e.g.
+  // `<stack_slug>.grafana.net`).
+  string name = 50;
+
+  // Base URL of the OnCall API instance configured for this stack.
+  string oncall_api_url = 51 [json_name = "oncall_api_url"];
+
+  // Organization id to assign to this stack.
+  int64 org_id = 52 [json_name = "org_id"];
+
+  // Organization name to assign to this stack.
+  string org_name = 53 [json_name = "org_name"];
+
+  // Organization slug to assign to this stack.
+  string org_slug = 54 [json_name = "org_slug"];
+
+  // Availability Zone IDs for OTLP when using AWS PrivateLink (only for AWS stacks)
+  repeated string otlp_private_connectivity_info_availability_zone_ids = 55 [
+    json_name = "otlp_private_connectivity_info_availability_zone_ids"
+  ];
+
+  // Availability Zones for OTLP when using AWS PrivateLink (only for AWS stacks)
+  repeated string otlp_private_connectivity_info_availability_zones = 56 [
+    json_name = "otlp_private_connectivity_info_availability_zones"
+  ];
+
+  // Private DNS for OTLP when using AWS PrivateLink (only for AWS stacks)
+  string otlp_private_connectivity_info_private_dns = 57 [
+    json_name = "otlp_private_connectivity_info_private_dns"
+  ];
+
+  // Regions for OTLP when using AWS PrivateLink (only for AWS stacks)
+  repeated string otlp_private_connectivity_info_regions = 58 [
+    json_name = "otlp_private_connectivity_info_regions"
+  ];
+
+  // Service Name for OTLP when using AWS PrivateLink (only for AWS stacks)
+  string otlp_private_connectivity_info_service_name = 59 [
+    json_name = "otlp_private_connectivity_info_service_name"
+  ];
+
+  // Base URL of the OTLP instance configured for this stack. The username is the
+  // stack's ID (`id` attribute of this resource). See
+  // https://grafana.com/docs/grafana-cloud/send-data/otlp/send-data-otlp/ for docs on
+  // how to use this.
+  string otlp_url = 60 [json_name = "otlp_url"];
+
+  // Availability Zone IDs for PDC's API when using AWS PrivateLink (only for AWS
+  // stacks)
+  repeated string pdc_api_private_connectivity_info_availability_zone_ids = 61 [
+    json_name = "pdc_api_private_connectivity_info_availability_zone_ids"
+  ];
+
+  // Availability Zones for PDC's API when using AWS PrivateLink (only for AWS stacks)
+  repeated string pdc_api_private_connectivity_info_availability_zones = 62 [
+    json_name = "pdc_api_private_connectivity_info_availability_zones"
+  ];
+
+  // Private DNS for PDC's API when using AWS PrivateLink (only for AWS stacks)
+  string pdc_api_private_connectivity_info_private_dns = 63 [
+    json_name = "pdc_api_private_connectivity_info_private_dns"
+  ];
+
+  // Regions for PDC's API when using AWS PrivateLink (only for AWS stacks)
+  repeated string pdc_api_private_connectivity_info_regions = 64 [
+    json_name = "pdc_api_private_connectivity_info_regions"
+  ];
+
+  // Service Name for PDC's API when using AWS PrivateLink (only for AWS stacks)
+  string pdc_api_private_connectivity_info_service_name = 65 [
+    json_name = "pdc_api_private_connectivity_info_service_name"
+  ];
+
+  // Availability Zone IDs for PDC's Gateway when using AWS PrivateLink (only for AWS
+  // stacks)
+  repeated string pdc_gateway_private_connectivity_info_availability_zone_ids = 66 [
+    json_name = "pdc_gateway_private_connectivity_info_availability_zone_ids"
+  ];
+
+  // Availability Zones for PDC's Gateway when using AWS PrivateLink (only for AWS
+  // stacks)
+  repeated string pdc_gateway_private_connectivity_info_availability_zones = 67 [
+    json_name = "pdc_gateway_private_connectivity_info_availability_zones"
+  ];
+
+  // Private DNS for PDC's Gateway when using AWS PrivateLink (only for AWS stacks)
+  string pdc_gateway_private_connectivity_info_private_dns = 68 [
+    json_name = "pdc_gateway_private_connectivity_info_private_dns"
+  ];
+
+  // Regions for PDC's Gateway when using AWS PrivateLink (only for AWS stacks)
+  repeated string pdc_gateway_private_connectivity_info_regions = 69 [
+    json_name = "pdc_gateway_private_connectivity_info_regions"
+  ];
+
+  // Service Name for PDC's Gateway when using AWS PrivateLink (only for AWS stacks)
+  string pdc_gateway_private_connectivity_info_service_name = 70 [
+    json_name = "pdc_gateway_private_connectivity_info_service_name"
+  ];
+
+  // Allowlist API endpoint that returns the source IP addresses to allow for the
+  // Profiles instance.
+  string profiles_allowlist_url = 71 [json_name = "profiles_allowlist_url"];
+
+  // Comma-separated list of CNAMEs that can be whitelisted to access the Profiles
+  // instance (Optional)
+  string profiles_ip_allow_list_cname = 72 [json_name = "profiles_ip_allow_list_cname"];
+
+  string profiles_name = 73 [json_name = "profiles_name"];
+
+  // Availability Zone IDs for Profiles when using AWS PrivateLink (only for AWS
+  // stacks)
+  repeated string profiles_private_connectivity_info_availability_zone_ids = 74 [
+    json_name = "profiles_private_connectivity_info_availability_zone_ids"
+  ];
+
+  // Availability Zones for Profiles when using AWS PrivateLink (only for AWS stacks)
+  repeated string profiles_private_connectivity_info_availability_zones = 75 [
+    json_name = "profiles_private_connectivity_info_availability_zones"
+  ];
+
+  // Private DNS for Profiles when using AWS PrivateLink (only for AWS stacks)
+  string profiles_private_connectivity_info_private_dns = 76 [
+    json_name = "profiles_private_connectivity_info_private_dns"
+  ];
+
+  // Regions for Profiles when using AWS PrivateLink (only for AWS stacks)
+  repeated string profiles_private_connectivity_info_regions = 77 [
+    json_name = "profiles_private_connectivity_info_regions"
+  ];
+
+  // Service Name for Profiles when using AWS PrivateLink (only for AWS stacks)
+  string profiles_private_connectivity_info_service_name = 78 [
+    json_name = "profiles_private_connectivity_info_service_name"
+  ];
+
+  string profiles_status = 79 [json_name = "profiles_status"];
+
+  string profiles_url = 80 [json_name = "profiles_url"];
+
+  int64 profiles_user_id = 81 [json_name = "profiles_user_id"];
+
+  // Allowlist API endpoint that returns the source IP addresses to allow for the
+  // Prometheus instance.
+  string prometheus_allowlist_url = 82 [json_name = "prometheus_allowlist_url"];
+
+  // Comma-separated list of CNAMEs that can be whitelisted to access the Prometheus
+  // instance (Optional)
+  string prometheus_ip_allow_list_cname = 83 [json_name = "prometheus_ip_allow_list_cname"];
+
+  // Prometheus name for this instance.
+  string prometheus_name = 84 [json_name = "prometheus_name"];
+
+  // Availability Zone IDs for Prometheus when using AWS PrivateLink (only for AWS
+  // stacks)
+  repeated string prometheus_private_connectivity_info_availability_zone_ids = 85 [
+    json_name = "prometheus_private_connectivity_info_availability_zone_ids"
+  ];
+
+  // Availability Zones for Prometheus when using AWS PrivateLink (only for AWS
+  // stacks)
+  repeated string prometheus_private_connectivity_info_availability_zones = 86 [
+    json_name = "prometheus_private_connectivity_info_availability_zones"
+  ];
+
+  // Private DNS for Prometheus when using AWS PrivateLink (only for AWS stacks)
+  string prometheus_private_connectivity_info_private_dns = 87 [
+    json_name = "prometheus_private_connectivity_info_private_dns"
+  ];
+
+  // Regions for Prometheus when using AWS PrivateLink (only for AWS stacks)
+  repeated string prometheus_private_connectivity_info_regions = 88 [
+    json_name = "prometheus_private_connectivity_info_regions"
+  ];
+
+  // Service Name for Prometheus when using AWS PrivateLink (only for AWS stacks)
+  string prometheus_private_connectivity_info_service_name = 89 [
+    json_name = "prometheus_private_connectivity_info_service_name"
+  ];
+
+  // Use this URL to query hosted metrics data e.g. Prometheus data source in Grafana
+  string prometheus_remote_endpoint = 90 [json_name = "prometheus_remote_endpoint"];
+
+  // Use this URL to send prometheus metrics to Grafana cloud
+  string prometheus_remote_write_endpoint = 91 [json_name = "prometheus_remote_write_endpoint"];
+
+  // Prometheus status for this instance.
+  string prometheus_status = 92 [json_name = "prometheus_status"];
+
+  // Prometheus url for this instance.
+  string prometheus_url = 93 [json_name = "prometheus_url"];
+
+  // Prometheus user ID. Used for e.g. remote_write.
+  int64 prometheus_user_id = 94 [json_name = "prometheus_user_id"];
+
+  // The region this stack is deployed to.
+  string region_slug = 95 [json_name = "region_slug"];
+
+  // Subdomain that the Grafana instance will be available at (i.e. setting slug to
+  // “<stack_slug>” will make the instance
+  //
+  // available at “https://<stack_slug>.grafana.net".
+  string slug = 96;
+
+  // Base URL of the Synthetic Monitoring API for this stack's region. This can be
+  // used with the `sm_url` provider config option. Note: Synthetic Monitoring
+  // requires activation either via the `grafana_synthetic_monitoring_installation`
+  // resource or manually in the Grafana Cloud UI before it can be used.
+  string sm_url = 97 [json_name = "sm_url"];
+
+  // Status of the stack.
+  string status = 98;
+
+  // Allowlist API endpoint that returns the source IP addresses to allow for the
+  // Traces instance.
+  string traces_allowlist_url = 99 [json_name = "traces_allowlist_url"];
+
+  // Comma-separated list of CNAMEs that can be whitelisted to access the Traces
+  // instance (Optional)
+  string traces_ip_allow_list_cname = 100 [json_name = "traces_ip_allow_list_cname"];
+
+  string traces_name = 101 [json_name = "traces_name"];
+
+  // Availability Zone IDs for Traces when using AWS PrivateLink (only for AWS stacks)
+  repeated string traces_private_connectivity_info_availability_zone_ids = 102 [
+    json_name = "traces_private_connectivity_info_availability_zone_ids"
+  ];
+
+  // Availability Zones for Traces when using AWS PrivateLink (only for AWS stacks)
+  repeated string traces_private_connectivity_info_availability_zones = 103 [
+    json_name = "traces_private_connectivity_info_availability_zones"
+  ];
+
+  // Private DNS for Traces when using AWS PrivateLink (only for AWS stacks)
+  string traces_private_connectivity_info_private_dns = 104 [
+    json_name = "traces_private_connectivity_info_private_dns"
+  ];
+
+  // Regions for Traces when using AWS PrivateLink (only for AWS stacks)
+  repeated string traces_private_connectivity_info_regions = 105 [
+    json_name = "traces_private_connectivity_info_regions"
+  ];
+
+  // Service Name for Traces when using AWS PrivateLink (only for AWS stacks)
+  string traces_private_connectivity_info_service_name = 106 [
+    json_name = "traces_private_connectivity_info_service_name"
+  ];
+
+  string traces_status = 107 [json_name = "traces_status"];
+
+  // Base URL of the Traces instance configured for this stack. To use this in the
+  // Tempo data source in Grafana, append `/tempo` to the URL.
+  string traces_url = 108 [json_name = "traces_url"];
+
+  int64 traces_user_id = 109 [json_name = "traces_user_id"];
+
+  // Custom URL for the Grafana instance. Must have a CNAME setup to point to
+  // `.grafana.net` before creating the stack
+  string url = 110;
+
+  google.protobuf.Value for_each = 111 [json_name = "for_each"];
+
+  repeated string depends_on = 112 [json_name = "depends_on"];
+
+  int32 count = 113;
+
+  string provider = 114;
+
+  terraform.v1.Lifecycle lifecycle = 115;
+}

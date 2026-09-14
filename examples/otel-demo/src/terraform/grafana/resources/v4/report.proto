@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.resources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaReport version is 0
+message GrafanaReport {
+  // Specifies what kind of attachment to generate for the report. Allowed values:
+  // `pdf`, `csv`, `image`.
+  repeated string formats = 1;
+
+  // Generated identifier of the report.
+  string id = 2;
+
+  // Whether to include a link to the dashboard in the report.
+  bool include_dashboard_link = 3 [json_name = "include_dashboard_link"];
+
+  // Whether to include a CSV file of table panel data.
+  bool include_table_csv = 4 [json_name = "include_table_csv"];
+
+  // Layout of the report. Allowed values: `simple`, `grid`.
+  string layout = 5;
+
+  // Message to be sent in the report.
+  string message = 6;
+
+  // Name of the report.
+  string name = 7;
+
+  // The Organization ID. If not set, the default organization is used for basic
+  // authentication, or the one that owns your service account for token
+  // authentication.
+  string org_id = 8 [json_name = "org_id"];
+
+  // Orientation of the report. Allowed values: `landscape`, `portrait`.
+  string orientation = 9;
+
+  // List of recipients of the report.
+  repeated string recipients = 10;
+
+  // Reply-to email address of the report.
+  string reply_to = 11 [json_name = "reply_to"];
+
+  repeated Dashboards dashboards = 12;
+
+  repeated Schedule schedule = 13;
+
+  google.protobuf.Value for_each = 14 [json_name = "for_each"];
+
+  repeated string depends_on = 15 [json_name = "depends_on"];
+
+  int32 count = 16;
+
+  string provider = 17;
+
+  terraform.v1.Lifecycle lifecycle = 18;
+
+  message Dashboards {
+    // Add report variables to the dashboard. Values should be separated by commas.
+    map<string, string> report_variables = 1 [json_name = "report_variables"];
+
+    // Dashboard uid.
+    string uid = 2;
+
+    repeated TimeRange time_range = 3 [json_name = "time_range"];
+
+    message TimeRange {
+      // Start of the time range.
+      string from = 1;
+
+      // End of the time range.
+      string to = 2;
+    }
+  }
+
+  message Schedule {
+    // Custom interval of the report.
+    //
+    // **Note:** This field is only available when frequency is set to `custom`.
+    string custom_interval = 1 [json_name = "custom_interval"];
+
+    // End time of the report. If empty, the report will be sent indefinitely (according
+    // to frequency). Note that times will be saved as UTC in Grafana. Use
+    // 2006-01-02T15:04:05 format if you want to set a custom timezone
+    string end_time = 2 [json_name = "end_time"];
+
+    // Frequency of the report. Allowed values: `never`, `once`, `hourly`, `daily`,
+    // `weekly`, `monthly`, `custom`.
+    string frequency = 3;
+
+    // Send the report on the last day of the month
+    bool last_day_of_month = 4 [json_name = "last_day_of_month"];
+
+    // Start time of the report. If empty, the start date will be set to the creation
+    // time. Note that times will be saved as UTC in Grafana. Use 2006-01-02T15:04:05
+    // format if you want to set a custom timezone
+    string start_time = 5 [json_name = "start_time"];
+
+    // Set the report time zone.
+    string timezone = 6;
+
+    // Whether to send the report only on work days.
+    bool workdays_only = 7 [json_name = "workdays_only"];
+  }
+}

@@ -1,0 +1,104 @@
+syntax = "proto2";
+
+// Provider: kubernetes 3
+package terraform.kubernetes.provider.v3;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// Kubernetes version is 0
+message Kubernetes {
+  // PEM-encoded client certificate for TLS authentication.
+  optional string client_certificate = 1 [json_name = "client_certificate"];
+
+  // PEM-encoded client certificate key for TLS authentication.
+  optional string client_key = 2 [json_name = "client_key"];
+
+  // PEM-encoded root certificates bundle for TLS authentication.
+  optional string cluster_ca_certificate = 3 [json_name = "cluster_ca_certificate"];
+
+  optional string config_context = 4 [json_name = "config_context"];
+
+  optional string config_context_auth_info = 5 [json_name = "config_context_auth_info"];
+
+  optional string config_context_cluster = 6 [json_name = "config_context_cluster"];
+
+  // Path to the kube config file. Can be set with KUBE_CONFIG_PATH.
+  optional string config_path = 7 [json_name = "config_path"];
+
+  // A list of paths to kube config files. Can be set with KUBE_CONFIG_PATHS
+  // environment variable.
+  repeated string config_paths = 8 [json_name = "config_paths"];
+
+  // The hostname (in form of URI) of Kubernetes master.
+  optional string host = 9;
+
+  // List of Kubernetes metadata annotations to ignore across all resources handled by
+  // this provider for situations where external systems are managing certain resource
+  // annotations. Each item is a regular expression.
+  repeated string ignore_annotations = 10 [json_name = "ignore_annotations"];
+
+  // List of Kubernetes metadata labels to ignore across all resources handled by this
+  // provider for situations where external systems are managing certain resource
+  // labels. Each item is a regular expression.
+  repeated string ignore_labels = 11 [json_name = "ignore_labels"];
+
+  // Whether server should be accessed without verifying the TLS certificate.
+  optional bool insecure = 12;
+
+  // The password to use for HTTP basic authentication when accessing the Kubernetes
+  // master endpoint.
+  optional string password = 13;
+
+  // URL to the proxy to be used for all API requests
+  optional string proxy_url = 14 [json_name = "proxy_url"];
+
+  // Server name passed to the server for SNI and is used in the client to check
+  // server certificates against.
+  optional string tls_server_name = 15 [json_name = "tls_server_name"];
+
+  // Token to authenticate an service account
+  optional string token = 16;
+
+  // The username to use for HTTP basic authentication when accessing the Kubernetes
+  // master endpoint.
+  optional string username = 17;
+
+  repeated Exec exec = 18;
+
+  repeated Experiments experiments = 19;
+
+  optional google.protobuf.Value for_each = 20 [json_name = "for_each"];
+
+  repeated string depends_on = 21 [json_name = "depends_on"];
+
+  optional int32 count = 22;
+
+  optional string provider = 23;
+
+  optional terraform.v1.Lifecycle lifecycle = 24;
+
+  optional string alias = 25;
+
+  optional string provider_fqdn = 26 [
+    default = "registry.terraform.io/hashicorp/kubernetes"
+  ];
+
+  optional string provider_version = 27 [default = "3.2.1"];
+
+  message Exec {
+    optional string api_version = 1 [json_name = "api_version"];
+
+    repeated string args = 2;
+
+    optional string command = 3;
+
+    map<string, string> env = 4;
+  }
+
+  message Experiments {
+    // Enable the `kubernetes_manifest` resource.
+    optional bool manifest_resource = 1 [json_name = "manifest_resource"];
+  }
+}

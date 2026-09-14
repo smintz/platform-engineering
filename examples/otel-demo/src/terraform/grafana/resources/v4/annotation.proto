@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.resources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaAnnotation version is 0
+message GrafanaAnnotation {
+  // The UID of the dashboard on which to create the annotation.
+  string dashboard_uid = 1 [json_name = "dashboard_uid"];
+
+  // The ID of this resource.
+  string id = 2;
+
+  // The Organization ID. If not set, the default organization is used for basic
+  // authentication, or the one that owns your service account for token
+  // authentication.
+  string org_id = 3 [json_name = "org_id"];
+
+  // The ID of the dashboard panel on which to create the annotation.
+  int64 panel_id = 4 [json_name = "panel_id"];
+
+  // The tags to associate with the annotation.
+  repeated string tags = 5;
+
+  // The text to associate with the annotation.
+  string text = 6;
+
+  // The RFC 3339-formatted time string indicating the annotation's time.
+  string time = 7;
+
+  // The RFC 3339-formatted time string indicating the annotation's end time.
+  string time_end = 8 [json_name = "time_end"];
+
+  google.protobuf.Value for_each = 9 [json_name = "for_each"];
+
+  repeated string depends_on = 10 [json_name = "depends_on"];
+
+  int32 count = 11;
+
+  string provider = 12;
+
+  terraform.v1.Lifecycle lifecycle = 13;
+}

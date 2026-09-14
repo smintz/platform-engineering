@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.datasources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaFolders version is 0
+message GrafanaFolders {
+  // The Grafana instance's folders.
+  repeated Folders folders = 1;
+
+  string id = 2;
+
+  // The Organization ID. If not set, the Org ID defined in the provider block will be
+  // used.
+  string org_id = 3 [json_name = "org_id"];
+
+  google.protobuf.Value for_each = 4 [json_name = "for_each"];
+
+  repeated string depends_on = 5 [json_name = "depends_on"];
+
+  int32 count = 6;
+
+  string provider = 7;
+
+  terraform.v1.Lifecycle lifecycle = 8;
+
+  message Folders {
+    // id: number
+    int64 id = 1;
+
+    // title: string
+    string title = 2;
+
+    // uid: string
+    string uid = 3;
+
+    // url: string
+    string url = 4;
+  }
+}

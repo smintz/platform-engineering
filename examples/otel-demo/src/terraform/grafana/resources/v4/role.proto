@@ -1,0 +1,132 @@
+syntax = "proto3";
+
+// Provider: grafana 4
+package terraform.grafana.resources.v4;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GrafanaRole version is 0
+message GrafanaRole {
+  // Whether the role version should be incremented automatically on updates (and set
+  // to 1 on creation).
+  bool auto_increment_version = 1 [json_name = "auto_increment_version"];
+
+  // Description of the role.
+  string description = 2;
+
+  // Display name of the role. Available with Grafana 8.5+.
+  string display_name = 3 [json_name = "display_name"];
+
+  // Boolean to state whether the role is available across all organizations or not.
+  // Defaults to `false`.
+  bool global = 4;
+
+  // Group of the role. Available with Grafana 8.5+.
+  string group = 5;
+
+  // Boolean to state whether the role should be visible in the Grafana UI or not.
+  // Available with Grafana 8.5+. Defaults to `false`.
+  bool hidden = 6;
+
+  string id = 7;
+
+  // Name of the role
+  string name = 8;
+
+  // The Organization ID. If not set, the Org ID defined in the provider block will be
+  // used.
+  string org_id = 9 [json_name = "org_id"];
+
+  // Unique identifier of the role. Used for assignments.
+  string uid = 10;
+
+  // Version of the role. The server manages this automatically.
+  int64 version = 11;
+
+  repeated Permissions permissions = 12;
+
+  google.protobuf.Value for_each = 13 [json_name = "for_each"];
+
+  repeated string depends_on = 14 [json_name = "depends_on"];
+
+  int32 count = 15;
+
+  string provider = 16;
+
+  terraform.v1.Lifecycle lifecycle = 17;
+
+  message Permissions {
+    // Specific action users granted with the role will be allowed to perform (for
+    // example: `users:read`)
+    string action = 1;
+
+    // Scope to restrict the action to a set of resources (for example: `users:*` or
+    // `roles:customrole1`) Defaults to ``.
+    string scope = 2;
+  }
+}
+
+// GrafanaRoleAssignment version is 0
+message GrafanaRoleAssignment {
+  string id = 1;
+
+  // The Organization ID. If not set, the Org ID defined in the provider block will be
+  // used.
+  string org_id = 2 [json_name = "org_id"];
+
+  // Grafana RBAC role UID.
+  string role_uid = 3 [json_name = "role_uid"];
+
+  // IDs of service accounts that the role should be assigned to.
+  repeated string service_accounts = 4 [json_name = "service_accounts"];
+
+  // IDs of teams that the role should be assigned to.
+  repeated string teams = 5;
+
+  // IDs of users that the role should be assigned to.
+  repeated int64 users = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  int32 count = 9;
+
+  string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+}
+
+// GrafanaRoleAssignmentItem version is 0
+message GrafanaRoleAssignmentItem {
+  string id = 1;
+
+  // The Organization ID. If not set, the default organization is used for basic
+  // authentication, or the one that owns your service account for token
+  // authentication.
+  string org_id = 2 [json_name = "org_id"];
+
+  // the role UID onto which to assign an actor
+  string role_uid = 3 [json_name = "role_uid"];
+
+  // the service account onto which the role is to be assigned
+  string service_account_id = 4 [json_name = "service_account_id"];
+
+  // the team onto which the role is to be assigned
+  string team_id = 5 [json_name = "team_id"];
+
+  // the user onto which the role is to be assigned
+  string user_id = 6 [json_name = "user_id"];
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  int32 count = 9;
+
+  string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+}
