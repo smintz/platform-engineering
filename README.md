@@ -197,9 +197,9 @@ both workspaces; copying one is the fastest start.
 
 ```python
 # CONFIGSPACE — one module per driver, so importing Grafana does not drag in ECS
-platform=remote_repo(label="platform", url="git@github.com:smintz/platform-engineering.git", tag="v0.1.0")
-kubernetes=remote_repo(label="kubernetes", url="git@github.com:smintz/platform-engineering.git//drivers/runtime/kubernetes", tag="v0.1.0")
-terraform_state=remote_repo(label="terraform_state", url="git@github.com:smintz/platform-engineering.git//drivers/state/terraform", tag="v0.1.0")
+platform=remote_repo(label="platform", url="git@github.com:smintz/platform-engineering.git", tag="v0.1.1")
+kubernetes=remote_repo(label="kubernetes", url="git@github.com:smintz/platform-engineering.git//drivers/runtime/kubernetes", tag="v0.1.1")
+terraform_state=remote_repo(label="terraform_state", url="git@github.com:smintz/platform-engineering.git//drivers/state/terraform", tag="v0.1.1")
 ```
 
 - `src/<name>.mpconf` is an entry point: its `main()` returns the configs to write.
