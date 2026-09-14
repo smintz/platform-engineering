@@ -2,8 +2,25 @@ load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
 load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
-load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/objectives.pinc", "WithObjectives", "WithRequestObjectives", "ratio_slo", "server_spans", "span_under")
 load("//components/otel_collector.pinc", "Collector")
+
+def _objectives(service, severity):
+    return (
+        ratio_slo(
+            "quote latency",
+            lambda window: span_under(server_spans(service), 10, window),
+            0.9,
+            severity,
+            "Share of quotes answered within 10ms, at quote's server span. The tight threshold beside the component's loose one; shipping waits on every quote",
+        ),
+        platform.WithDiagnostic(
+            "calculation duration p99",
+            'histogram_quantile(0.99, sum by (le) (rate(traces_span_metrics_duration_milliseconds_bucket{service_name="%s",span_name="calculate-quote"}[5m])))' % service,
+            description = "The slow end of the calculation itself, without PHP's request handling around it: whether a slow quote is the arithmetic or the runtime",
+            unit = platform.Unit.UNIT_MILLISECONDS,
+        ),
+    )
 
 # Prices a shipment (PHP). Called only by shipping.
 def QuoteComponent(*hooks):
@@ -25,5 +42,6 @@ def QuoteComponent(*hooks):
         platform.WithDeps(Collector("http")),
         WithDependantEnv(QUOTE_ADDR = "http://quote:8080"),
         WithRequestObjectives(200),
+        WithObjectives(_objectives),
         Defaults(*hooks),
     )

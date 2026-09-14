@@ -2,6 +2,7 @@ connectors:
   span_metrics:
     dimensions:
     - name: upstream_cluster
+    - name: server.address
 exporters:
   debug:
     verbosity: basic
@@ -26,6 +27,14 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
+  postgresql:
+    endpoint: astronomy-db:5432
+    password: monitoring_password
+    tls:
+      insecure: true
+    username: monitoring_user
+  redis:
+    endpoint: valkey-cart:6379
 service:
   pipelines:
     logs:
@@ -44,6 +53,8 @@ service:
       receivers:
       - otlp
       - span_metrics
+      - postgresql
+      - redis
     traces:
       exporters:
       - debug

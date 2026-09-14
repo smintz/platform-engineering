@@ -3,9 +3,34 @@ load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
 load("//components/flagd.pinc", "FlagdComponent")
-load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/objectives.pinc", "WithObjectives", "WithRequestObjectives", "histogram_under", "ratio_slo")
 load("//components/otel_collector.pinc", "Collector")
 load("//components/valkey_cart.pinc", "ValkeyCartComponent")
+
+def _objectives(service, severity):
+    selector = 'service_name="%s"' % service
+    return (
+        ratio_slo(
+            "add to cart latency",
+            lambda window: histogram_under("demo_cart_add_item_latency_seconds", selector, "0.025", window),
+            0.99,
+            severity,
+            "Share of add-to-cart operations finished within 25ms, from the cart's own histogram around the store write: what a shopper waits on after pressing the button",
+        ),
+        platform.WithDiagnostic(
+            "time paused for GC",
+            "sum(rate(dotnet_gc_pause_time_seconds_total{%s}[5m]))" % selector,
+            description = "Share of wall time the .NET runtime spent paused for garbage collection. Every request in flight waits out a pause",
+            unit = platform.Unit.UNIT_RATIO,
+        ),
+        platform.WithDiagnostic(
+            "exceptions by type",
+            "sum by (error_type) (rate(dotnet_exceptions_total{%s}[5m]))" % selector,
+            description = "Exceptions thrown, by type. RpcException is a failed call out, usually to flagd; a new type here is where to start reading a failed cart",
+            unit = platform.Unit.UNIT_COUNT,
+            legend = "{{error_type}}",
+        ),
+    )
 
 # The shopping cart (.NET), kept in valkey-cart.
 #
@@ -30,5 +55,6 @@ def CartComponent(*hooks):
         platform.WithDeps(Collector("grpc"), FlagdComponent, ValkeyCartComponent),
         WithDependantEnv(CART_ADDR = "cart:8080"),
         WithRequestObjectives(200),
+        WithObjectives(_objectives),
         Defaults(*hooks),
     )

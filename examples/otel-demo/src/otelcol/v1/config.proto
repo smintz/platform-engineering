@@ -22,6 +22,23 @@ message Config {
 
 message Receivers {
     OtlpReceiver otlp = 1;
+    PostgresqlReceiver postgresql = 2;
+    RedisReceiver redis = 3;
+}
+
+// Reads PostgreSQL's statistics views, as a user holding pg_monitor.
+message PostgresqlReceiver {
+    // host:port
+    string endpoint = 1;
+    string username = 2;
+    string password = 3;
+    Tls tls = 4;
+}
+
+// Reads INFO from Redis, or from Valkey, which answers the same way.
+message RedisReceiver {
+    // host:port
+    string endpoint = 1;
 }
 
 message OtlpReceiver {

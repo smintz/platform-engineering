@@ -3,9 +3,44 @@ load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
 load("//components/flagd.pinc", "FlagdComponent")
-load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/objectives.pinc", "AVAILABILITY_TARGET", "WithObjectives", "WithRequestObjectives", "ratio_slo")
 load("//components/otel_collector.pinc", "Collector")
 load("//components/quote.pinc", "QuoteComponent")
+
+# A quote can be asked again; a failed shipment is an order that does not leave. So the
+# shipment call is held apart, measured by shipping's own HTTP histogram.
+def _shipments(service):
+    def query(window):
+        ship = 'service_name="%s",http_route="/ship-order"' % service
+        return (
+            'sum(rate(http_server_request_duration_seconds_count{%s,http_response_status_code!~"5.."}[%s]))' % (ship, window) +
+            " / sum(rate(http_server_request_duration_seconds_count{%s}[%s]))" % (ship, window)
+        )
+
+    return query
+
+def _objectives(service, severity):
+    return (
+        ratio_slo(
+            "shipment availability",
+            _shipments(service),
+            AVAILABILITY_TARGET,
+            severity,
+            "Share of ship-order requests answered without a server error",
+        ),
+        platform.WithDiagnostic(
+            "quote call errors",
+            'sum(rate(traces_span_metrics_calls_total{service_name="%s",span_kind="SPAN_KIND_CLIENT",span_name="POST quote",status_code="STATUS_CODE_ERROR"}[5m])) or vector(0)' % service,
+            description = "Failed calls to quote. Shipping cannot price an order without one",
+            unit = platform.Unit.UNIT_COUNT,
+        ),
+        platform.WithDiagnostic(
+            "items shipped per second",
+            'sum(rate(demo_shipping_items_shipped_total{service_name="%s"}[5m]))' % service,
+            description = "Traffic context: a latency or error change with this flat is the service; with this moving, it is the load",
+            unit = platform.Unit.UNIT_COUNT,
+        ),
+    )
 
 # Ships the order (Rust). It depends on quote, and receives QUOTE_ADDR from it.
 def ShippingComponent(*hooks):
@@ -22,5 +57,6 @@ def ShippingComponent(*hooks):
         platform.WithDeps(Collector("http"), FlagdComponent, QuoteComponent),
         WithDependantEnv(SHIPPING_ADDR = "http://shipping:8080"),
         WithRequestObjectives(400),
+        WithObjectives(_objectives),
         Defaults(*hooks),
     )

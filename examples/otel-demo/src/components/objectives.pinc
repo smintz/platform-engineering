@@ -43,6 +43,74 @@ def latency(service, scope, threshold_ms, window):
         " / sum(rate(traces_span_metrics_duration_milliseconds_count{%s}[%s]))" % (_server(service, scope), window)
     )
 
+# The same two shapes over any span selector, for objectives narrower or wider than a
+# component's server spans: one operation, or every call made to a data store.
+def span_success(selector, window):
+    return (
+        'sum(rate(traces_span_metrics_calls_total{%s,status_code!="STATUS_CODE_ERROR"}[%s]))' % (selector, window) +
+        " / sum(rate(traces_span_metrics_calls_total{%s}[%s]))" % (selector, window)
+    )
+
+def span_under(selector, threshold_ms, window):
+    return (
+        'sum(rate(traces_span_metrics_duration_milliseconds_bucket{%s,le="%d"}[%s]))' % (selector, threshold_ms, window) +
+        " / sum(rate(traces_span_metrics_duration_milliseconds_count{%s}[%s]))" % (selector, window)
+    )
+
+# `matcher` narrows the service's server spans, e.g. 'span_name="POST /api/checkout"'.
+def server_spans(service, matcher = ""):
+    return _server(service, "," + matcher if matcher else "")
+
+# Every call made to `server`, from whichever client made it: the collector keeps
+# server.address on span metrics for this, so a data store is measured where its clients
+# feel it without naming them.
+def calls_to(server):
+    return 'span_kind="SPAN_KIND_CLIENT",server_address="%s"' % server
+
+# A service's own histogram, for where it measures something its spans do not. `le` is one
+# of that histogram's bucket bounds, spelled as the instrument spells it.
+def histogram_under(metric, selector, le, window):
+    return (
+        'sum(rate(%s_bucket{%s,le="%s"}[%s]))' % (metric, selector, le, window) +
+        " / sum(rate(%s_count{%s}[%s]))" % (metric, selector, window)
+    )
+
+# Starlark's % has no precision flags, so a target is printed from tenths of a percent.
+def percent(ratio):
+    tenths = int(ratio * 1000 + 0.5)
+    return "%s%%" % (tenths // 10 if tenths % 10 == 0 else tenths / 10.0)
+
+# One SLO in the shape every objective here takes: a good/valid ratio over WINDOW, bounded
+# below by `target`, with burn-rate alerts asking the same question over their own windows.
+# `query` builds the ratio for a given window.
+def ratio_slo(name, query, target, severity, description):
+    return platform.WithSLO(
+        name,
+        query(WINDOW),
+        description = "%s. Target %s over 28 days, provisional" % (description, percent(target)),
+        min = target,
+        unit = platform.Unit.UNIT_RATIO,
+        severity = severity,
+        burn_query = query(BURN),
+    )
+
+# Runtime saturation, shared by the services written in the same language.
+def go_memory(service):
+    return platform.WithDiagnostic(
+        "memory used of limit",
+        'sum(go_memory_used_bytes{service_name="%s"}) / sum(go_memory_limit_bytes{service_name="%s"})' % (service, service),
+        description = "Go runtime memory against GOMEMLIMIT. Close to 1 the collector runs almost continuously, which shows up as latency well before it shows up as a crash",
+        unit = platform.Unit.UNIT_RATIO,
+    )
+
+def node_event_loop(service):
+    return platform.WithDiagnostic(
+        "event loop delay p99",
+        'max(nodejs_eventloop_delay_p99_seconds{service_name="%s"})' % service,
+        description = "How long work waits for %s's event loop. Every request on the process queues behind it, so it climbs before latency does" % service,
+        unit = platform.Unit.UNIT_SECONDS,
+    )
+
 # How much a shopper feels this component failing, read from the label the component
 # declares (platform.WithLabels(criticality = ...), the demo chart's own classification).
 # Critical components page; everything else opens a ticket. The label has to be declared
@@ -104,5 +172,15 @@ def WithRequestObjectives(threshold_ms, scope = ""):
 
     def do(component, next):
         return next(platform.chain(component, *_objectives(component, threshold_ms, matcher)))
+
+    return platform.component_filter(do)
+
+# WithObjectives declares what a component promises beyond the request pair. `build`
+# receives the component's name and the severity its criticality label asks for, and
+# returns WithSLO and WithDiagnostic hooks. Like WithRequestObjectives, it goes after
+# WithLabels.
+def WithObjectives(build):
+    def do(component, next):
+        return next(platform.chain(component, *build(component.name, _severity(component))))
 
     return platform.component_filter(do)

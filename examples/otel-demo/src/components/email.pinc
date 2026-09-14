@@ -3,8 +3,39 @@ load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
 load("//components/flagd.pinc", "FlagdComponent")
-load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/objectives.pinc", "WithObjectives", "WithRequestObjectives", "ratio_slo", "server_spans")
 load("//components/otel_collector.pinc", "Collector")
+
+# A confirmation request answered 200 whose email was never sent passes every request
+# objective. Sends that finished without an error, out of the requests the service received,
+# both counted from its spans so both come through one exporter on one schedule. The
+# service's own email counter says the same thing, but it is exported apart from the spans,
+# and the two drift by about a percent: the whole budget at this target, which kept the
+# budget-leak alert firing on a healthy service. Capped at 1, since a send and its request
+# can still land either side of a flush.
+def _delivery(service):
+    def query(window):
+        sends = 'service_name="%s",span_name="send_email",status_code!="STATUS_CODE_ERROR"' % service
+        return "clamp_max(sum(rate(traces_span_metrics_calls_total{%s}[%s])) / sum(rate(traces_span_metrics_calls_total{%s}[%s])), 1)" % (sends, window, server_spans(service), window)
+
+    return query
+
+def _objectives(service, severity):
+    return (
+        ratio_slo(
+            "confirmation delivery",
+            _delivery(service),
+            0.99,
+            severity,
+            "Share of confirmation requests whose email was sent without an error: the shopper's proof the order exists",
+        ),
+        platform.WithDiagnostic(
+            "send duration p99",
+            'histogram_quantile(0.99, sum by (le) (rate(traces_span_metrics_duration_milliseconds_bucket{service_name="%s",span_name="send_email"}[5m])))' % service,
+            description = "How long rendering and sending one email takes at the slow end. The request waits on it, so this is where a latency breach starts",
+            unit = platform.Unit.UNIT_MILLISECONDS,
+        ),
+    )
 
 # Sends the order confirmation (Ruby). Called by checkout once an order is placed.
 def EmailComponent(*hooks):
@@ -21,5 +52,6 @@ def EmailComponent(*hooks):
         platform.WithDeps(Collector("http"), FlagdComponent),
         WithDependantEnv(EMAIL_ADDR = "http://email:8080"),
         WithRequestObjectives(400),
+        WithObjectives(_objectives),
         Defaults(*hooks),
     )

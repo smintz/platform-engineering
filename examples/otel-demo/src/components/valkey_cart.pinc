@@ -2,9 +2,51 @@ load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
 load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "WithDemoWorkload", "WithDependantEnv")
+load("//components/objectives.pinc", "AVAILABILITY_TARGET", "WithObjectives", "calls_to", "ratio_slo", "span_success", "span_under")
 
-# The cart's store. It depends on nothing and promises nothing of its own: whether a cart
-# can be read is the cart service's objective, measured where a shopper feels it.
+# A store's users are its clients, so its promises are measured at their spans: every
+# command sent to it, by whoever sent it (the cart, today). Whether a shopper's cart works
+# stays the cart's objective; these say whether the store under it held up its end. The
+# diagnostics are Valkey's view of itself, read by the collector's redis receiver.
+def _objectives(service, severity):
+    commands = calls_to(service)
+    return (
+        ratio_slo(
+            "command availability",
+            lambda window: span_success(commands, window),
+            AVAILABILITY_TARGET,
+            severity,
+            "Share of commands to the store that its clients saw succeed",
+        ),
+        ratio_slo(
+            "command latency",
+            lambda window: span_under(commands, 10, window),
+            0.99,
+            severity,
+            "Share of commands answered within 10ms, as their clients timed them. Every one is a single-key hash operation, so a slow one is the store",
+        ),
+        platform.WithDiagnostic(
+            "memory used",
+            "sum(redis_memory_used_bytes)",
+            description = "Memory holding the carts. The container is capped at 20Mi and Valkey has no maxmemory set, so nearing that cap ends in an OOM kill, not in eviction",
+            unit = platform.Unit.UNIT_BYTES,
+        ),
+        platform.WithDiagnostic(
+            "keyspace hit ratio",
+            "sum(rate(redis_keyspace_hits_total[5m])) / (sum(rate(redis_keyspace_hits_total[5m])) + sum(rate(redis_keyspace_misses_total[5m])))",
+            description = "Share of key lookups that found a cart. A new shopper's first lookup misses by design, so the level is traffic mix; a sudden drop is carts disappearing",
+            unit = platform.Unit.UNIT_RATIO,
+        ),
+        platform.WithDiagnostic(
+            "connected clients",
+            "sum(redis_clients_connected)",
+            description = "Open client connections. The cart holds a multiplexed few, so a climb means connections are being opened and not reused",
+            unit = platform.Unit.UNIT_COUNT,
+        ),
+    )
+
+# The cart's store. It depends on nothing itself; its clients' spans say whether it holds up
+# its end, and the cart's own objectives say whether a shopper's cart works.
 def ValkeyCartComponent(*hooks):
     return platform.Component(
         "valkey-cart",
@@ -15,5 +57,6 @@ def ValkeyCartComponent(*hooks):
             WithMemoryLimit("20Mi"),
         ),
         WithDependantEnv(VALKEY_ADDR = "valkey-cart:6379"),
+        WithObjectives(_objectives),
         Defaults(*hooks),
     )

@@ -2,8 +2,26 @@ load("@kubernetes//kubernetes.pinc", "WithMemoryLimit")
 load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "DemoImage", "VERSION", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
-load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/objectives.pinc", "WithObjectives", "WithRequestObjectives", "ratio_slo", "server_spans", "span_under")
 load("//components/otel_collector.pinc", "Collector")
+
+def _objectives(service, severity):
+    return (
+        ratio_slo(
+            "conversion latency",
+            lambda window: span_under(server_spans(service), 10, window),
+            0.9,
+            severity,
+            "Share of conversions answered within 10ms, at currency's server span. The tight threshold beside the component's loose one; every price on every page is converted",
+        ),
+        platform.WithDiagnostic(
+            "conversions by currency",
+            'sum by (demo_exchange_to) (rate(demo_exchange_conversions_counter_total{service_name="%s"}[5m]))' % service,
+            description = "Conversions served, by target currency: whether the traffic behind a latency change moved with it",
+            unit = platform.Unit.UNIT_COUNT,
+            legend = "{{demo_exchange_to}}",
+        ),
+    )
 
 # Currency conversion (C++). A pure function of its request with no dependencies but the
 # collector, so its latency bound is the tightest in the demo.
@@ -21,5 +39,6 @@ def CurrencyComponent(*hooks):
         platform.WithDeps(Collector("grpc")),
         WithDependantEnv(CURRENCY_ADDR = "currency:8080"),
         WithRequestObjectives(100),
+        WithObjectives(_objectives),
         Defaults(*hooks),
     )

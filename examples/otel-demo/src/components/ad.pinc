@@ -3,8 +3,32 @@ load("@platform//platform/platform.pinc", "platform")
 load("//components/defaults.pinc", "Defaults")
 load("//components/demo.pinc", "DemoImage", "WithDemoWorkload", "WithDependantEnv", "WithEnv")
 load("//components/flagd.pinc", "FlagdComponent")
-load("//components/objectives.pinc", "WithRequestObjectives")
+load("//components/objectives.pinc", "WithObjectives", "WithRequestObjectives", "ratio_slo", "server_spans", "span_under")
 load("//components/otel_collector.pinc", "Collector")
+
+def _objectives(service, severity):
+    return (
+        ratio_slo(
+            "ad latency",
+            lambda window: span_under(server_spans(service), 10, window),
+            0.9,
+            severity,
+            "Share of ad requests answered within 10ms, at ad's server span. The tight threshold beside the component's loose one; the page renders around the ad slot",
+        ),
+        platform.WithDiagnostic(
+            "heap used of limit",
+            'sum(jvm_memory_used_bytes{service_name="%s",jvm_memory_type="heap"}) / sum(jvm_memory_limit_bytes{service_name="%s",jvm_memory_type="heap"})' % (service, service),
+            description = "JVM heap against its maximum. Close to 1, full collections stop the service; the adHighCpu and adManualGc flags show here first",
+            unit = platform.Unit.UNIT_RATIO,
+        ),
+        platform.WithDiagnostic(
+            "ads by response type",
+            'sum by (demo_ad_response_type) (rate(demo_ad_requests_total{service_name="%s"}[5m]))' % service,
+            description = "Targeted ads against random ones. Around a third random is normal, when a category has no ads, so this is context for a change rather than a promise",
+            unit = platform.Unit.UNIT_COUNT,
+            legend = "{{demo_ad_response_type}}",
+        ),
+    )
 
 # Picks an ad for the page (Java).
 def AdComponent(*hooks):
@@ -21,5 +45,6 @@ def AdComponent(*hooks):
         platform.WithDeps(Collector("http"), FlagdComponent),
         WithDependantEnv(AD_ADDR = "ad:8080"),
         WithRequestObjectives(200),
+        WithObjectives(_objectives),
         Defaults(*hooks),
     )
