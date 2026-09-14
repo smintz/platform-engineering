@@ -71,7 +71,8 @@ def _backend_state_id(config):
     return None
 
 def _remote_state_id(remote_state):
-    settings = remote_state.config
+    fields = remote_state.config.struct_value.fields
+    settings = {k: fields[k].string_value for k in fields}
     if remote_state.backend == "s3":
         return "s3://%s/%s" % (
             settings.get("bucket", ""),

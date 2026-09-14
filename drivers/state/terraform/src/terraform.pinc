@@ -1,6 +1,7 @@
 load("@platform//platform/platform.pinc", "platform")
 load("@platform//terraform/v1/util.pinc", tf = "util")
-load("//terraform/builtin/datasources/v1/remote_state.proto", "TerraformRemoteState")
+load("//google/protobuf/struct.proto", "Struct", "Value")
+load("//terraform/builtin/datasources/v1/remote.proto", "TerraformRemoteState")
 load("//terraform/v1/terraform.proto", TerraformProto = "Terraform")
 
 # Terraform driver: how a component's config becomes a state, and how one state reads a
@@ -34,7 +35,10 @@ def _backend(kind, settings, config_for, key_for):
     def remote(domain, name):
         return TerraformRemoteState(
             backend = kind,
-            config = config_for(settings(domain, name)),
+            config = Value(struct_value = Struct(fields = {
+                k: Value(string_value = v)
+                for k, v in config_for(settings(domain, name)).items()
+            })),
         )
 
     return struct(state = state, remote = remote, key_for = key_for)
