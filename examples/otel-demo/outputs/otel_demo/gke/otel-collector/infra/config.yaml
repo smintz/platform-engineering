@@ -1,0 +1,66 @@
+connectors:
+  span_metrics:
+    dimensions:
+    - name: upstream_cluster
+    - name: server.address
+exporters:
+  debug:
+    verbosity: basic
+  otlp_http:
+    endpoint: ${env:PROMETHEUS_OTLP_ENDPOINT}
+    tls:
+      insecure: true
+  otlp_http/jaeger:
+    endpoint: ${env:JAEGER_OTLP_ENDPOINT}
+    tls:
+      insecure: true
+processors:
+  batch: {}
+  filter:
+    metrics:
+      metric:
+      - IsMatch(name, "^otel\\.sdk\\.")
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+  postgresql:
+    endpoint: astronomy-db:5432
+    password: monitoring_password
+    tls:
+      insecure: true
+    username: monitoring_user
+  redis:
+    endpoint: valkey-cart:6379
+service:
+  pipelines:
+    logs:
+      exporters:
+      - debug
+      processors:
+      - batch
+      receivers:
+      - otlp
+    metrics:
+      exporters:
+      - otlp_http
+      processors:
+      - filter
+      - batch
+      receivers:
+      - otlp
+      - span_metrics
+      - postgresql
+      - redis
+    traces:
+      exporters:
+      - debug
+      - span_metrics
+      - otlp_http/jaeger
+      processors:
+      - batch
+      receivers:
+      - otlp

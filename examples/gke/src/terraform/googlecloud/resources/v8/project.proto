@@ -1,0 +1,680 @@
+syntax = "proto3";
+
+// Provider: googlecloud 8
+package terraform.googlecloud.resources.v8;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GoogleProject version is 1
+message GoogleProject {
+  // Create the 'default' network automatically.  Default true. If set to false, the
+  // default network will be deleted.  Note that, for quota purposes, you will still
+  // need to have 1 network slot available to create the project successfully, even if
+  // you set auto_create_network to false, since the network will exist momentarily.
+  optional bool auto_create_network = 1 [json_name = "auto_create_network"];
+
+  // The alphanumeric ID of the billing account this project belongs to. The user or
+  // service account performing this operation with Terraform must have Billing
+  // Account Administrator privileges (roles/billing.admin) in the organization. See
+  // Google Cloud Billing API Access Control for more details.
+  optional string billing_account = 2 [json_name = "billing_account"];
+
+  // The deletion policy for the Project. Setting PREVENT will protect the project
+  // against any destroy actions caused by a terraform apply or terraform destroy.
+  // Setting ABANDON allows the resource
+  //
+  // 				to be abandoned rather than deleted. Possible values are: "PREVENT",
+  // "ABANDON", "DELETE"
+  optional string deletion_policy = 3 [json_name = "deletion_policy"];
+
+  // All of labels (key/value pairs) present on the resource in GCP, including the
+  // labels configured through Terraform, other clients and services.
+  map<string, string> effective_labels = 4 [json_name = "effective_labels"];
+
+  // The numeric ID of the folder this project should be created under. Only one of
+  // org_id or folder_id may be specified. If the folder_id is specified, then the
+  // project is created under the specified folder. Changing this forces the project
+  // to be migrated to the newly specified folder.
+  optional string folder_id = 5 [json_name = "folder_id"];
+
+  optional string id = 6;
+
+  // A set of key/value label pairs to assign to the project.
+  //
+  // 				**Note**: This field is non-authoritative, and will only manage the labels
+  // present in your configuration.
+  //
+  // 				Please refer to the field 'effective_labels' for all of the labels present on
+  // the resource.
+  map<string, string> labels = 7;
+
+  // The display name of the project.
+  optional string name = 8;
+
+  // The numeric identifier of the project.
+  optional string number = 9;
+
+  // The numeric ID of the organization this project belongs to. Changing this forces
+  // a new project to be created.  Only one of org_id or folder_id may be specified.
+  // If the org_id is specified then the project is created at the top level. Changing
+  // this forces the project to be migrated to the newly specified organization.
+  optional string org_id = 10 [json_name = "org_id"];
+
+  // The project ID. Changing this forces a new project to be created.
+  optional string project_id = 11 [json_name = "project_id"];
+
+  // A map of resource manager tags. Resource manager tag keys and values have the
+  // same definition as resource manager tags. Keys must be in the format
+  // tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is
+  // ignored when empty. This field is only set at create time and modifying this
+  // field after creation will trigger recreation. To apply tags to an existing
+  // resource, see the google_tags_tag_value resource.
+  map<string, string> tags = 12;
+
+  // (ReadOnly) The combination of labels configured directly on the resource and
+  // default labels configured on the provider.
+  map<string, string> terraform_labels = 13 [json_name = "terraform_labels"];
+
+  repeated Timeouts timeouts = 14;
+
+  google.protobuf.Value for_each = 15 [json_name = "for_each"];
+
+  repeated string depends_on = 16 [json_name = "depends_on"];
+
+  optional int32 count = 17;
+
+  optional string provider = 18;
+
+  terraform.v1.Lifecycle lifecycle = 19;
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string read = 3;
+
+    optional string update = 4;
+  }
+}
+
+// GoogleProjectAccessApprovalSettings version is 0
+message GoogleProjectAccessApprovalSettings {
+  // The asymmetric crypto key version to use for signing approval requests.
+  //
+  // Empty active_key_version indicates that a Google-managed key should be used for
+  // signing.
+  //
+  // This property will be ignored if set by an ancestor of the resource, and new
+  // non-empty values may not be set.
+  optional string active_key_version = 1 [json_name = "active_key_version"];
+
+  // If the field is true, that indicates that an ancestor of this Project has set
+  // active_key_version.
+  optional bool ancestor_has_active_key_version = 2 [json_name = "ancestor_has_active_key_version"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 3 [json_name = "deletion_policy"];
+
+  // If the field is true, that indicates that at least one service is enrolled for
+  // Access Approval in one or more ancestors of the Project.
+  optional bool enrolled_ancestor = 4 [json_name = "enrolled_ancestor"];
+
+  optional string id = 5;
+
+  // If the field is true, that indicates that there is some configuration issue with
+  // the active_key_version
+  //
+  // configured on this Project (e.g. it doesn't exist or the Access Approval service
+  // account doesn't have the
+  //
+  // correct permissions on it, etc.) This key version is not necessarily the
+  // effective key version at this level,
+  //
+  // as key versions are inherited top-down.
+  optional bool invalid_key_version = 6 [json_name = "invalid_key_version"];
+
+  // The resource name of the settings. Format is
+  // "projects/{project_id}/accessApprovalSettings"
+  optional string name = 7;
+
+  // A list of email addresses to which notifications relating to approval requests
+  // should be sent.
+  //
+  // Notifications relating to a resource will be sent to all emails in the settings
+  // of ancestor
+  //
+  // resources of that resource. A maximum of 50 email addresses are allowed.
+  repeated string notification_emails = 8 [json_name = "notification_emails"];
+
+  // Project id.
+  optional string project = 9;
+
+  // ID of the project of the access approval settings.
+  optional string project_id = 10 [json_name = "project_id"];
+
+  repeated EnrolledServices enrolled_services = 11 [json_name = "enrolled_services"];
+
+  repeated Timeouts timeouts = 12;
+
+  google.protobuf.Value for_each = 13 [json_name = "for_each"];
+
+  repeated string depends_on = 14 [json_name = "depends_on"];
+
+  optional int32 count = 15;
+
+  optional string provider = 16;
+
+  terraform.v1.Lifecycle lifecycle = 17;
+
+  message EnrolledServices {
+    // The product for which Access Approval will be enrolled. Allowed values are listed
+    // (case-sensitive):
+    //
+    // all
+    //
+    // appengine.googleapis.com
+    //
+    // bigquery.googleapis.com
+    //
+    // bigtable.googleapis.com
+    //
+    // cloudkms.googleapis.com
+    //
+    // compute.googleapis.com
+    //
+    // dataflow.googleapis.com
+    //
+    // iam.googleapis.com
+    //
+    // pubsub.googleapis.com
+    //
+    // storage.googleapis.com
+    optional string cloud_product = 1 [json_name = "cloud_product"];
+
+    // The enrollment level of the service. Default value: "BLOCK_ALL" Possible values:
+    // ["BLOCK_ALL"]
+    optional string enrollment_level = 2 [json_name = "enrollment_level"];
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleProjectDefaultServiceAccounts version is 0
+message GoogleProjectDefaultServiceAccounts {
+  // The action to be performed in the default service accounts. Valid values are:
+  // DEPRIVILEGE, DELETE, DISABLE.
+  //
+  // 				Note that DEPRIVILEGE action will ignore the REVERT configuration in the
+  // restore_policy.
+  optional string action = 1;
+
+  optional string id = 2;
+
+  // The project ID where service accounts are created.
+  optional string project = 3;
+
+  // The action to be performed in the default service accounts on the resource
+  // destroy.
+  //
+  // 				Valid values are NONE, REVERT and REVERT_AND_IGNORE_FAILURE. It is applied
+  // for any action but in the DEPRIVILEGE.
+  optional string restore_policy = 4 [json_name = "restore_policy"];
+
+  // The Service Accounts changed by this resource. It is used for revert the action
+  // on the destroy.
+  map<string, string> service_accounts = 5 [json_name = "service_accounts"];
+
+  repeated Timeouts timeouts = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  optional int32 count = 9;
+
+  optional string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string read = 3;
+  }
+}
+
+// GoogleProjectIamAuditConfig version is 0
+message GoogleProjectIamAuditConfig {
+  // The etag of iam policy
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  optional string project = 3;
+
+  // Service which will be enabled for audit logging. The special value allServices
+  // covers all services.
+  optional string service = 4;
+
+  repeated AuditLogConfig audit_log_config = 5 [json_name = "audit_log_config"];
+
+  google.protobuf.Value for_each = 6 [json_name = "for_each"];
+
+  repeated string depends_on = 7 [json_name = "depends_on"];
+
+  optional int32 count = 8;
+
+  optional string provider = 9;
+
+  terraform.v1.Lifecycle lifecycle = 10;
+
+  message AuditLogConfig {
+    // Identities that do not cause logging for this type of permission. Each entry can
+    // have one of the following values:user:{emailid}: An email address that represents
+    // a specific Google account. For example, alice@gmail.com or joe@example.com.
+    // serviceAccount:{emailid}: An email address that represents a service account. For
+    // example, my-other-app@appspot.gserviceaccount.com. group:{emailid}: An email
+    // address that represents a Google group. For example, admins@example.com.
+    // domain:{domain}: A G Suite domain (primary, instead of alias) name that
+    // represents all the users of that domain. For example, google.com or example.com.
+    repeated string exempted_members = 1 [json_name = "exempted_members"];
+
+    // Permission type for which logging is to be configured. Must be one of DATA_READ,
+    // DATA_WRITE, or ADMIN_READ.
+    optional string log_type = 2 [json_name = "log_type"];
+  }
+}
+
+// GoogleProjectIamBinding version is 0
+message GoogleProjectIamBinding {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  repeated string members = 3;
+
+  optional string project = 4;
+
+  optional string role = 5;
+
+  Condition condition = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  optional int32 count = 9;
+
+  optional string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+
+  message Condition {
+    optional string description = 1;
+
+    optional string expression = 2;
+
+    optional string title = 3;
+  }
+}
+
+// GoogleProjectIamCustomRole version is 0
+message GoogleProjectIamCustomRole {
+  // The current deleted state of the role.
+  optional bool deleted = 1;
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 2 [json_name = "deletion_policy"];
+
+  // A human-readable description for the role.
+  optional string description = 3;
+
+  optional string id = 4;
+
+  // The name of the role in the format projects/{{project}}/roles/{{role_id}}. Like
+  // id, this field can be used as a reference in other resources such as IAM role
+  // bindings.
+  optional string name = 5;
+
+  // The names of the permissions this role grants when bound in an IAM policy. At
+  // least one permission must be specified.
+  repeated string permissions = 6;
+
+  // The project that the service account will be created in. Defaults to the provider
+  // project configuration.
+  optional string project = 7;
+
+  // The camel case role id to use for this role. Cannot contain - characters.
+  optional string role_id = 8 [json_name = "role_id"];
+
+  // The current launch stage of the role. Defaults to GA.
+  optional string stage = 9;
+
+  // A human-readable title for the role.
+  optional string title = 10;
+
+  google.protobuf.Value for_each = 11 [json_name = "for_each"];
+
+  repeated string depends_on = 12 [json_name = "depends_on"];
+
+  optional int32 count = 13;
+
+  optional string provider = 14;
+
+  terraform.v1.Lifecycle lifecycle = 15;
+}
+
+// GoogleProjectIamMember version is 0
+message GoogleProjectIamMember {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  optional string member = 3;
+
+  optional string project = 4;
+
+  optional string role = 5;
+
+  Condition condition = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  optional int32 count = 9;
+
+  optional string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+
+  message Condition {
+    optional string description = 1;
+
+    optional string expression = 2;
+
+    optional string title = 3;
+  }
+}
+
+// GoogleProjectIamMemberRemove version is 0
+message GoogleProjectIamMemberRemove {
+  optional string id = 1;
+
+  // The IAM principal that should not have the target role.
+  optional string member = 2;
+
+  // The project id of the target project.
+  optional string project = 3;
+
+  // The target role that should be removed.
+  optional string role = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  optional int32 count = 7;
+
+  optional string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+}
+
+// GoogleProjectIamPolicy version is 0
+message GoogleProjectIamPolicy {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  optional string policy_data = 3 [json_name = "policy_data"];
+
+  optional string project = 4;
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  optional int32 count = 7;
+
+  optional string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+}
+
+// GoogleProjectOrganizationPolicy version is 0
+message GoogleProjectOrganizationPolicy {
+  // The name of the Constraint the Policy is configuring, for example,
+  // serviceuser.services.
+  optional string constraint = 1;
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 2 [json_name = "deletion_policy"];
+
+  // The etag of the organization policy. etag is used for optimistic concurrency
+  // control as a way to help prevent simultaneous updates of a policy from
+  // overwriting each other.
+  optional string etag = 3;
+
+  optional string id = 4;
+
+  // The project ID.
+  optional string project = 5;
+
+  // The timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds, representing
+  // when the variable was last updated. Example: "2016-10-09T12:33:37.578138407Z".
+  optional string update_time = 6 [json_name = "update_time"];
+
+  // Version of the Policy. Default version is 0.
+  optional int64 version = 7;
+
+  BooleanPolicy boolean_policy = 8 [json_name = "boolean_policy"];
+
+  ListPolicy list_policy = 9 [json_name = "list_policy"];
+
+  RestorePolicy restore_policy = 10 [json_name = "restore_policy"];
+
+  repeated Timeouts timeouts = 11;
+
+  google.protobuf.Value for_each = 12 [json_name = "for_each"];
+
+  repeated string depends_on = 13 [json_name = "depends_on"];
+
+  optional int32 count = 14;
+
+  optional string provider = 15;
+
+  terraform.v1.Lifecycle lifecycle = 16;
+
+  message BooleanPolicy {
+    // If true, then the Policy is enforced. If false, then any configuration is
+    // acceptable.
+    optional bool enforced = 1;
+  }
+
+  message ListPolicy {
+    // If set to true, the values from the effective Policy of the parent resource are
+    // inherited, meaning the values set in this Policy are added to the values
+    // inherited up the hierarchy.
+    optional bool inherit_from_parent = 1 [json_name = "inherit_from_parent"];
+
+    // The Google Cloud Console will try to default to a configuration that matches the
+    // value specified in this field.
+    optional string suggested_value = 2 [json_name = "suggested_value"];
+
+    Allow allow = 3;
+
+    Deny deny = 4;
+
+    message Allow {
+      // The policy allows or denies all values.
+      optional bool all = 1;
+
+      // The policy can define specific values that are allowed or denied.
+      repeated string values = 2;
+    }
+
+    message Deny {
+      // The policy allows or denies all values.
+      optional bool all = 1;
+
+      // The policy can define specific values that are allowed or denied.
+      repeated string values = 2;
+    }
+  }
+
+  message RestorePolicy {
+    // May only be set to true. If set, then the default Policy is restored.
+    optional bool default = 1;
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string read = 3;
+
+    optional string update = 4;
+  }
+}
+
+// GoogleProjectService version is 0
+message GoogleProjectService {
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 1 [json_name = "deletion_policy"];
+
+  optional bool disable_dependent_services = 2 [json_name = "disable_dependent_services"];
+
+  optional bool disable_on_destroy = 3 [json_name = "disable_on_destroy"];
+
+  optional string id = 4;
+
+  optional string project = 5;
+
+  optional string service = 6;
+
+  repeated Timeouts timeouts = 7;
+
+  google.protobuf.Value for_each = 8 [json_name = "for_each"];
+
+  repeated string depends_on = 9 [json_name = "depends_on"];
+
+  optional int32 count = 10;
+
+  optional string provider = 11;
+
+  terraform.v1.Lifecycle lifecycle = 12;
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string read = 3;
+
+    optional string update = 4;
+  }
+}
+
+// GoogleProjectUsageExportBucket version is 0
+message GoogleProjectUsageExportBucket {
+  // The bucket to store reports in.
+  optional string bucket_name = 1 [json_name = "bucket_name"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 2 [json_name = "deletion_policy"];
+
+  optional string id = 3;
+
+  // A prefix for the reports, for instance, the project name.
+  optional string prefix = 4;
+
+  // The project to set the export bucket on. If it is not provided, the provider
+  // project is used.
+  optional string project = 5;
+
+  repeated Timeouts timeouts = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  optional int32 count = 9;
+
+  optional string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+  }
+}

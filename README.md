@@ -50,6 +50,9 @@ kubectl port-forward svc/frontend-proxy 8080:8080   # shop at :8080, Grafana at 
 [`examples/otel-demo/README.md`](examples/otel-demo/README.md) walks through that example
 file by file; it is the best place to learn the platform by reading.
 
+**Run it on GKE instead:** [`examples/gke`](examples/gke/README.md) provisions a VPC and a
+GKE cluster, and `make apply monitoring DOMAIN=gke` deploys the same demo onto it.
+
 ## Concepts
 
 **Component.** A `platform.v1.Component` message: a name, a failure domain, labels,
@@ -249,7 +252,8 @@ src/platform/        the platform core: components, hooks, markers, objectives (
 src/terraform/v1/    the Terraform DSL the drivers build configs with
 drivers/<kind>/<n>/  one module per technology choice: runtime, state, monitoring, cicd
 test/                the reference workspace and golden output; `make test` is the build
-examples/otel-demo/  the OpenTelemetry demo on a local cluster, with SLOs and dashboards
+examples/otel-demo/  the OpenTelemetry demo on a local cluster or GKE, with SLOs and dashboards
+examples/gke/        a VPC and GKE cluster in GCP, for the demo's gke domain
 .github/workflows/   the drift check (hand-written) and the generated Terraform pipeline
 .planning/           roadmap and requirements for the platform's development
 ```

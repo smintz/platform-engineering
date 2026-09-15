@@ -1,0 +1,109 @@
+{
+  "protoFile": "terraform/v1/terraform.proto",
+  "value": {
+    "@type": "type.googleapis.com/terraform.v1.Terraform",
+    "resource": {
+      "google_container_cluster": {
+        "cluster": {
+          "deletion_protection": false,
+          "initial_node_count": "1",
+          "location": "us-central1-a",
+          "name": "platform",
+          "network": "${data.terraform_remote_state.network.outputs.network}",
+          "networking_mode": "VPC_NATIVE",
+          "project": "${google_project_service.container.project}",
+          "remove_default_node_pool": true,
+          "subnetwork": "${data.terraform_remote_state.network.outputs.subnetwork}",
+          "ip_allocation_policy": {
+            "cluster_secondary_range_name": "pods",
+            "services_secondary_range_name": "services"
+          },
+          "private_cluster_config": {
+            "enable_private_nodes": true
+          },
+          "release_channel": {
+            "channel": "REGULAR"
+          },
+          "workload_identity_config": {
+            "workload_pool": "your-gcp-project-id.svc.id.goog"
+          }
+        }
+      },
+      "google_container_node_pool": {
+        "pool": {
+          "cluster": "${google_container_cluster.cluster.id}",
+          "location": "us-central1-a",
+          "name": "default",
+          "node_count": "2",
+          "management": {
+            "auto_repair": true,
+            "auto_upgrade": true
+          },
+          "node_config": {
+            "machine_type": "e2-standard-4",
+            "oauth_scopes": [
+              "https://www.googleapis.com/auth/cloud-platform"
+            ],
+            "service_account": "${google_service_account.nodes.email}",
+            "workload_metadata_config": {
+              "mode": "GKE_METADATA"
+            }
+          }
+        }
+      },
+      "google_project_iam_member": {
+        "nodes_role": {
+          "member": "${google_service_account.nodes.member}",
+          "project": "your-gcp-project-id",
+          "role": "roles/container.defaultNodeServiceAccount"
+        }
+      },
+      "google_project_service": {
+        "container": {
+          "disable_on_destroy": false,
+          "project": "your-gcp-project-id",
+          "service": "container.googleapis.com"
+        }
+      },
+      "google_service_account": {
+        "nodes": {
+          "account_id": "platform-nodes",
+          "project": "your-gcp-project-id"
+        }
+      }
+    },
+    "data": {
+      "terraform_remote_state": {
+        "network": {
+          "backend": "gcs",
+          "config": {
+            "bucket": "your-gcp-project-id-tfstate",
+            "prefix": "us-central1-a/network"
+          }
+        }
+      }
+    },
+    "provider": {
+      "google": [
+        {
+          "project": "your-gcp-project-id",
+          "region": "us-central1"
+        }
+      ]
+    },
+    "terraform": {
+      "required_providers": {
+        "google": {
+          "source": "registry.terraform.io/hashicorp/google",
+          "version": "8.2.0"
+        }
+      },
+      "backend": {
+        "gcs": {
+          "bucket": "your-gcp-project-id-tfstate",
+          "prefix": "us-central1-a/cluster"
+        }
+      }
+    }
+  }
+}

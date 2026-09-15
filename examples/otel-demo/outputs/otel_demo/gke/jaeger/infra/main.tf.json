@@ -1,0 +1,120 @@
+{
+  "resource": {
+    "kubernetes_deployment_v1": {
+      "jaeger": {
+        "metadata": {
+          "labels": {
+            "app": "jaeger"
+          },
+          "name": "jaeger"
+        },
+        "spec": {
+          "selector": {
+            "match_labels": {
+              "app": "jaeger"
+            }
+          },
+          "template": {
+            "metadata": {
+              "labels": {
+                "app": "jaeger"
+              }
+            },
+            "spec": {
+              "container": [
+                {
+                  "command": [
+                    "/cmd/jaeger/jaeger-linux",
+                    "--set=extensions.jaeger_query.base_path=/jaeger/ui",
+                    "--set=extensions.jaeger_storage.backends.some_storage.memory.max_traces=5000"
+                  ],
+                  "image": "jaegertracing/jaeger:2.20.0",
+                  "name": "jaeger",
+                  "env": [
+                    {
+                      "name": "OTEL_SERVICE_NAME",
+                      "value": "jaeger"
+                    },
+                    {
+                      "name": "OTEL_RESOURCE_ATTRIBUTES",
+                      "value": "service.version=3.0.0"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                      "value": "cumulative"
+                    },
+                    {
+                      "name": "JAEGER_LISTEN_HOST",
+                      "value": "0.0.0.0"
+                    }
+                  ],
+                  "port": [
+                    {
+                      "container_port": "16686"
+                    },
+                    {
+                      "container_port": "4318",
+                      "name": "otlp-http"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "memory": "400Mi"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "kubernetes_service_v1": {
+      "jaeger": {
+        "metadata": {
+          "labels": {
+            "app": "jaeger"
+          },
+          "name": "jaeger"
+        },
+        "spec": {
+          "selector": {
+            "app": "jaeger"
+          },
+          "port": [
+            {
+              "name": "port-16686",
+              "port": "16686",
+              "target_port": "16686"
+            },
+            {
+              "name": "otlp-http",
+              "port": "4318",
+              "target_port": "4318"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "provider": {
+    "kubernetes": [
+      {
+        "config_path": "~/.kube/gke-platform"
+      }
+    ]
+  },
+  "terraform": {
+    "required_providers": {
+      "kubernetes": {
+        "source": "registry.terraform.io/hashicorp/kubernetes",
+        "version": "3.2.1"
+      }
+    },
+    "backend": {
+      "local": {
+        
+      }
+    }
+  }
+}

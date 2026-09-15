@@ -1,0 +1,143 @@
+{
+  "protoFile": "terraform/v1/terraform.proto",
+  "value": {
+    "@type": "type.googleapis.com/terraform.v1.Terraform",
+    "resource": {
+      "kubernetes_deployment_v1": {
+        "cart": {
+          "metadata": {
+            "labels": {
+              "app": "cart"
+            },
+            "name": "cart"
+          },
+          "spec": {
+            "selector": {
+              "match_labels": {
+                "app": "cart"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "cart"
+                }
+              },
+              "spec": {
+                "container": [
+                  {
+                    "image": "ghcr.io/open-telemetry/demo:3.0.0-cart",
+                    "name": "cart",
+                    "env": [
+                      {
+                        "name": "OTEL_SERVICE_NAME",
+                        "value": "cart"
+                      },
+                      {
+                        "name": "OTEL_RESOURCE_ATTRIBUTES",
+                        "value": "service.version=3.0.0"
+                      },
+                      {
+                        "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                        "value": "cumulative"
+                      },
+                      {
+                        "name": "CART_PORT",
+                        "value": "8080"
+                      },
+                      {
+                        "name": "ASPNETCORE_URLS",
+                        "value": "http://*:8080"
+                      },
+                      {
+                        "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                        "value": "http://otel-collector:4317"
+                      },
+                      {
+                        "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                        "value": "grpc"
+                      },
+                      {
+                        "name": "OTEL_COLLECTOR_HOST",
+                        "value": "otel-collector"
+                      },
+                      {
+                        "name": "OTEL_COLLECTOR_PORT_GRPC",
+                        "value": "4317"
+                      },
+                      {
+                        "name": "OTEL_COLLECTOR_PORT_HTTP",
+                        "value": "4318"
+                      },
+                      {
+                        "name": "FLAGD_HOST",
+                        "value": "flagd"
+                      },
+                      {
+                        "name": "FLAGD_PORT",
+                        "value": "8013"
+                      },
+                      {
+                        "name": "VALKEY_ADDR",
+                        "value": "valkey-cart:6379"
+                      }
+                    ],
+                    "port": [
+                      {
+                        "container_port": "8080"
+                      }
+                    ],
+                    "resources": {
+                      "limits": {
+                        "memory": "160Mi"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "kubernetes_service_v1": {
+        "cart": {
+          "metadata": {
+            "labels": {
+              "app": "cart"
+            },
+            "name": "cart"
+          },
+          "spec": {
+            "selector": {
+              "app": "cart"
+            },
+            "port": [
+              {
+                "port": "8080",
+                "target_port": "8080"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "provider": {
+      "kubernetes": [
+        {
+          "config_path": "~/.kube/gke-platform"
+        }
+      ]
+    },
+    "terraform": {
+      "required_providers": {
+        "kubernetes": {
+          "source": "registry.terraform.io/hashicorp/kubernetes",
+          "version": "3.2.1"
+        }
+      },
+      "backend": {
+        "local": {}
+      }
+    }
+  }
+}

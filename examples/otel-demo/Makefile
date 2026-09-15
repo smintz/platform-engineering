@@ -1,7 +1,14 @@
-# The OpenTelemetry demo, declared as platform components and applied to the local
-# cluster kubectl points at. Generated: edit src/otel_demo.mpconf, not outputs/.
+# The OpenTelemetry demo, declared as platform components and applied to a cluster.
+# Generated: edit src/otel_demo.mpconf, not outputs/.
 
-STATES = outputs/otel_demo/colima
+# Which cluster (CLUSTERS in src/components/defaults.pinc): colima, the one kubectl points
+# at, or gke, the one examples/gke provisions — `make apply DOMAIN=gke` after its
+# `make apply credentials`. kubectl below follows the same choice.
+DOMAIN = colima
+STATES = outputs/otel_demo/$(DOMAIN)
+ifeq ($(DOMAIN),gke)
+export KUBECONFIG := $(HOME)/.kube/gke-platform
+endif
 export TF_PLUGIN_CACHE_DIR := $(HOME)/.terraform.d/plugin-cache
 
 # Grafana's API, reached through a port-forward for as long as the monitoring apply runs.

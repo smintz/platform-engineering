@@ -1,8 +1,17 @@
 load("@grafana//grafana.pinc", "WithGrafanaDashboard")
+load("@kubernetes//kubernetes.pinc", "KubeConfig")
 load("@terraform_state//terraform.pinc", "LocalBackend")
 
 # Where every state lives: next to its config, on whatever disk runs terraform.
 BACKEND = LocalBackend()
+
+# The cluster each failure domain deploys to; otel_demo.mpconf renders the demo once per
+# entry. colima is whatever kubectl points at. gke is the cluster examples/gke provisions,
+# through the kubeconfig its `make credentials` writes.
+CLUSTERS = {
+    "colima": KubeConfig(),
+    "gke": KubeConfig(path = "~/.kube/gke-platform"),
+}
 
 # What this Grafana calls its datasources, keyed by the kind an objective asks for. The
 # name is provisioned in files/grafana-datasources.yaml.

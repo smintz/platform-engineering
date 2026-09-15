@@ -2,13 +2,14 @@
 
 The [OpenTelemetry demo](https://github.com/open-telemetry/opentelemetry-demo)'s 20 core
 services (`compose.yaml`), plus a Prometheus, Jaeger and Grafana stack, declared as platform
-components and applied to a local cluster. Every request-serving service declares SLOs,
+components and applied to a local cluster or to GKE. Every request-serving service declares SLOs,
 and the platform renders them into Grafana dashboards and burn-rate alert rules.
 An exercise in how the platform's practices hold up against a real, dependency-heavy stack.
 
 ```bash
-make compile      # src/otel_demo.mpconf -> outputs/otel_demo/colima/<service>/{infra,monitoring}/main.tf.json
+make compile      # src/otel_demo.mpconf -> outputs/otel_demo/<colima|gke>/<service>/{infra,monitoring}/main.tf.json
 make apply        # one local-state Terraform apply per service, against kubectl's current context
+make apply monitoring DOMAIN=gke   # the same, on the cluster examples/gke provisions
 make monitoring   # dashboards and alert rules, applied to Grafana through a port-forward
 make destroy
 kubectl port-forward svc/frontend-proxy 8080:8080   # storefront at http://localhost:8080

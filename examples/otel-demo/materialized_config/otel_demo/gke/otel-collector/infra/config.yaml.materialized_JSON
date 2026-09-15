@@ -1,0 +1,111 @@
+{
+  "protoFile": "otelcol/v1/config.proto",
+  "value": {
+    "@type": "type.googleapis.com/otelcol.v1.Config",
+    "receivers": {
+      "otlp": {
+        "protocols": {
+          "grpc": {
+            "endpoint": "0.0.0.0:4317"
+          },
+          "http": {
+            "endpoint": "0.0.0.0:4318"
+          }
+        }
+      },
+      "postgresql": {
+        "endpoint": "astronomy-db:5432",
+        "username": "monitoring_user",
+        "password": "monitoring_password",
+        "tls": {
+          "insecure": true
+        }
+      },
+      "redis": {
+        "endpoint": "valkey-cart:6379"
+      }
+    },
+    "processors": {
+      "batch": {},
+      "filter": {
+        "metrics": {
+          "metric": [
+            "IsMatch(name, \"^otel\\\\.sdk\\\\.\")"
+          ]
+        }
+      }
+    },
+    "connectors": {
+      "span_metrics": {
+        "dimensions": [
+          {
+            "name": "upstream_cluster"
+          },
+          {
+            "name": "server.address"
+          }
+        ]
+      }
+    },
+    "exporters": {
+      "debug": {
+        "verbosity": "basic"
+      },
+      "otlp_http": {
+        "endpoint": "${env:PROMETHEUS_OTLP_ENDPOINT}",
+        "tls": {
+          "insecure": true
+        }
+      },
+      "otlp_http/jaeger": {
+        "endpoint": "${env:JAEGER_OTLP_ENDPOINT}",
+        "tls": {
+          "insecure": true
+        }
+      }
+    },
+    "service": {
+      "pipelines": {
+        "logs": {
+          "receivers": [
+            "otlp"
+          ],
+          "processors": [
+            "batch"
+          ],
+          "exporters": [
+            "debug"
+          ]
+        },
+        "metrics": {
+          "receivers": [
+            "otlp",
+            "span_metrics",
+            "postgresql",
+            "redis"
+          ],
+          "processors": [
+            "filter",
+            "batch"
+          ],
+          "exporters": [
+            "otlp_http"
+          ]
+        },
+        "traces": {
+          "receivers": [
+            "otlp"
+          ],
+          "processors": [
+            "batch"
+          ],
+          "exporters": [
+            "debug",
+            "span_metrics",
+            "otlp_http/jaeger"
+          ]
+        }
+      }
+    }
+  }
+}

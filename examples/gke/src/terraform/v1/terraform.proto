@@ -1,0 +1,377 @@
+syntax = "proto3";
+
+package terraform.v1;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/builtin/datasources/v1/remote.proto";
+
+import "terraform/googlecloud/provider/v8/googlecloud.proto";
+
+import "terraform/googlecloud/resources/v8/compute.proto";
+
+import "terraform/googlecloud/resources/v8/container.proto";
+
+import "terraform/googlecloud/resources/v8/project.proto";
+
+import "terraform/googlecloud/resources/v8/service.proto";
+
+message Terraform {
+  Resources resource = 1;
+
+  Datasources data = 2;
+
+  Providers provider = 3;
+
+  map<string, Variable> variable = 4;
+
+  map<string, Output> output = 5;
+
+  map<string, string> locals = 6;
+
+  map<string, google.protobuf.Struct> module = 7;
+
+  TerraformSettings terraform = 8;
+
+  message Resources {
+    map<string, terraform.googlecloud.resources.v8.GoogleComputeNetwork> google_compute_network = 385 [json_name = "google_compute_network"];
+
+    map<string, terraform.googlecloud.resources.v8.GoogleComputeRouter> google_compute_router = 456 [json_name = "google_compute_router"];
+
+    map<string, terraform.googlecloud.resources.v8.GoogleComputeRouterNat> google_compute_router_nat = 459 [json_name = "google_compute_router_nat"];
+
+    map<string, terraform.googlecloud.resources.v8.GoogleComputeSubnetwork> google_compute_subnetwork = 479 [json_name = "google_compute_subnetwork"];
+
+    map<string, terraform.googlecloud.resources.v8.GoogleContainerCluster> google_container_cluster = 515 [json_name = "google_container_cluster"];
+
+    map<string, terraform.googlecloud.resources.v8.GoogleContainerNodePool> google_container_node_pool = 516 [json_name = "google_container_node_pool"];
+
+    map<string, terraform.googlecloud.resources.v8.GoogleProjectIamMember> google_project_iam_member = 1139 [json_name = "google_project_iam_member"];
+
+    map<string, terraform.googlecloud.resources.v8.GoogleProjectService> google_project_service = 1143 [json_name = "google_project_service"];
+
+    map<string, terraform.googlecloud.resources.v8.GoogleServiceAccount> google_service_account = 1224 [json_name = "google_service_account"];
+  }
+
+  message Datasources {
+    map<string, terraform.builtin.datasources.v1.TerraformRemoteState> terraform_remote_state = 1 [json_name = "terraform_remote_state"];
+  }
+
+  message Providers {
+    repeated terraform.googlecloud.provider.v8.Google google = 1;
+  }
+
+  message Variable {
+    string type = 1;
+
+    string description = 2;
+
+    string default = 3;
+  }
+
+  message Output {
+    string value = 1;
+  }
+
+  message TerraformSettings {
+    string required_version = 1 [json_name = "required_version"];
+
+    map<string, Provider> required_providers = 2 [json_name = "required_providers"];
+
+    Backend backend = 3;
+
+    message Provider {
+      string source = 1;
+
+      string version = 2;
+    }
+
+    message Backend {
+      oneof config {
+        BackendLocal local = 1;
+
+        BackendRemote remote = 2;
+
+        BackendS3 s3 = 3;
+
+        BackendConsul consul = 4;
+
+        BackendAzurerm azurerm = 5;
+
+        BackendGCS gcs = 6;
+
+        BackendHTTP http = 7;
+
+        BackendKubernetes kubernetes = 8;
+
+        BackendPg pg = 9;
+      }
+
+      message BackendLocal {
+        string path = 1;
+
+        string workspace_dir = 2 [json_name = "workspace_dir"];
+      }
+
+      message BackendRemote {
+        string hostname = 1;
+
+        string organization = 2;
+
+        string token = 3;
+
+        Workspace workspaces = 4;
+
+        message Workspace {
+          string name = 1;
+
+          string prefix = 2;
+        }
+      }
+
+      message BackendS3 {
+        string region = 1;
+
+        string access_key = 2 [json_name = "access_key"];
+
+        string secret_key = 3 [json_name = "secret_key"];
+
+        string iam_endpoint = 4 [json_name = "iam_endpoint"];
+
+        string max_retries = 5 [json_name = "max_retries"];
+
+        string profile = 6;
+
+        string shared_credentials_file = 7 [json_name = "shared_credentials_file"];
+
+        string skip_credentials_validation = 8 [json_name = "skip_credentials_validation"];
+
+        string skip_region_validation = 9 [json_name = "skip_region_validation"];
+
+        string skip_metadata_api_check = 10 [json_name = "skip_metadata_api_check"];
+
+        string sts_endpoint = 11 [json_name = "sts_endpoint"];
+
+        string token = 12;
+
+        string assume_role_duration_seconds = 13 [json_name = "assume_role_duration_seconds"];
+
+        string assume_role_policy = 14 [json_name = "assume_role_policy"];
+
+        string assume_role_policy_arns = 15 [json_name = "assume_role_policy_arns"];
+
+        string assume_role_tags = 16 [json_name = "assume_role_tags"];
+
+        string assume_role_transitive_tag_keys = 17 [json_name = "assume_role_transitive_tag_keys"];
+
+        string external_id = 18 [json_name = "external_id"];
+
+        string role_arn = 19 [json_name = "role_arn"];
+
+        string session_name = 20 [json_name = "session_name"];
+
+        string bucket = 21;
+
+        string key = 22;
+
+        string acl = 23;
+
+        string encrypt = 24;
+
+        string endpoint = 25;
+
+        string force_path_style = 26 [json_name = "force_path_style"];
+
+        string kms_key_id = 27 [json_name = "kms_key_id"];
+
+        string sse_customer_key = 28 [json_name = "sse_customer_key"];
+
+        string workspace_key_prefix = 29 [json_name = "workspace_key_prefix"];
+
+        string dynamodb_endpoint = 30 [json_name = "dynamodb_endpoint"];
+
+        string dynamodb_table = 31 [json_name = "dynamodb_table"];
+      }
+
+      message BackendConsul {
+        string path = 1;
+
+        string access_token = 2 [json_name = "access_token"];
+
+        string address = 3;
+
+        string scheme = 4;
+
+        string datacenter = 5;
+
+        string http_auth = 6 [json_name = "http_auth"];
+
+        string gzip = 7;
+
+        string lock = 8;
+
+        string ca_file = 9 [json_name = "ca_file"];
+
+        string cert_file = 10 [json_name = "cert_file"];
+
+        string key_file = 11 [json_name = "key_file"];
+      }
+
+      message BackendAzurerm {
+        string storage_account_name = 1 [json_name = "storage_account_name"];
+
+        string container_name = 2 [json_name = "container_name"];
+
+        string key = 3;
+
+        string environment = 4;
+
+        string endpoint = 5;
+
+        string metadata_host = 6 [json_name = "metadata_host"];
+
+        string snapshot = 7;
+
+        string resource_group_name = 8 [json_name = "resource_group_name"];
+
+        string msi_endpoint = 9 [json_name = "msi_endpoint"];
+
+        string subscription_id = 10 [json_name = "subscription_id"];
+
+        string tenant_id = 11 [json_name = "tenant_id"];
+
+        string client_id = 12 [json_name = "client_id"];
+
+        string client_secret = 13 [json_name = "client_secret"];
+
+        string client_certificate_password = 14 [json_name = "client_certificate_password"];
+
+        string client_certificate_path = 15 [json_name = "client_certificate_path"];
+
+        string sas_token = 16 [json_name = "sas_token"];
+
+        string access_key = 17 [json_name = "access_key"];
+
+        string use_msi = 18 [json_name = "use_msi"];
+
+        string use_azuread_auth = 19 [json_name = "use_azuread_auth"];
+
+        string use_oidc = 20 [json_name = "use_oidc"];
+
+        string oidc_request_token = 21 [json_name = "oidc_request_token"];
+
+        string oidc_request_url = 22 [json_name = "oidc_request_url"];
+
+        string oidc_token = 23 [json_name = "oidc_token"];
+
+        string oidc_token_file_path = 24 [json_name = "oidc_token_file_path"];
+      }
+
+      message BackendGCS {
+        string bucket = 1;
+
+        string credentials = 2;
+
+        string impersonate_service_account = 3 [json_name = "impersonate_service_account"];
+
+        string impersonate_service_account_delegates = 4 [
+          json_name = "impersonate_service_account_delegates"
+        ];
+
+        string access_token = 5 [json_name = "access_token"];
+
+        string prefix = 6;
+
+        string encryption_key = 7 [json_name = "encryption_key"];
+
+        string kms_encryption_key = 8 [json_name = "kms_encryption_key"];
+
+        string storage_custom_endpoint = 9 [json_name = "storage_custom_endpoint"];
+      }
+
+      message BackendHTTP {
+        string address = 1;
+
+        string update_method = 2 [json_name = "update_method"];
+
+        string lock_address = 3 [json_name = "lock_address"];
+
+        string lock_method = 4 [json_name = "lock_method"];
+
+        string unlock_address = 5 [json_name = "unlock_address"];
+
+        string unlock_method = 6 [json_name = "unlock_method"];
+
+        string username = 7;
+
+        string password = 8;
+
+        string skip_cert_verification = 9 [json_name = "skip_cert_verification"];
+
+        string retry_max = 10 [json_name = "retry_max"];
+
+        string retry_wait_min = 11 [json_name = "retry_wait_min"];
+
+        string retry_wait_max = 12 [json_name = "retry_wait_max"];
+
+        string client_ca_certificate_pem = 13 [json_name = "client_ca_certificate_pem"];
+
+        string client_certificate_pem = 14 [json_name = "client_certificate_pem"];
+
+        string client_private_key_pem = 15 [json_name = "client_private_key_pem"];
+      }
+
+      message BackendKubernetes {
+        string secret_suffix = 1 [json_name = "secret_suffix"];
+
+        string labels = 2;
+
+        string namespace = 3;
+
+        string in_cluster_config = 4 [json_name = "in_cluster_config"];
+
+        string load_config_file = 5 [json_name = "load_config_file"];
+
+        string host = 6;
+
+        string username = 7;
+
+        string password = 8;
+
+        string insecure = 9;
+
+        string client_certificate = 10 [json_name = "client_certificate"];
+
+        string client_key = 11 [json_name = "client_key"];
+
+        string cluster_ca_certificate = 12 [json_name = "cluster_ca_certificate"];
+
+        string config_paths = 13 [json_name = "config_paths"];
+
+        string config_path = 14 [json_name = "config_path"];
+
+        string config_context = 15 [json_name = "config_context"];
+
+        string config_context_auth_info = 16 [json_name = "config_context_auth_info"];
+
+        string config_context_cluster = 17 [json_name = "config_context_cluster"];
+
+        string token = 18;
+
+        string exec = 19;
+      }
+
+      message BackendPg {
+        string conn_str = 1 [json_name = "conn_str"];
+
+        string schema_name = 2 [json_name = "schema_name"];
+
+        string skip_schema_creation = 3 [json_name = "skip_schema_creation"];
+
+        string skip_table_creation = 4 [json_name = "skip_table_creation"];
+
+        string skip_index_creation = 5 [json_name = "skip_index_creation"];
+      }
+    }
+  }
+}
