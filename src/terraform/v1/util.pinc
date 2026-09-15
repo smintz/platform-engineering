@@ -42,9 +42,11 @@ def Provider(provider):
         provider_name = str(provider).split(".")[1]
         providerlist = getattr(tf.provider, provider_name)
         providerlist.append(provider)
-        tf.terraform.required_providers[provider_name] = TerraformProto.TerraformSettings.Provider(
-            source = provider.provider_fqdn,
-            version = provider.provider_version,
+        tf.terraform.required_providers[provider_name] = (
+            TerraformProto.TerraformSettings.Provider(
+                source = provider.provider_fqdn,
+                version = provider.provider_version,
+            )
         )
         return next(tf)
 
@@ -72,7 +74,9 @@ def link(name, resource, var = False, is_data = False):
             [
                 (
                     field,
-                    ".".join([prefix, field]) if not var else "${%s}" % ".".join([prefix, field]),
+                    (
+                        ".".join([prefix, field]) if not var else "${%s}" % ".".join([prefix, field])
+                    ),
                 )
                 for field in dir(resource)
             ],
@@ -125,32 +129,69 @@ def Data(name, datasource, *hooks):
 
     return do
 
-def Link(*hooks, **resources):
+def Link(*hooks, **kwargs):
     def do(tf, next):
+        resources = {}
+        data = {}
+        prefix = kwargs.get("prefix", "")
+        if "prefix" in kwargs:
+            kwargs.pop("prefix")
+        suffix = kwargs.get("suffix", "")
+        if "suffix" in kwargs:
+            kwargs.pop("suffix")
+        for name, resource in kwargs.items():
+            if type(resource).split(".")[-3] == "resources":
+                resources[name] = resource
+            elif type(resource).split(".")[-3] == "datasources":
+                data[name] = resource
+            else:
+                fail("Unknown resource type: %s" % type(resource))
+
         tf = Terraform(
             From(tf),
-            *[Resource(name, resource) for name, resource in resources.items()]
+            *(
+                [
+                    Resource(prefix + name + suffix, resource)
+                    for name, resource in resources.items()
+                ] +
+                [
+                    Data(prefix + name + suffix, resource)
+                    for name, resource in data.items()
+                ]
+            )
         )
+
         inputs = struct(
-            resource = module("resources", **resources),
-            link = module(
-                "links",
+            resource = struct(**resources),
+            data = struct(**data),
+            link = struct(
                 **dict(
                     [
-                        (name, link(name, resource))
+                        (name, link(prefix + name + suffix, resource))
                         for name, resource in resources.items()
                     ],
                 )
             ),
-            var = module(
-                "links",
+            var = struct(
+                data = struct(
+                    **dict(
+                        [
+                            (name, link(prefix + name + suffix, resource, True, True))
+                            for name, resource in data.items()
+                        ],
+                    )
+                ),
                 **dict(
                     [
-                        (name, link(name, resource, True))
+                        (name, link(prefix + name + suffix, resource, True))
                         for name, resource in resources.items()
                     ],
                 )
             ),
+            prefix = prefix,
+            suffix = suffix,
+            tmp = {},
+            Chain = lambda *hooks: Terraform(From(tf), *hooks),
         )
         ChainWithLast(inputs, *hooks)
 
