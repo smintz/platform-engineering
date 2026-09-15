@@ -1,0 +1,135 @@
+load("@platform//platform/platform.pinc", "platform")
+load("@platform//terraform/v1/util.pinc", "util")
+load("@terraform_state//terraform.pinc", "GCSBackend", "RemoteOutput", "WithRemoteOutput", "WithState")
+load("//terraform/googlecloud/provider/v8/googlecloud.proto", "Google")
+load("//terraform/googlecloud/resources/v8/compute.proto", "GoogleComputeNetwork", "GoogleComputeRouter", "GoogleComputeRouterNat", "GoogleComputeSubnetwork")
+load("//terraform/googlecloud/resources/v8/container.proto", Cluster = "GoogleContainerCluster", Pool = "GoogleContainerNodePool")
+load("//terraform/googlecloud/resources/v8/project.proto", "GoogleProjectIamMember", "GoogleProjectService")
+load("//terraform/googlecloud/resources/v8/service.proto", "GoogleServiceAccount")
+
+# A VPC and a GKE cluster to run the otel demo on (examples/otel-demo, domain "gke").
+# Two components, a state each: the cluster depends on the network, and the network hands
+# it the ids it needs across the state boundary.
+
+# The one value to change before applying. The state bucket is named after it.
+PROJECT = "your-gcp-project-id"
+REGION = "us-central1"
+ZONE = REGION + "-a"
+NAME = "platform"
+
+# Every state in one bucket, keyed by failure domain and component. `make bucket` creates it.
+BACKEND = GCSBackend(PROJECT + "-tfstate", lambda domain, name: "%s/%s" % (domain, name))
+
+# Nodes take the subnet's primary range; pods and Services take the secondary ranges GKE is
+# pointed at by name.
+PODS = "pods"
+SERVICES = "services"
+
+def _terraform(*hooks):
+    return util.Terraform(util.Provider(Google(project = PROJECT, region = REGION)), *hooks)
+
+# An API has to be on before anything using it is created. Referencing the service's
+# project, rather than PROJECT, is what makes Terraform wait for it.
+def _api(service):
+    return GoogleProjectService(project = PROJECT, service = service, disable_on_destroy = False)
+
+# The VPC: custom-mode, one subnet, and Cloud NAT so private nodes can pull public images.
+def NetworkComponent(*hooks):
+    def contents(component):
+        def link(t, next):
+            t.resource.network.project = t.var.compute.project
+            t.resource.subnet.network = t.var.network.id
+            t.resource.router.network = t.var.network.id
+            t.resource.nat.router = t.var.router.name
+            return next(t)
+
+        return _terraform(util.Link(
+            link,
+            compute = _api("compute.googleapis.com"),
+            network = GoogleComputeNetwork(name = NAME, auto_create_subnetworks = False),
+            subnet = GoogleComputeSubnetwork(
+                name = NAME,
+                region = REGION,
+                ip_cidr_range = "10.0.0.0/20",
+                private_ip_google_access = True,
+                secondary_ip_range = [
+                    GoogleComputeSubnetwork.SecondaryIpRange(range_name = PODS, ip_cidr_range = "10.4.0.0/14"),
+                    GoogleComputeSubnetwork.SecondaryIpRange(range_name = SERVICES, ip_cidr_range = "10.8.0.0/20"),
+                ],
+            ),
+            router = GoogleComputeRouter(name = NAME, region = REGION),
+            nat = GoogleComputeRouterNat(
+                name = NAME,
+                region = REGION,
+                nat_ip_allocate_option = "AUTO_ONLY",
+                source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES",
+            ),
+        ))
+
+    return platform.Component(
+        "network",
+        platform.WithDescription("Custom-mode VPC with a GKE subnet and Cloud NAT"),
+        WithState(contents, BACKEND),
+        WithRemoteOutput("network", "${google_compute_network.network.id}", BACKEND),
+        WithRemoteOutput("subnetwork", "${google_compute_subnetwork.subnet.id}", BACKEND),
+        *hooks
+    )
+
+# The cluster: private nodes on the network's subnet, one node pool run as a service account
+# holding only the node role. Sized for the otel demo's ~4.8 GiB of memory limits.
+def ClusterComponent(*hooks):
+    def contents(component):
+        def link(t, next):
+            t.resource.cluster.project = t.var.container.project
+            t.resource.pool.cluster = t.var.cluster.id
+            t.resource.pool.node_config.service_account = t.var.nodes.email
+            t.resource.nodes_role.member = t.var.nodes.member
+            return next(t)
+
+        return _terraform(util.Link(
+            link,
+            container = _api("container.googleapis.com"),
+            cluster = Cluster(
+                name = NAME,
+                location = ZONE,
+                network = RemoteOutput("network", "network"),
+                subnetwork = RemoteOutput("network", "subnetwork"),
+                networking_mode = "VPC_NATIVE",
+                ip_allocation_policy = Cluster.IpAllocationPolicy(
+                    cluster_secondary_range_name = PODS,
+                    services_secondary_range_name = SERVICES,
+                ),
+                private_cluster_config = Cluster.PrivateClusterConfig(enable_private_nodes = True),
+                release_channel = Cluster.ReleaseChannel(channel = "REGULAR"),
+                workload_identity_config = Cluster.WorkloadIdentityConfig(workload_pool = PROJECT + ".svc.id.goog"),
+                # GKE insists on a default pool; the one below replaces it
+                remove_default_node_pool = True,
+                initial_node_count = 1,
+                # an example is meant to be torn down, and destroy fails on a protected cluster
+                deletion_protection = False,
+            ),
+            nodes = GoogleServiceAccount(account_id = NAME + "-nodes", project = PROJECT),
+            nodes_role = GoogleProjectIamMember(project = PROJECT, role = "roles/container.defaultNodeServiceAccount"),
+            pool = Pool(
+                name = "default",
+                location = ZONE,
+                node_count = 2,
+                node_config = Pool.NodeConfig(
+                    machine_type = "e2-standard-4",
+                    oauth_scopes = ["https://www.googleapis.com/auth/cloud-platform"],
+                    workload_metadata_config = Pool.NodeConfig.WorkloadMetadataConfig(mode = "GKE_METADATA"),
+                ),
+                management = Pool.Management(auto_repair = True, auto_upgrade = True),
+            ),
+        ))
+
+    return platform.Component(
+        "cluster",
+        platform.WithDescription("Zonal GKE cluster with private nodes"),
+        WithState(contents, BACKEND),
+        platform.WithDeps(NetworkComponent),
+        *hooks
+    )
+
+def main():
+    return platform.GetConfigs(ClusterComponent(platform.WithFailureDomain(ZONE)).msg)

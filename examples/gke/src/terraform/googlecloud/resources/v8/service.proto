@@ -1,0 +1,796 @@
+syntax = "proto3";
+
+// Provider: googlecloud 8
+package terraform.googlecloud.resources.v8;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GoogleServiceAccount version is 0
+message GoogleServiceAccount {
+  // The account id that is used to generate the service account email address and a
+  // stable unique id. It is unique within a project, must be 6-30 characters long,
+  // and match the regular expression [a-z]([-a-z0-9]*[a-z0-9]) to comply with
+  // RFC1035. Changing this forces a new service account to be created.
+  optional string account_id = 1 [json_name = "account_id"];
+
+  // If set to true, skip service account creation if a service account with the same
+  // email already exists.
+  optional bool create_ignore_already_exists = 2 [json_name = "create_ignore_already_exists"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 3 [json_name = "deletion_policy"];
+
+  // A text description of the service account. Must be less than or equal to 256
+  // UTF-8 bytes.
+  optional string description = 4;
+
+  // Whether the service account is disabled. Defaults to false
+  optional bool disabled = 5;
+
+  // The display name for the service account. Can be updated without creating a new
+  // resource.
+  optional string display_name = 6 [json_name = "display_name"];
+
+  // The e-mail address of the service account. This value should be referenced from
+  // any google_iam_policy data sources that would grant the service account
+  // privileges.
+  optional string email = 7;
+
+  optional string id = 8;
+
+  // The Identity of the service account in the form 'serviceAccount:{email}'. This
+  // value is often used to refer to the service account in order to grant IAM
+  // permissions.
+  optional string member = 9;
+
+  // The fully-qualified name of the service account.
+  optional string name = 10;
+
+  // The ID of the project that the service account will be created in. Defaults to
+  // the provider project configuration.
+  optional string project = 11;
+
+  // The unique id of the service account.
+  optional string unique_id = 12 [json_name = "unique_id"];
+
+  repeated Timeouts timeouts = 13;
+
+  google.protobuf.Value for_each = 14 [json_name = "for_each"];
+
+  repeated string depends_on = 15 [json_name = "depends_on"];
+
+  optional int32 count = 16;
+
+  optional string provider = 17;
+
+  terraform.v1.Lifecycle lifecycle = 18;
+
+  message Timeouts {
+    optional string create = 1;
+  }
+}
+
+// GoogleServiceAccountIamBinding version is 0
+message GoogleServiceAccountIamBinding {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  repeated string members = 3;
+
+  optional string role = 4;
+
+  optional string service_account_id = 5 [json_name = "service_account_id"];
+
+  Condition condition = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  optional int32 count = 9;
+
+  optional string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+
+  message Condition {
+    optional string description = 1;
+
+    optional string expression = 2;
+
+    optional string title = 3;
+  }
+}
+
+// GoogleServiceAccountIamMember version is 0
+message GoogleServiceAccountIamMember {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  optional string member = 3;
+
+  optional string role = 4;
+
+  optional string service_account_id = 5 [json_name = "service_account_id"];
+
+  Condition condition = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  optional int32 count = 9;
+
+  optional string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+
+  message Condition {
+    optional string description = 1;
+
+    optional string expression = 2;
+
+    optional string title = 3;
+  }
+}
+
+// GoogleServiceAccountIamPolicy version is 0
+message GoogleServiceAccountIamPolicy {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  optional string policy_data = 3 [json_name = "policy_data"];
+
+  optional string service_account_id = 4 [json_name = "service_account_id"];
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  optional int32 count = 7;
+
+  optional string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+}
+
+// GoogleServiceAccountKey version is 0
+message GoogleServiceAccountKey {
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 1 [json_name = "deletion_policy"];
+
+  optional string id = 2;
+
+  // Arbitrary map of values that, when changed, will trigger recreation of resource.
+  map<string, string> keepers = 3;
+
+  // The algorithm used to generate the key, used only on create. KEY_ALG_RSA_2048 is
+  // the default algorithm. Valid values are: "KEY_ALG_RSA_1024", "KEY_ALG_RSA_2048".
+  optional string key_algorithm = 4 [json_name = "key_algorithm"];
+
+  // The name used for this key pair
+  optional string name = 5;
+
+  // The private key in JSON format, base64 encoded. This is what you normally get as
+  // a file when creating service account keys through the CLI or web console. This is
+  // only populated when creating a new key.
+  optional string private_key = 6 [json_name = "private_key"];
+
+  optional string private_key_type = 7 [json_name = "private_key_type"];
+
+  // The public key, base64 encoded
+  optional string public_key = 8 [json_name = "public_key"];
+
+  // A field that allows clients to upload their own public key. If set, use this
+  // public key data to create a service account key for given service account. Please
+  // note, the expected format for this field is a base64 encoded X509_PEM.
+  optional string public_key_data = 9 [json_name = "public_key_data"];
+
+  optional string public_key_type = 10 [json_name = "public_key_type"];
+
+  // The ID of the parent service account of the key. This can be a string in the
+  // format {ACCOUNT} or projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}, where
+  // {ACCOUNT} is the email address or unique id of the service account. If the
+  // {ACCOUNT} syntax is used, the project will be inferred from the provider's
+  // configuration.
+  optional string service_account_id = 11 [json_name = "service_account_id"];
+
+  // The key can be used after this timestamp. A timestamp in RFC3339 UTC "Zulu"
+  // format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
+  optional string valid_after = 12 [json_name = "valid_after"];
+
+  // The key can be used before this timestamp. A timestamp in RFC3339 UTC "Zulu"
+  // format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
+  optional string valid_before = 13 [json_name = "valid_before"];
+
+  google.protobuf.Value for_each = 14 [json_name = "for_each"];
+
+  repeated string depends_on = 15 [json_name = "depends_on"];
+
+  optional int32 count = 16;
+
+  optional string provider = 17;
+
+  terraform.v1.Lifecycle lifecycle = 18;
+}
+
+// GoogleServiceDirectoryEndpoint version is 0
+message GoogleServiceDirectoryEndpoint {
+  // IPv4 or IPv6 address of the endpoint.
+  optional string address = 1;
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 2 [json_name = "deletion_policy"];
+
+  // The Resource ID must be 1-63 characters long, including digits,
+  //
+  // lowercase letters or the hyphen character.
+  optional string endpoint_id = 3 [json_name = "endpoint_id"];
+
+  optional string id = 4;
+
+  // Metadata for the endpoint. This data can be consumed
+  //
+  // by service clients. The entire metadata dictionary may contain
+  //
+  // up to 512 characters, spread across all key-value pairs.
+  //
+  // Metadata that goes beyond any these limits will be rejected.
+  map<string, string> metadata = 5;
+
+  // The resource name for the endpoint in the format
+  //
+  // 'projects/*/locations/*/namespaces/*/services/*/endpoints/*'.
+  optional string name = 6;
+
+  // The URL to the network, such as
+  // projects/PROJECT_NUMBER/locations/global/networks/NETWORK_NAME.
+  optional string network = 7;
+
+  // Port that the endpoint is running on, must be in the
+  //
+  // range of [0, 65535]. If unspecified, the default is 0.
+  optional int64 port = 8;
+
+  // The resource name of the service that this endpoint provides.
+  optional string service = 9;
+
+  repeated Timeouts timeouts = 10;
+
+  google.protobuf.Value for_each = 11 [json_name = "for_each"];
+
+  repeated string depends_on = 12 [json_name = "depends_on"];
+
+  optional int32 count = 13;
+
+  optional string provider = 14;
+
+  terraform.v1.Lifecycle lifecycle = 15;
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleServiceDirectoryNamespace version is 0
+message GoogleServiceDirectoryNamespace {
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 1 [json_name = "deletion_policy"];
+
+  // All of labels (key/value pairs) present on the resource in GCP, including the
+  // labels configured through Terraform, other clients and services.
+  map<string, string> effective_labels = 2 [json_name = "effective_labels"];
+
+  optional string id = 3;
+
+  // Resource labels associated with this Namespace. No more than 64 user
+  //
+  // labels can be associated with a given resource. Label keys and values can
+  //
+  // be no longer than 63 characters.
+  //
+  //
+  //
+  // **Note**: This field is non-authoritative, and will only manage the labels
+  // present in your configuration.
+  //
+  // Please refer to the field 'effective_labels' for all of the labels present on the
+  // resource.
+  map<string, string> labels = 4;
+
+  // The location for the Namespace.
+  optional string location = 5;
+
+  // The resource name for the namespace
+  //
+  // in the format 'projects/*/locations/*/namespaces/*'.
+  optional string name = 6;
+
+  // The Resource ID must be 1-63 characters long, including digits,
+  //
+  // lowercase letters or the hyphen character.
+  optional string namespace_id = 7 [json_name = "namespace_id"];
+
+  optional string project = 8;
+
+  // The combination of labels configured directly on the resource
+  //
+  // and default labels configured on the provider.
+  map<string, string> terraform_labels = 9 [json_name = "terraform_labels"];
+
+  repeated Timeouts timeouts = 10;
+
+  google.protobuf.Value for_each = 11 [json_name = "for_each"];
+
+  repeated string depends_on = 12 [json_name = "depends_on"];
+
+  optional int32 count = 13;
+
+  optional string provider = 14;
+
+  terraform.v1.Lifecycle lifecycle = 15;
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleServiceDirectoryNamespaceIamBinding version is 0
+message GoogleServiceDirectoryNamespaceIamBinding {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  repeated string members = 3;
+
+  optional string name = 4;
+
+  optional string role = 5;
+
+  Condition condition = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  optional int32 count = 9;
+
+  optional string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+
+  message Condition {
+    optional string description = 1;
+
+    optional string expression = 2;
+
+    optional string title = 3;
+  }
+}
+
+// GoogleServiceDirectoryNamespaceIamMember version is 0
+message GoogleServiceDirectoryNamespaceIamMember {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  optional string member = 3;
+
+  optional string name = 4;
+
+  optional string role = 5;
+
+  Condition condition = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  optional int32 count = 9;
+
+  optional string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+
+  message Condition {
+    optional string description = 1;
+
+    optional string expression = 2;
+
+    optional string title = 3;
+  }
+}
+
+// GoogleServiceDirectoryNamespaceIamPolicy version is 0
+message GoogleServiceDirectoryNamespaceIamPolicy {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  optional string name = 3;
+
+  optional string policy_data = 4 [json_name = "policy_data"];
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  optional int32 count = 7;
+
+  optional string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+}
+
+// GoogleServiceDirectoryService version is 0
+message GoogleServiceDirectoryService {
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 1 [json_name = "deletion_policy"];
+
+  optional string id = 2;
+
+  // Metadata for the service. This data can be consumed
+  //
+  // by service clients. The entire metadata dictionary may contain
+  //
+  // up to 2000 characters, spread across all key-value pairs.
+  //
+  // Metadata that goes beyond any these limits will be rejected.
+  map<string, string> metadata = 3;
+
+  // The resource name for the service in the
+  //
+  // format 'projects/*/locations/*/namespaces/*/services/*'.
+  optional string name = 4;
+
+  // The resource name of the namespace this service will belong to.
+  optional string namespace = 5;
+
+  // The Resource ID must be 1-63 characters long, including digits,
+  //
+  // lowercase letters or the hyphen character.
+  optional string service_id = 6 [json_name = "service_id"];
+
+  repeated Timeouts timeouts = 7;
+
+  google.protobuf.Value for_each = 8 [json_name = "for_each"];
+
+  repeated string depends_on = 9 [json_name = "depends_on"];
+
+  optional int32 count = 10;
+
+  optional string provider = 11;
+
+  terraform.v1.Lifecycle lifecycle = 12;
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleServiceDirectoryServiceIamBinding version is 0
+message GoogleServiceDirectoryServiceIamBinding {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  repeated string members = 3;
+
+  optional string name = 4;
+
+  optional string role = 5;
+
+  Condition condition = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  optional int32 count = 9;
+
+  optional string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+
+  message Condition {
+    optional string description = 1;
+
+    optional string expression = 2;
+
+    optional string title = 3;
+  }
+}
+
+// GoogleServiceDirectoryServiceIamMember version is 0
+message GoogleServiceDirectoryServiceIamMember {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  optional string member = 3;
+
+  optional string name = 4;
+
+  optional string role = 5;
+
+  Condition condition = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  optional int32 count = 9;
+
+  optional string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+
+  message Condition {
+    optional string description = 1;
+
+    optional string expression = 2;
+
+    optional string title = 3;
+  }
+}
+
+// GoogleServiceDirectoryServiceIamPolicy version is 0
+message GoogleServiceDirectoryServiceIamPolicy {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  optional string name = 3;
+
+  optional string policy_data = 4 [json_name = "policy_data"];
+
+  google.protobuf.Value for_each = 5 [json_name = "for_each"];
+
+  repeated string depends_on = 6 [json_name = "depends_on"];
+
+  optional int32 count = 7;
+
+  optional string provider = 8;
+
+  terraform.v1.Lifecycle lifecycle = 9;
+}
+
+// GoogleServiceNetworkingConnection version is 0
+message GoogleServiceNetworkingConnection {
+  // Whether Terraform will be prevented from destroying the connection. Defaults to
+  // "DELETE".
+  //
+  // When set to "PREVENT", destroying the resource will fail.
+  //
+  // When set to "ABANDON", the resource is removed from Terraform state without
+  //
+  // deleting the connection in the API. The VPC peering created by this connection
+  //
+  // is left in place, which will block deletion of the network.
+  //
+  // When set to "DELETE", the connection is deleted.
+  //
+  // When set to "REMOVE_PEERING", the connection is deleted, and if the API refuses
+  //
+  // because service producer resources still use it, the VPC peering is removed from
+  //
+  // the network instead so that the network can be deleted. Only use this once the
+  //
+  // service instances using the connection (such as Cloud SQL) are already deleted.
+  optional string deletion_policy = 1 [json_name = "deletion_policy"];
+
+  optional string id = 2;
+
+  // Name of VPC network connected with service producers using VPC peering.
+  optional string network = 3;
+
+  optional string peering = 4;
+
+  // Named IP address range(s) of PEERING type reserved for this service provider.
+  // Note that invoking this method with a different range when connection is already
+  // established will not reallocate already provisioned service producer subnetworks.
+  repeated string reserved_peering_ranges = 5 [json_name = "reserved_peering_ranges"];
+
+  // Provider peering service that is managing peering connectivity for a service
+  // provider organization. For Google services that support this functionality it is
+  // 'servicenetworking.googleapis.com'.
+  optional string service = 6;
+
+  // When set to true, enforce an update of the reserved peering ranges on the
+  // existing service networking connection in case of a new connection creation
+  // failure.
+  optional bool update_on_creation_fail = 7 [json_name = "update_on_creation_fail"];
+
+  repeated Timeouts timeouts = 8;
+
+  google.protobuf.Value for_each = 9 [json_name = "for_each"];
+
+  repeated string depends_on = 10 [json_name = "depends_on"];
+
+  optional int32 count = 11;
+
+  optional string provider = 12;
+
+  terraform.v1.Lifecycle lifecycle = 13;
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleServiceNetworkingPeeredDnsDomain version is 0
+message GoogleServiceNetworkingPeeredDnsDomain {
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 1 [json_name = "deletion_policy"];
+
+  // The DNS domain name suffix of the peered DNS domain.
+  optional string dns_suffix = 2 [json_name = "dns_suffix"];
+
+  optional string id = 3;
+
+  // Name of the peered DNS domain.
+  optional string name = 4;
+
+  // Network in the consumer project to peer with.
+  optional string network = 5;
+
+  optional string parent = 6;
+
+  // The ID of the project that the service account will be created in. Defaults to
+  // the provider project configuration.
+  optional string project = 7;
+
+  // The name of the service to create a peered DNS domain for, e.g.
+  // servicenetworking.googleapis.com
+  optional string service = 8;
+
+  repeated Timeouts timeouts = 9;
+
+  google.protobuf.Value for_each = 10 [json_name = "for_each"];
+
+  repeated string depends_on = 11 [json_name = "depends_on"];
+
+  optional int32 count = 12;
+
+  optional string provider = 13;
+
+  terraform.v1.Lifecycle lifecycle = 14;
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string read = 3;
+  }
+}
+
+// GoogleServiceNetworkingVpcServiceControls version is 0
+message GoogleServiceNetworkingVpcServiceControls {
+  // Desired VPC Service Controls state service producer VPC network, as
+  //
+  // described at the top of this page.
+  optional bool enabled = 1;
+
+  optional string id = 2;
+
+  // The network that the consumer is using to connect with services.
+  optional string network = 3;
+
+  // The id of the Google Cloud project containing the consumer network.
+  optional string project = 4;
+
+  // The service that is managing peering connectivity for a service
+  //
+  // producer's organization. For Google services that support this
+  //
+  // functionality, this value is 'servicenetworking.googleapis.com'.
+  optional string service = 5;
+
+  repeated Timeouts timeouts = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  optional int32 count = 9;
+
+  optional string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}

@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+// Provider: builtin 1
+package terraform.builtin.datasources.v1;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// TerraformRemoteState version is 0
+message TerraformRemoteState {
+  // The remote backend to use, e.g. `remote` or `http`.
+  optional string backend = 1;
+
+  // The configuration of the remote backend. Accepts any arguments valid in the
+  // equivalent `terraform { backend "<TYPE>" { ... } }` block.
+  google.protobuf.Value config = 2;
+
+  // Default values for outputs, in case the state file is empty or lacks a required
+  // output.
+  google.protobuf.Value defaults = 3;
+
+  // An object containing every root-level output in the remote state.
+  google.protobuf.Value outputs = 4;
+
+  // The Terraform workspace to use, if the backend supports workspaces.
+  optional string workspace = 5;
+
+  google.protobuf.Value for_each = 6 [json_name = "for_each"];
+
+  repeated string depends_on = 7 [json_name = "depends_on"];
+
+  optional int32 count = 8;
+
+  optional string provider = 9;
+
+  terraform.v1.Lifecycle lifecycle = 10;
+}

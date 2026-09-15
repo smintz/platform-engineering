@@ -1,7 +1,7 @@
 load("@kubernetes//kubernetes.pinc", "WithConfigFiles", "WithContainerEnv", "Workload")
 load("@platform//platform/platform.pinc", "platform")
 load("@terraform_state//terraform.pinc", "WithState")
-load("//components/defaults.pinc", "BACKEND")
+load("//components/defaults.pinc", "BACKEND", "CLUSTERS")
 load("//flagd/v1/flags.proto", "Flags")
 load("//grafana/provisioning/v1/datasources.proto", "Datasources")
 load("//opentelemetry/sdk/v1/config.proto", SdkConfig = "Config")
@@ -58,7 +58,8 @@ def WithDemoWorkload(image, port, *hooks):
         return next(component)
 
     return (
-        WithState(lambda component: Workload(component.name, image, port), BACKEND),
+        # component.domain is already set: inherited hooks run first
+        WithState(lambda component: Workload(component.name, image, port, CLUSTERS[component.domain]), BACKEND),
         platform.component_filter(shape),
     )
 

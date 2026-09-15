@@ -1,0 +1,317 @@
+{
+  "resource": {
+    "grafana_dashboard": {
+      "slos": {
+        "config_json": "{\"uid\":\"valkey-cart\",\"title\":\"valkey-cart SLOs\",\"tags\":[\"slo\",\"gke\",\"valkey-cart\"],\"schemaVersion\":39,\"editable\":false,\"refresh\":\"1m\",\"panels\":[{\"type\":\"row\",\"title\":\"SLOs\",\"gridPos\":{\"h\":1,\"w\":24},\"collapsed\":false},{\"type\":\"stat\",\"description\":\"Share of commands to the store that its clients saw succeed. Target 99.5% over 28 days, provisional\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[28d])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[28d]))\",\"legendFormat\":\"command availability\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.995}]},\"unit\":\"percentunit\",\"min\":0.995}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"stat\",\"description\":\"Share of commands answered within 10ms, as their clients timed them. Every one is a single-key hash operation, so a slow one is the store. Target 99% over 28 days, provisional\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"x\":4,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[28d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[28d]))\",\"legendFormat\":\"command latency\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.99}]},\"unit\":\"percentunit\",\"min\":0.99}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"row\",\"title\":\"Diagnostics\",\"gridPos\":{\"h\":1,\"w\":24,\"y\":5},\"collapsed\":false},{\"type\":\"timeseries\",\"title\":\"memory used\",\"description\":\"Memory holding the carts. The container is capped at 20Mi and Valkey has no maxmemory set, so nearing that cap ends in an OOM kill, not in eviction\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"y\":6},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(redis_memory_used_bytes)\",\"legendFormat\":\"__auto\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"bytes\"}}},{\"type\":\"timeseries\",\"title\":\"keyspace hit ratio\",\"description\":\"Share of key lookups that found a cart. A new shopper's first lookup misses by design, so the level is traffic mix; a sudden drop is carts disappearing\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"x\":12,\"y\":6},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(redis_keyspace_hits_total[5m])) / (sum(rate(redis_keyspace_hits_total[5m])) + sum(rate(redis_keyspace_misses_total[5m])))\",\"legendFormat\":\"__auto\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"percentunit\"}}},{\"type\":\"timeseries\",\"title\":\"connected clients\",\"description\":\"Open client connections. The cart holds a multiplexed few, so a climb means connections are being opened and not reused\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"y\":14},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(redis_clients_connected)\",\"legendFormat\":\"__auto\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}}]}",
+        "message": "Managed by protoconf",
+        "overwrite": true
+      }
+    },
+    "grafana_folder": {
+      "alerts": {
+        "title": "valkey-cart SLOs",
+        "uid": "valkey-cart-slos"
+      }
+    },
+    "grafana_rule_group": {
+      "slo_alerts": {
+        "folder_uid": "${grafana_folder.alerts.uid}",
+        "interval_seconds": "60",
+        "name": "valkey-cart SLO alerts",
+        "rule": [
+          {
+            "annotations": {
+              "description": "About 2% of the 28-day error budget is gone. The target is 99.5%, so the budget is 0.5% of events; both the 1h and 5m windows are below 0.928. Share of commands to the store that its clients saw succeed. Target 99.5% over 28 days, provisional",
+              "summary": "command availability is burning its error budget 14.4x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "valkey-cart",
+              "objective": "command availability",
+              "severity": "page"
+            },
+            "name": "valkey-cart: command availability · fast burn",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[1h])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "3600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[5m])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "300",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.928 \u0026\u0026 $B \u003c 0.928\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "3600",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 5% of the 28-day error budget is gone. The target is 99.5%, so the budget is 0.5% of events; both the 6h and 30m windows are below 0.97. Share of commands to the store that its clients saw succeed. Target 99.5% over 28 days, provisional",
+              "summary": "command availability is burning its error budget 6x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "valkey-cart",
+              "objective": "command availability",
+              "severity": "page"
+            },
+            "name": "valkey-cart: command availability · slow burn",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[30m])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "1800",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.97 \u0026\u0026 $B \u003c 0.97\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 10% of the 28-day error budget is gone. The target is 99.5%, so the budget is 0.5% of events; both the 3d and 6h windows are below 0.995. Share of commands to the store that its clients saw succeed. Target 99.5% over 28 days, provisional",
+              "summary": "command availability is burning its error budget 1x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "valkey-cart",
+              "objective": "command availability",
+              "severity": "ticket"
+            },
+            "name": "valkey-cart: command availability · budget leak",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[3d])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.995 \u0026\u0026 $B \u003c 0.995\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 2% of the 28-day error budget is gone. The target is 99%, so the budget is 1% of events; both the 1h and 5m windows are below 0.856. Share of commands answered within 10ms, as their clients timed them. Every one is a single-key hash operation, so a slow one is the store. Target 99% over 28 days, provisional",
+              "summary": "command latency is burning its error budget 14.4x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "valkey-cart",
+              "objective": "command latency",
+              "severity": "page"
+            },
+            "name": "valkey-cart: command latency · fast burn",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[1h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "3600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[5m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "300",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.856 \u0026\u0026 $B \u003c 0.856\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "3600",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 5% of the 28-day error budget is gone. The target is 99%, so the budget is 1% of events; both the 6h and 30m windows are below 0.94. Share of commands answered within 10ms, as their clients timed them. Every one is a single-key hash operation, so a slow one is the store. Target 99% over 28 days, provisional",
+              "summary": "command latency is burning its error budget 6x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "valkey-cart",
+              "objective": "command latency",
+              "severity": "page"
+            },
+            "name": "valkey-cart: command latency · slow burn",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[30m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "1800",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.94 \u0026\u0026 $B \u003c 0.94\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 10% of the 28-day error budget is gone. The target is 99%, so the budget is 1% of events; both the 3d and 6h windows are below 0.99. Share of commands answered within 10ms, as their clients timed them. Every one is a single-key hash operation, so a slow one is the store. Target 99% over 28 days, provisional",
+              "summary": "command latency is burning its error budget 1x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "valkey-cart",
+              "objective": "command latency",
+              "severity": "ticket"
+            },
+            "name": "valkey-cart: command latency · budget leak",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[3d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.99 \u0026\u0026 $B \u003c 0.99\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "data": {
+    "grafana_data_source": {
+      "prometheus": {
+        "name": "Prometheus"
+      }
+    }
+  },
+  "provider": {
+    "grafana": [
+      {
+        
+      }
+    ]
+  },
+  "terraform": {
+    "required_providers": {
+      "grafana": {
+        "source": "registry.terraform.io/grafana/grafana",
+        "version": "4.45.2"
+      }
+    },
+    "backend": {
+      "local": {
+        
+      }
+    }
+  }
+}

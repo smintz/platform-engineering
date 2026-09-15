@@ -1,0 +1,239 @@
+{
+  "resource": {
+    "kubernetes_deployment_v1": {
+      "frontend-proxy": {
+        "metadata": {
+          "labels": {
+            "app": "frontend-proxy"
+          },
+          "name": "frontend-proxy"
+        },
+        "spec": {
+          "selector": {
+            "match_labels": {
+              "app": "frontend-proxy"
+            }
+          },
+          "template": {
+            "metadata": {
+              "labels": {
+                "app": "frontend-proxy"
+              }
+            },
+            "spec": {
+              "container": [
+                {
+                  "image": "ghcr.io/open-telemetry/demo:3.0.0-frontend-proxy",
+                  "name": "frontend-proxy",
+                  "env": [
+                    {
+                      "name": "OTEL_SERVICE_NAME",
+                      "value": "frontend-proxy"
+                    },
+                    {
+                      "name": "OTEL_RESOURCE_ATTRIBUTES",
+                      "value": "service.version=3.0.0"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                      "value": "cumulative"
+                    },
+                    {
+                      "name": "ENVOY_PORT",
+                      "value": "8080"
+                    },
+                    {
+                      "name": "ENVOY_ADDR",
+                      "value": "0.0.0.0"
+                    },
+                    {
+                      "name": "ENVOY_ADMIN_PORT",
+                      "value": "10000"
+                    },
+                    {
+                      "name": "CHATBOT_HOST",
+                      "value": "chatbot"
+                    },
+                    {
+                      "name": "CHATBOT_PORT",
+                      "value": "7860"
+                    },
+                    {
+                      "name": "OPAMP_SERVER_HOST",
+                      "value": "opamp-server"
+                    },
+                    {
+                      "name": "OPAMP_SERVER_UI_PORT",
+                      "value": "4321"
+                    },
+                    {
+                      "name": "FIREPIT_HOST",
+                      "value": "firepit"
+                    },
+                    {
+                      "name": "FIREPIT_PORT",
+                      "value": "8080"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                      "value": "http://otel-collector:4317"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                      "value": "grpc"
+                    },
+                    {
+                      "name": "OTEL_COLLECTOR_HOST",
+                      "value": "otel-collector"
+                    },
+                    {
+                      "name": "OTEL_COLLECTOR_PORT_GRPC",
+                      "value": "4317"
+                    },
+                    {
+                      "name": "OTEL_COLLECTOR_PORT_HTTP",
+                      "value": "4318"
+                    },
+                    {
+                      "name": "FLAGD_HOST",
+                      "value": "flagd"
+                    },
+                    {
+                      "name": "FLAGD_PORT",
+                      "value": "8013"
+                    },
+                    {
+                      "name": "FLAGD_UI_HOST",
+                      "value": "flagd-ui"
+                    },
+                    {
+                      "name": "FLAGD_UI_PORT",
+                      "value": "4000"
+                    },
+                    {
+                      "name": "FRONTEND_HOST",
+                      "value": "frontend"
+                    },
+                    {
+                      "name": "FRONTEND_PORT",
+                      "value": "8080"
+                    },
+                    {
+                      "name": "GRAFANA_HOST",
+                      "value": "grafana"
+                    },
+                    {
+                      "name": "GRAFANA_PORT",
+                      "value": "3000"
+                    },
+                    {
+                      "name": "IMAGE_PROVIDER_HOST",
+                      "value": "image-provider"
+                    },
+                    {
+                      "name": "IMAGE_PROVIDER_PORT",
+                      "value": "8081"
+                    },
+                    {
+                      "name": "JAEGER_HOST",
+                      "value": "jaeger"
+                    },
+                    {
+                      "name": "JAEGER_UI_PORT",
+                      "value": "16686"
+                    },
+                    {
+                      "name": "JAEGER_URL",
+                      "value": "http://jaeger:16686/jaeger/ui"
+                    },
+                    {
+                      "name": "JAEGER_OTLP_ENDPOINT",
+                      "value": "http://jaeger:4318"
+                    },
+                    {
+                      "name": "LOCUST_WEB_HOST",
+                      "value": "load-generator"
+                    },
+                    {
+                      "name": "LOCUST_WEB_PORT",
+                      "value": "8089"
+                    },
+                    {
+                      "name": "TELEMETRY_DOCS_HOST",
+                      "value": "telemetry-docs"
+                    },
+                    {
+                      "name": "TELEMETRY_DOCS_PORT",
+                      "value": "8000"
+                    }
+                  ],
+                  "port": [
+                    {
+                      "container_port": "8080"
+                    },
+                    {
+                      "container_port": "10000",
+                      "name": "admin"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "memory": "90Mi"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "kubernetes_service_v1": {
+      "frontend-proxy": {
+        "metadata": {
+          "labels": {
+            "app": "frontend-proxy"
+          },
+          "name": "frontend-proxy"
+        },
+        "spec": {
+          "selector": {
+            "app": "frontend-proxy"
+          },
+          "port": [
+            {
+              "name": "port-8080",
+              "port": "8080",
+              "target_port": "8080"
+            },
+            {
+              "name": "admin",
+              "port": "10000",
+              "target_port": "10000"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "provider": {
+    "kubernetes": [
+      {
+        "config_path": "~/.kube/gke-platform"
+      }
+    ]
+  },
+  "terraform": {
+    "required_providers": {
+      "kubernetes": {
+        "source": "registry.terraform.io/hashicorp/kubernetes",
+        "version": "3.2.1"
+      }
+    },
+    "backend": {
+      "local": {
+        
+      }
+    }
+  }
+}

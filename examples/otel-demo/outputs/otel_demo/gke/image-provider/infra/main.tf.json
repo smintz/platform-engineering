@@ -1,0 +1,125 @@
+{
+  "resource": {
+    "kubernetes_deployment_v1": {
+      "image-provider": {
+        "metadata": {
+          "labels": {
+            "app": "image-provider"
+          },
+          "name": "image-provider"
+        },
+        "spec": {
+          "selector": {
+            "match_labels": {
+              "app": "image-provider"
+            }
+          },
+          "template": {
+            "metadata": {
+              "labels": {
+                "app": "image-provider"
+              }
+            },
+            "spec": {
+              "container": [
+                {
+                  "image": "ghcr.io/open-telemetry/demo:3.0.0-image-provider",
+                  "name": "image-provider",
+                  "env": [
+                    {
+                      "name": "OTEL_SERVICE_NAME",
+                      "value": "image-provider"
+                    },
+                    {
+                      "name": "OTEL_RESOURCE_ATTRIBUTES",
+                      "value": "service.version=3.0.0"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                      "value": "cumulative"
+                    },
+                    {
+                      "name": "IMAGE_PROVIDER_PORT",
+                      "value": "8081"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                      "value": "http://otel-collector:4317"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                      "value": "grpc"
+                    },
+                    {
+                      "name": "OTEL_COLLECTOR_HOST",
+                      "value": "otel-collector"
+                    },
+                    {
+                      "name": "OTEL_COLLECTOR_PORT_GRPC",
+                      "value": "4317"
+                    },
+                    {
+                      "name": "OTEL_COLLECTOR_PORT_HTTP",
+                      "value": "4318"
+                    }
+                  ],
+                  "port": [
+                    {
+                      "container_port": "8081"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "memory": "50Mi"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "kubernetes_service_v1": {
+      "image-provider": {
+        "metadata": {
+          "labels": {
+            "app": "image-provider"
+          },
+          "name": "image-provider"
+        },
+        "spec": {
+          "selector": {
+            "app": "image-provider"
+          },
+          "port": [
+            {
+              "port": "8081",
+              "target_port": "8081"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "provider": {
+    "kubernetes": [
+      {
+        "config_path": "~/.kube/gke-platform"
+      }
+    ]
+  },
+  "terraform": {
+    "required_providers": {
+      "kubernetes": {
+        "source": "registry.terraform.io/hashicorp/kubernetes",
+        "version": "3.2.1"
+      }
+    },
+    "backend": {
+      "local": {
+        
+      }
+    }
+  }
+}

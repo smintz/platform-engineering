@@ -1,4 +1,5 @@
 load("@platform//platform/platform.pinc", "platform")
+load("//components/defaults.pinc", "CLUSTERS")
 load("//components/demo.pinc", "CONFIG_FILE_TYPES")
 load("//components/frontend_proxy.pinc", "FrontendProxyComponent")
 
@@ -9,12 +10,16 @@ load("//components/frontend_proxy.pinc", "FrontendProxyComponent")
 #
 # The inventory is one component. A component brings its dependencies with it, so naming
 # the root of the graph — the storefront proxy — is naming all of it; the failure domain
-# set here is inherited by every one of them.
+# set here is inherited by every one of them. It is rendered once per cluster in CLUSTERS,
+# each copy under its own domain: outputs/otel_demo/<domain>/.
 #
 # CONFIG_FILE_TYPES tells GetConfigs about the config file messages the components render
 # beside their Terraform (see WithConfigFile), so it writes those too.
 def main():
-    return platform.GetConfigs(
-        FrontendProxyComponent(platform.WithFailureDomain("colima")).msg,
-        CONFIG_FILE_TYPES,
-    )
+    configs = {}
+    for domain in CLUSTERS:
+        configs.update(platform.GetConfigs(
+            FrontendProxyComponent(platform.WithFailureDomain(domain)).msg,
+            CONFIG_FILE_TYPES,
+        ))
+    return configs
