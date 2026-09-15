@@ -39,7 +39,8 @@ def Provider(provider):
         if not tf.terraform:
             tf.terraform = TerraformProto.TerraformSettings()
 
-        provider_name = str(provider).split(".")[1]
+        # the provider block is named after its registry address; the proto package may be renamed (google -> googlecloud)
+        provider_name = provider.provider_fqdn.split("/")[-1]
         providerlist = getattr(tf.provider, provider_name)
         providerlist.append(provider)
         tf.terraform.required_providers[provider_name] = TerraformProto.TerraformSettings.Provider(
