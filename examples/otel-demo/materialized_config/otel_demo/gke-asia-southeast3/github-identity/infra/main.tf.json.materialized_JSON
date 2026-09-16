@@ -1,0 +1,135 @@
+{
+  "protoFile": "terraform/v1/terraform.proto",
+  "value": {
+    "@type": "type.googleapis.com/terraform.v1.Terraform",
+    "resource": {
+      "google_iam_workload_identity_pool": {
+        "github": {
+          "display_name": "GitHub Actions",
+          "project": "home-run-it",
+          "workload_identity_pool_id": "platform-github"
+        }
+      },
+      "google_iam_workload_identity_pool_provider": {
+        "provider": {
+          "attribute_condition": "assertion.repository == 'smintz/platform-engineering'",
+          "attribute_mapping": {
+            "attribute.repository": "assertion.repository",
+            "google.subject": "assertion.sub"
+          },
+          "display_name": "GitHub Actions",
+          "project": "home-run-it",
+          "workload_identity_pool_id": "${google_iam_workload_identity_pool.github.workload_identity_pool_id}",
+          "workload_identity_pool_provider_id": "github",
+          "oidc": {
+            "issuer_uri": "https://token.actions.githubusercontent.com"
+          }
+        }
+      },
+      "google_project_iam_member": {
+        "apply_compute_networkadmin": {
+          "member": "serviceAccount:${google_service_account.tf_apply.email}",
+          "project": "home-run-it",
+          "role": "roles/compute.networkAdmin"
+        },
+        "apply_container_admin": {
+          "member": "serviceAccount:${google_service_account.tf_apply.email}",
+          "project": "home-run-it",
+          "role": "roles/container.admin"
+        },
+        "apply_iam_serviceaccountadmin": {
+          "member": "serviceAccount:${google_service_account.tf_apply.email}",
+          "project": "home-run-it",
+          "role": "roles/iam.serviceAccountAdmin"
+        },
+        "apply_iam_serviceaccountuser": {
+          "member": "serviceAccount:${google_service_account.tf_apply.email}",
+          "project": "home-run-it",
+          "role": "roles/iam.serviceAccountUser"
+        },
+        "apply_resourcemanager_projectiamadmin": {
+          "member": "serviceAccount:${google_service_account.tf_apply.email}",
+          "project": "home-run-it",
+          "role": "roles/resourcemanager.projectIamAdmin"
+        },
+        "apply_serviceusage_serviceusageadmin": {
+          "member": "serviceAccount:${google_service_account.tf_apply.email}",
+          "project": "home-run-it",
+          "role": "roles/serviceusage.serviceUsageAdmin"
+        },
+        "apply_storage_admin": {
+          "member": "serviceAccount:${google_service_account.tf_apply.email}",
+          "project": "home-run-it",
+          "role": "roles/storage.admin"
+        },
+        "plan_storage_objectadmin": {
+          "member": "serviceAccount:${google_service_account.tf_plan.email}",
+          "project": "home-run-it",
+          "role": "roles/storage.objectAdmin"
+        },
+        "plan_viewer": {
+          "member": "serviceAccount:${google_service_account.tf_plan.email}",
+          "project": "home-run-it",
+          "role": "roles/viewer"
+        }
+      },
+      "google_service_account": {
+        "tf_apply": {
+          "account_id": "platform-tf-apply",
+          "display_name": "Terraform apply (GitHub Actions)",
+          "project": "home-run-it"
+        },
+        "tf_plan": {
+          "account_id": "platform-tf-plan",
+          "display_name": "Terraform plan (GitHub Actions)",
+          "project": "home-run-it"
+        }
+      },
+      "google_service_account_iam_member": {
+        "wif_apply": {
+          "member": "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/smintz/platform-engineering",
+          "role": "roles/iam.workloadIdentityUser",
+          "service_account_id": "${google_service_account.tf_apply.name}"
+        },
+        "wif_plan": {
+          "member": "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/smintz/platform-engineering",
+          "role": "roles/iam.workloadIdentityUser",
+          "service_account_id": "${google_service_account.tf_plan.name}"
+        }
+      }
+    },
+    "provider": {
+      "google": [
+        {
+          "project": "home-run-it",
+          "region": "asia-southeast3"
+        }
+      ]
+    },
+    "output": {
+      "apply_service_account": {
+        "value": "${google_service_account.tf_apply.email}"
+      },
+      "plan_service_account": {
+        "value": "${google_service_account.tf_plan.email}"
+      },
+      "workload_identity_provider": {
+        "value": "${google_iam_workload_identity_pool_provider.provider.name}"
+      }
+    },
+    "terraform": {
+      "required_providers": {
+        "google": {
+          "source": "registry.terraform.io/hashicorp/google",
+          "version": "8.3.0"
+        }
+      },
+      "backend": {
+        "gcs": {
+          "bucket": "home-run-it-tfstate",
+          "prefix": "gke-asia-southeast3/github-identity"
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,6 @@
+load("@github_actions//github_actions.pinc", "actions")
 load("@platform//platform/platform.pinc", "platform")
-load("//components/defaults.pinc", "CLUSTERS", "DOMAIN_HOOKS")
+load("//components/defaults.pinc", "CLUSTERS", "DOMAIN_HOOKS", "GKE", "GkeIdentity")
 load("//components/demo.pinc", "CONFIG_FILE_TYPES")
 load("//components/frontend_proxy.pinc", "FrontendProxyComponent")
 load("//google/protobuf/struct.proto", "ListValue", "Value")
@@ -42,6 +43,30 @@ def _apply_order(root, configs):
             order.append(component.name)
     return ListValue(values = [Value(string_value = name) for name in order])
 
+# Where the compiler writes this file's outputs, as seen from the repository root: the
+# workflow is installed there (GitHub reads nowhere else), and every path inside it — each
+# job's working directory, the paths filter — is resolved from there.
+OUTPUT_ROOT = "examples/otel-demo/outputs/otel_demo"
+
+# The pipeline for the gke domain: a plan on every pull request and an apply on main for
+# each of its states, ordered by which state reads which — the network, then the cluster,
+# then the services that authenticate against it. Nobody declares that order.
+#
+# Infra states only. The monitoring states talk to a Grafana that lives inside the cluster
+# on a ClusterIP address, which a GitHub runner has no route to; they stay a `make
+# monitoring` from a machine holding a port-forward.
+#
+# The local domain gets no pipeline: its state is a file on somebody's laptop, and the
+# driver refuses to apply on a runner whose disk is thrown away with the job.
+def _pipeline(domain, configs):
+    return actions.TerraformPipeline(
+        {key: config for key, config in configs.items() if key.endswith("/infra/main.tf.json")},
+        OUTPUT_ROOT,
+        actions.GoogleOidcCredentials(),
+        name = "otel-demo-gke",
+        paths = ["%s/%s/**" % (OUTPUT_ROOT, domain)],
+    )
+
 def main():
     configs = {}
     for domain in CLUSTERS:
@@ -52,4 +77,10 @@ def main():
         rendered = platform.GetConfigs(root, CONFIG_FILE_TYPES)
         configs.update(rendered)
         configs[domain + "/apply-order.json"] = _apply_order(root, rendered)
+        if domain == GKE:
+            # A root of its own, not a dependency of anything: nothing in the stack reads it,
+            # and it is applied before the stack exists. Rendered from the same inventory so
+            # it is not a README step somebody performs differently every time.
+            configs.update(platform.GetConfigs(GkeIdentity(platform.WithFailureDomain(domain)).msg))
+            configs[".github/workflows/otel-demo-gke.yaml"] = _pipeline(domain, rendered)
     return configs

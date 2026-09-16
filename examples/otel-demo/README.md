@@ -145,6 +145,38 @@ component with no objectives renders no dashboard.
   dimension existed carry no label either, so Grafana's earlier 503s stay in the 28-day
   number until they age out of the window.
 
+## Continuous integration
+
+The gke domain also renders its own pipeline: `outputs/otel_demo/.github/workflows/otel-demo-gke.yaml`,
+a plan on every pull request and an apply on `main` for each of its states, ordered by which
+state reads which — the network, then the cluster, then the services on it. Nobody declares
+that order; it is recovered from the `terraform_remote_state` in each config.
+
+```bash
+make apply DOMAIN=gke-asia-southeast3      # includes github-identity, the one state CI never applies
+terraform -chdir=outputs/otel_demo/gke-asia-southeast3/github-identity/infra output
+make workflows                             # install the workflow at the repository root
+```
+
+Set the three values that `output` prints as repository variables —
+`GCP_WORKLOAD_IDENTITY_PROVIDER`, `TF_PLAN_SERVICE_ACCOUNT`, `TF_APPLY_SERVICE_ACCOUNT` —
+and the workflow authenticates with no key anywhere: GitHub's own OIDC token is traded for
+a service account, and the credentials that writes are what the Google provider reads *and*
+what mints the token for every service's Kubernetes provider. A runner needs no kubeconfig.
+
+- **`github-identity` is applied by hand, once.** It is what lets CI authenticate, so CI
+  cannot be what creates it; leaving it out of the pipeline also means a broken apply can
+  never lock CI out of the project. It is a component like any other — the pool trusts this
+  one repository, and the plan and apply accounts are separate.
+- **The local domain has no pipeline.** Its state is a file on somebody's laptop, and the CI
+  driver refuses to apply a state whose disk is thrown away with the job.
+- **The monitoring states are not in it either.** They talk to a Grafana inside the cluster
+  on a ClusterIP address no runner can route to, so dashboards stay a `make monitoring` from
+  a machine holding a port-forward.
+- **Installing the workflow is deliberate.** `make workflows` copies it to the repository
+  root; until then nothing runs, and after it every pull request plans this stack and every
+  push to `main` applies it.
+
 ## What the exercise showed
 
 **Dependency wiring fans out as designed.** No service writes another service's address.

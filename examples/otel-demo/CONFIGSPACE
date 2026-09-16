@@ -1,7 +1,8 @@
 platform=remote_repo(label="platform", url="../..", branch="main")
 
-# Only the drivers this stack uses: a runtime, a state, dashboards, and the GKE cluster the
-# gke domain provisions and runs on. No CI driver — this example is applied by hand.
+# Only the drivers this stack uses: a runtime, a state, dashboards, the GKE cluster the gke
+# domain provisions and runs on, and the CI that applies that domain.
+github_actions=remote_repo(label="github_actions", url="../../drivers/cicd/github_actions", branch="main")
 gke=remote_repo(label="gke", url="../../drivers/cluster/gke", branch="main")
 grafana=remote_repo(label="grafana", url="../../drivers/monitoring/grafana", branch="main")
 kubernetes=remote_repo(label="kubernetes", url="../../drivers/runtime/kubernetes", branch="main")

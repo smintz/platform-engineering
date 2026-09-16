@@ -23,6 +23,14 @@ compile:
 	protoconf mod tidy
 	protoconf compile .
 
+# GitHub reads .github/workflows at the repository root and nowhere else, so the workflow
+# the compiler writes under outputs/ is installed there. Generated: edit src/otel_demo.mpconf,
+# not the yaml. Installing it is deliberate rather than automatic — once it is at the root it
+# plans on every pull request, and applies this stack on main.
+workflows: compile
+	mkdir -p ../../.github/workflows
+	cp outputs/otel_demo/.github/workflows/*.yaml ../../.github/workflows/
+
 # The states that other states read go first, in the order apply-order.json gives — on GKE
 # the network, then the cluster every other state authenticates against. The rest read
 # nothing and go in parallel; a pod whose dependency is not up yet restarts until it is.
