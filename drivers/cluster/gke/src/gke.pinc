@@ -4,6 +4,7 @@ load("//gke/nat.pinc", "Nat")
 load("//gke/network.pinc", "Network")
 load("//gke/router.pinc", "Router")
 load("//gke/subnet.pinc", "Subnet")
+load("//gke/workload_identity.pinc", "GithubWorkloadIdentity")
 
 # GKE cluster driver: a VPC, the subnets, router and NAT inside it, and a cluster on one of
 # those subnets — each a component, so a workspace declares the pieces it wants and they
@@ -32,4 +33,5 @@ gke = struct(
     Router = Router,
     Nat = Nat,
     Cluster = Cluster,
+    GithubWorkloadIdentity = GithubWorkloadIdentity,
 )

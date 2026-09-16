@@ -1,0 +1,116 @@
+load("@platform//platform/platform.pinc", "platform")
+load("@platform//terraform/v1/util.pinc", "util")
+load("@terraform_state//terraform.pinc", "WithState")
+load("//gke/gcp.pinc", "Terraform")
+load("//terraform/googlecloud/resources/v8/iam.proto", Pool = "GoogleIamWorkloadIdentityPool", Provider = "GoogleIamWorkloadIdentityPoolProvider")
+load("//terraform/googlecloud/resources/v8/project.proto", "GoogleProjectIamMember")
+load("//terraform/googlecloud/resources/v8/service.proto", "GoogleServiceAccount", "GoogleServiceAccountIamMember")
+
+# The identity CI runs as: a workload identity pool that trusts GitHub's OIDC issuer for one
+# repository, and two service accounts — one for plan, one for apply — that a workflow in
+# that repository may impersonate. No key is created, so none can leak or need rotating.
+#
+# This is the one state nobody's pipeline applies. It is what makes a pipeline able to
+# authenticate at all, so it is applied by hand, once, before there is any CI; and leaving
+# it out of the pipeline also means a broken apply can never lock CI out of its own project.
+
+ISSUER = "https://token.actions.githubusercontent.com"
+
+# Plan is read-only over the project, plus object writes: the GCS backend takes a lock by
+# writing an object beside the state, so a plan that could only read would fail to start.
+PLAN_ROLES = [
+    "roles/viewer",
+    "roles/storage.objectAdmin",
+]
+
+# Apply is broad because of what this stack creates: a network and a cluster, a service
+# account for the nodes, a project IAM binding for that account, and the APIs behind all of
+# it. Each role here is one of those, and narrowing them is a project's own policy decision.
+APPLY_ROLES = [
+    "roles/compute.networkAdmin",
+    "roles/container.admin",
+    "roles/iam.serviceAccountAdmin",
+    "roles/iam.serviceAccountUser",
+    "roles/resourcemanager.projectIamAdmin",
+    "roles/serviceusage.serviceUsageAdmin",
+    "roles/storage.admin",
+]
+
+def _slug(role):
+    return role.split("/")[-1].replace(".", "_").lower()
+
+# `repository` is "owner/name" — the one repository whose workflows these accounts trust.
+# It is both the attribute condition on the provider, which decides whose token is accepted
+# at all, and the principal set on each service account, which decides who may act as it.
+def GithubWorkloadIdentity(gcp, repository, plan_roles = PLAN_ROLES, apply_roles = APPLY_ROLES):
+    accounts = {"plan": plan_roles, "apply": apply_roles}
+
+    def contents(component):
+        resources = {
+            "github": Pool(
+                project = gcp.project,
+                workload_identity_pool_id = gcp.name + "-github",
+                display_name = "GitHub Actions",
+            ),
+            "provider": Provider(
+                project = gcp.project,
+                workload_identity_pool_provider_id = "github",
+                display_name = "GitHub Actions",
+                # what the token has to say about itself before Google will look at it
+                attribute_condition = "assertion.repository == '%s'" % repository,
+                attribute_mapping = {
+                    "google.subject": "assertion.sub",
+                    "attribute.repository": "assertion.repository",
+                },
+                oidc = Provider.Oidc(issuer_uri = ISSUER),
+            ),
+        }
+        for who, roles in accounts.items():
+            resources["tf_" + who] = GoogleServiceAccount(
+                project = gcp.project,
+                account_id = "%s-tf-%s" % (gcp.name, who),
+                display_name = "Terraform %s (GitHub Actions)" % who,
+            )
+            resources["wif_" + who] = GoogleServiceAccountIamMember(
+                role = "roles/iam.workloadIdentityUser",
+            )
+            for role in roles:
+                resources["%s_%s" % (who, _slug(role))] = GoogleProjectIamMember(
+                    project = gcp.project,
+                    role = role,
+                )
+
+        def link(t, next):
+            t.resource.provider.workload_identity_pool_id = t.var.github.workload_identity_pool_id
+            for who, roles in accounts.items():
+                account = getattr(t.var, "tf_" + who)
+                for role in roles:
+                    getattr(t.resource, "%s_%s" % (who, _slug(role))).member = "serviceAccount:" + account.email
+
+                # who may act as this account: any workflow run in that one repository
+                binding = getattr(t.resource, "wif_" + who)
+                binding.service_account_id = account.name
+                binding.member = "principalSet://iam.googleapis.com/%s/attribute.repository/%s" % (
+                    t.var.github.name,
+                    repository,
+                )
+            return next(t)
+
+        return Terraform(
+            gcp,
+            util.Link(link, **resources),
+            # what to put in the repository's variables, printed by `terraform output`
+            util.Output("workload_identity_provider", "${google_iam_workload_identity_pool_provider.provider.name}"),
+            util.Output("plan_service_account", "${google_service_account.tf_plan.email}"),
+            util.Output("apply_service_account", "${google_service_account.tf_apply.email}"),
+        )
+
+    def component(*hooks):
+        return platform.Component(
+            "github-identity",
+            platform.WithDescription("Workload identity for this repository's GitHub Actions"),
+            WithState(contents, gcp.backend),
+            *hooks
+        )
+
+    return component
