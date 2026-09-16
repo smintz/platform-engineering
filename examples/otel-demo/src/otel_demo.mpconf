@@ -1,7 +1,8 @@
 load("@platform//platform/platform.pinc", "platform")
-load("//components/defaults.pinc", "CLUSTERS")
+load("//components/defaults.pinc", "CLUSTERS", "DOMAIN_HOOKS")
 load("//components/demo.pinc", "CONFIG_FILE_TYPES")
 load("//components/frontend_proxy.pinc", "FrontendProxyComponent")
+load("//google/protobuf/struct.proto", "ListValue", "Value")
 
 # The OpenTelemetry demo (https://github.com/open-telemetry/opentelemetry-demo), with a
 # Prometheus and Grafana stack, as platform components. One component per file under
@@ -10,16 +11,45 @@ load("//components/frontend_proxy.pinc", "FrontendProxyComponent")
 #
 # The inventory is one component. A component brings its dependencies with it, so naming
 # the root of the graph — the storefront proxy — is naming all of it; the failure domain
-# set here is inherited by every one of them. It is rendered once per cluster in CLUSTERS,
-# each copy under its own domain: outputs/otel_demo/<domain>/.
+# set here is inherited by every one of them. It is rendered once per domain in CLUSTERS,
+# each copy under its own: outputs/otel_demo/<domain>/.
+#
+# On the gke domain that graph reaches further than the demo. Every component inherits a
+# dependency on the cluster (DOMAIN_HOOKS in components/defaults.pinc), so the cluster and
+# the network, subnet, router and NAT it sits on are rendered too, and every service's state
+# is handed the endpoint, CA and token to reach the API server. The same inventory therefore
+# provisions what it runs on, and no component mentions either.
 #
 # CONFIG_FILE_TYPES tells GetConfigs about the config file messages the components render
 # beside their Terraform (see WithConfigFile), so it writes those too.
+
+# The states that other states read, in the order they have to be applied: on GKE the
+# network, then the cluster everything else authenticates against. Derived rather than
+# declared — a terraform_remote_state names the state it reads, and the graph visits
+# upstreams first. Everything absent from this list reads nothing and can apply in any
+# order, which is how two dozen services still go in parallel.
+def _apply_order(root, configs):
+    read = {}
+    for config in configs.values():
+        if type(config) != "terraform.v1.Terraform" or not config.data:
+            continue
+        for name in config.data.terraform_remote_state:
+            read[name] = True
+
+    order = []
+    for component in platform.SelectComponents(root, lambda component: True):
+        if component.name in read and component.name not in order:
+            order.append(component.name)
+    return ListValue(values = [Value(string_value = name) for name in order])
+
 def main():
     configs = {}
     for domain in CLUSTERS:
-        configs.update(platform.GetConfigs(
-            FrontendProxyComponent(platform.WithFailureDomain(domain)).msg,
-            CONFIG_FILE_TYPES,
-        ))
+        root = FrontendProxyComponent(
+            platform.WithFailureDomain(domain),
+            *DOMAIN_HOOKS[domain]
+        ).msg
+        rendered = platform.GetConfigs(root, CONFIG_FILE_TYPES)
+        configs.update(rendered)
+        configs[domain + "/apply-order.json"] = _apply_order(root, rendered)
     return configs

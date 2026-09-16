@@ -1,0 +1,450 @@
+{
+  "resource": {
+    "grafana_dashboard": {
+      "slos": {
+        "config_json": "{\"uid\":\"cart\",\"title\":\"cart SLOs\",\"tags\":[\"slo\",\"gke-asia-southeast3\",\"cart\"],\"schemaVersion\":39,\"editable\":false,\"refresh\":\"1m\",\"panels\":[{\"type\":\"row\",\"title\":\"SLOs\",\"gridPos\":{\"h\":1,\"w\":24},\"collapsed\":false},{\"type\":\"stat\",\"description\":\"Share of requests cart answered without an error status, over 28 days. 99.5% leaves about 202 minutes of errors a month; provisional until there is history to set it from\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[28d])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[28d]))\",\"legendFormat\":\"availability\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.995}]},\"unit\":\"percentunit\",\"min\":0.995}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"stat\",\"description\":\"Share of requests cart answered within 200ms, measured at its server span, so network time to the caller is not included. Provisional\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"x\":4,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"200\\\"}[28d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[28d]))\",\"legendFormat\":\"latency\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.99}]},\"unit\":\"percentunit\",\"min\":0.99}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"stat\",\"description\":\"Share of add-to-cart operations finished within 25ms, from the cart's own histogram around the store write: what a shopper waits on after pressing the button. Target 99% over 28 days, provisional\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"x\":8,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(demo_cart_add_item_latency_seconds_bucket{service_name=\\\"cart\\\",le=\\\"0.025\\\"}[28d])) / sum(rate(demo_cart_add_item_latency_seconds_count{service_name=\\\"cart\\\"}[28d]))\",\"legendFormat\":\"add to cart latency\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.99}]},\"unit\":\"percentunit\",\"min\":0.99}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"row\",\"title\":\"Dependencies\",\"gridPos\":{\"h\":1,\"w\":24,\"y\":5},\"collapsed\":false},{\"type\":\"alertlist\",\"title\":\"Upstream alerts\",\"gridPos\":{\"h\":8,\"w\":24,\"y\":6},\"options\":{\"viewMode\":\"list\",\"groupMode\":\"default\",\"maxItems\":20,\"sortOrder\":3,\"stateFilter\":{\"firing\":true,\"pending\":false,\"noData\":false,\"normal\":false,\"error\":false},\"alertInstanceLabelFilter\":\"{component=~\\\"otel-collector|prometheus|cluster|network|platform-subnet|router|nat|jaeger|flagd|valkey-cart\\\"}\",\"showInstances\":true},\"links\":[{\"title\":\"valkey-cart dashboard\",\"url\":\"/d/valkey-cart\"}]},{\"type\":\"row\",\"title\":\"Diagnostics\",\"gridPos\":{\"h\":1,\"w\":24,\"y\":14},\"collapsed\":false},{\"type\":\"timeseries\",\"title\":\"requests per second\",\"description\":\"Traffic cart is serving. A drop to zero with the objectives still green means the traffic stopped arriving, which no ratio can show\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"y\":15},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[5m]))\",\"legendFormat\":\"__auto\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}},{\"type\":\"timeseries\",\"title\":\"errors by operation\",\"description\":\"Which of cart's operations are failing, when availability drops\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"x\":12,\"y\":15},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum by (span_name) (rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code=\\\"STATUS_CODE_ERROR\\\"}[5m]))\",\"legendFormat\":\"{{span_name}}\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}},{\"type\":\"timeseries\",\"title\":\"time paused for GC\",\"description\":\"Share of wall time the .NET runtime spent paused for garbage collection. Every request in flight waits out a pause\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"y\":23},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(dotnet_gc_pause_time_seconds_total{service_name=\\\"cart\\\"}[5m]))\",\"legendFormat\":\"__auto\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"percentunit\"}}},{\"type\":\"timeseries\",\"title\":\"exceptions by type\",\"description\":\"Exceptions thrown, by type. RpcException is a failed call out, usually to flagd; a new type here is where to start reading a failed cart\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"x\":12,\"y\":23},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum by (error_type) (rate(dotnet_exceptions_total{service_name=\\\"cart\\\"}[5m]))\",\"legendFormat\":\"{{error_type}}\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}}]}",
+        "message": "Managed by protoconf",
+        "overwrite": true
+      }
+    },
+    "grafana_folder": {
+      "alerts": {
+        "title": "cart SLOs",
+        "uid": "cart-slos"
+      }
+    },
+    "grafana_rule_group": {
+      "slo_alerts": {
+        "folder_uid": "${grafana_folder.alerts.uid}",
+        "interval_seconds": "60",
+        "name": "cart SLO alerts",
+        "rule": [
+          {
+            "annotations": {
+              "description": "About 2% of the 28-day error budget is gone. The target is 99.5%, so the budget is 0.5% of events; both the 1h and 5m windows are below 0.928. Share of requests cart answered without an error status, over 28 days. 99.5% leaves about 202 minutes of errors a month; provisional until there is history to set it from",
+              "summary": "availability is burning its error budget 14.4x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "cart",
+              "objective": "availability",
+              "severity": "page"
+            },
+            "name": "cart: availability · fast burn",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[1h])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "3600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[5m])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "300",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.928 \u0026\u0026 $B \u003c 0.928\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "3600",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 5% of the 28-day error budget is gone. The target is 99.5%, so the budget is 0.5% of events; both the 6h and 30m windows are below 0.97. Share of requests cart answered without an error status, over 28 days. 99.5% leaves about 202 minutes of errors a month; provisional until there is history to set it from",
+              "summary": "availability is burning its error budget 6x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "cart",
+              "objective": "availability",
+              "severity": "page"
+            },
+            "name": "cart: availability · slow burn",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[30m])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "1800",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.97 \u0026\u0026 $B \u003c 0.97\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 10% of the 28-day error budget is gone. The target is 99.5%, so the budget is 0.5% of events; both the 3d and 6h windows are below 0.995. Share of requests cart answered without an error status, over 28 days. 99.5% leaves about 202 minutes of errors a month; provisional until there is history to set it from",
+              "summary": "availability is burning its error budget 1x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "cart",
+              "objective": "availability",
+              "severity": "ticket"
+            },
+            "name": "cart: availability · budget leak",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[3d])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.995 \u0026\u0026 $B \u003c 0.995\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 2% of the 28-day error budget is gone. The target is 99%, so the budget is 1% of events; both the 1h and 5m windows are below 0.856. Share of requests cart answered within 200ms, measured at its server span, so network time to the caller is not included. Provisional",
+              "summary": "latency is burning its error budget 14.4x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "cart",
+              "objective": "latency",
+              "severity": "page"
+            },
+            "name": "cart: latency · fast burn",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"200\\\"}[1h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "3600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"200\\\"}[5m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "300",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.856 \u0026\u0026 $B \u003c 0.856\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "3600",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 5% of the 28-day error budget is gone. The target is 99%, so the budget is 1% of events; both the 6h and 30m windows are below 0.94. Share of requests cart answered within 200ms, measured at its server span, so network time to the caller is not included. Provisional",
+              "summary": "latency is burning its error budget 6x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "cart",
+              "objective": "latency",
+              "severity": "page"
+            },
+            "name": "cart: latency · slow burn",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"200\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"200\\\"}[30m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "1800",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.94 \u0026\u0026 $B \u003c 0.94\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 10% of the 28-day error budget is gone. The target is 99%, so the budget is 1% of events; both the 3d and 6h windows are below 0.99. Share of requests cart answered within 200ms, measured at its server span, so network time to the caller is not included. Provisional",
+              "summary": "latency is burning its error budget 1x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "cart",
+              "objective": "latency",
+              "severity": "ticket"
+            },
+            "name": "cart: latency · budget leak",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"200\\\"}[3d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",le=\\\"200\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"cart\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.99 \u0026\u0026 $B \u003c 0.99\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 2% of the 28-day error budget is gone. The target is 99%, so the budget is 1% of events; both the 1h and 5m windows are below 0.856. Share of add-to-cart operations finished within 25ms, from the cart's own histogram around the store write: what a shopper waits on after pressing the button. Target 99% over 28 days, provisional",
+              "summary": "add to cart latency is burning its error budget 14.4x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "cart",
+              "objective": "add to cart latency",
+              "severity": "page"
+            },
+            "name": "cart: add to cart latency · fast burn",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(demo_cart_add_item_latency_seconds_bucket{service_name=\\\"cart\\\",le=\\\"0.025\\\"}[1h])) / sum(rate(demo_cart_add_item_latency_seconds_count{service_name=\\\"cart\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "3600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(demo_cart_add_item_latency_seconds_bucket{service_name=\\\"cart\\\",le=\\\"0.025\\\"}[5m])) / sum(rate(demo_cart_add_item_latency_seconds_count{service_name=\\\"cart\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "300",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.856 \u0026\u0026 $B \u003c 0.856\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "3600",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 5% of the 28-day error budget is gone. The target is 99%, so the budget is 1% of events; both the 6h and 30m windows are below 0.94. Share of add-to-cart operations finished within 25ms, from the cart's own histogram around the store write: what a shopper waits on after pressing the button. Target 99% over 28 days, provisional",
+              "summary": "add to cart latency is burning its error budget 6x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "cart",
+              "objective": "add to cart latency",
+              "severity": "page"
+            },
+            "name": "cart: add to cart latency · slow burn",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(demo_cart_add_item_latency_seconds_bucket{service_name=\\\"cart\\\",le=\\\"0.025\\\"}[6h])) / sum(rate(demo_cart_add_item_latency_seconds_count{service_name=\\\"cart\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(demo_cart_add_item_latency_seconds_bucket{service_name=\\\"cart\\\",le=\\\"0.025\\\"}[30m])) / sum(rate(demo_cart_add_item_latency_seconds_count{service_name=\\\"cart\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "1800",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.94 \u0026\u0026 $B \u003c 0.94\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              }
+            ]
+          },
+          {
+            "annotations": {
+              "description": "About 10% of the 28-day error budget is gone. The target is 99%, so the budget is 1% of events; both the 3d and 6h windows are below 0.99. Share of add-to-cart operations finished within 25ms, from the cart's own histogram around the store write: what a shopper waits on after pressing the button. Target 99% over 28 days, provisional",
+              "summary": "add to cart latency is burning its error budget 1x faster than it can afford"
+            },
+            "condition": "C",
+            "exec_err_state": "Error",
+            "labels": {
+              "component": "cart",
+              "objective": "add to cart latency",
+              "severity": "ticket"
+            },
+            "name": "cart: add to cart latency · budget leak",
+            "no_data_state": "NoData",
+            "data": [
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(demo_cart_add_item_latency_seconds_bucket{service_name=\\\"cart\\\",le=\\\"0.025\\\"}[3d])) / sum(rate(demo_cart_add_item_latency_seconds_count{service_name=\\\"cart\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "ref_id": "A",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                "model": "{\"expr\":\"sum(rate(demo_cart_add_item_latency_seconds_bucket{service_name=\\\"cart\\\",le=\\\"0.025\\\"}[6h])) / sum(rate(demo_cart_add_item_latency_seconds_count{service_name=\\\"cart\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "ref_id": "B",
+                "relative_time_range": {
+                  "from": "21600",
+                  "to": "1"
+                }
+              },
+              {
+                "datasource_uid": "-100",
+                "model": "{\"expression\":\"$A \u003c 0.99 \u0026\u0026 $B \u003c 0.99\",\"refId\":\"C\",\"type\":\"math\"}",
+                "ref_id": "C",
+                "relative_time_range": {
+                  "from": "259200",
+                  "to": "1"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "data": {
+    "grafana_data_source": {
+      "prometheus": {
+        "name": "Prometheus"
+      }
+    }
+  },
+  "provider": {
+    "grafana": [
+      {
+        
+      }
+    ]
+  },
+  "terraform": {
+    "required_providers": {
+      "grafana": {
+        "source": "registry.terraform.io/grafana/grafana",
+        "version": "4.46.0"
+      }
+    },
+    "backend": {
+      "gcs": {
+        "bucket": "home-run-it-tfstate",
+        "prefix": "gke-asia-southeast3/cart-monitoring"
+      }
+    }
+  }
+}

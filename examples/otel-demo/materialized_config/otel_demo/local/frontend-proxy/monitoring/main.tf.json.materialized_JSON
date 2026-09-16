@@ -1,0 +1,449 @@
+{
+  "protoFile": "terraform/v1/terraform.proto",
+  "value": {
+    "@type": "type.googleapis.com/terraform.v1.Terraform",
+    "resource": {
+      "grafana_dashboard": {
+        "slos": {
+          "config_json": "{\"uid\":\"frontend-proxy\",\"title\":\"frontend-proxy SLOs\",\"tags\":[\"slo\",\"local\",\"frontend-proxy\"],\"schemaVersion\":39,\"editable\":false,\"refresh\":\"1m\",\"panels\":[{\"type\":\"row\",\"title\":\"SLOs\",\"gridPos\":{\"h\":1,\"w\":24},\"collapsed\":false},{\"type\":\"stat\",\"description\":\"Share of requests frontend-proxy answered without an error status, over 28 days. 99.5% leaves about 202 minutes of errors a month; provisional until there is history to set it from\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[28d])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[28d]))\",\"legendFormat\":\"availability\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.995}]},\"unit\":\"percentunit\",\"min\":0.995}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"stat\",\"description\":\"Share of requests frontend-proxy answered within 1000ms, measured at its server span, so network time to the caller is not included. Provisional\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"x\":4,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[28d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[28d]))\",\"legendFormat\":\"latency\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.99}]},\"unit\":\"percentunit\",\"min\":0.99}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"stat\",\"description\":\"Share of the load generator's storefront requests that got a response other than a server error, measured at the client. It sees a proxy that is down or unreachable, which no server span can, but only for synthetic traffic; a 4xx is an answer, not an outage. Target 99.5% over 28 days, provisional\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":4,\"w\":4,\"x\":8,\"y\":1},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[28d])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[28d]))\",\"legendFormat\":\"shopper-side availability\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"red\",\"value\":null},{\"color\":\"green\",\"value\":0.995}]},\"unit\":\"percentunit\",\"min\":0.995}},\"options\":{\"reduceOptions\":{\"calcs\":[\"lastNotNull\"]},\"colorMode\":\"background\",\"graphMode\":\"area\",\"textMode\":\"value_and_name\",\"justifyMode\":\"auto\",\"orientation\":\"auto\"}},{\"type\":\"row\",\"title\":\"Dependencies\",\"gridPos\":{\"h\":1,\"w\":24,\"y\":5},\"collapsed\":false},{\"type\":\"alertlist\",\"title\":\"Upstream alerts\",\"gridPos\":{\"h\":8,\"w\":24,\"y\":6},\"options\":{\"viewMode\":\"list\",\"groupMode\":\"default\",\"maxItems\":20,\"sortOrder\":3,\"stateFilter\":{\"firing\":true,\"pending\":false,\"noData\":false,\"normal\":false,\"error\":false},\"alertInstanceLabelFilter\":\"{component=~\\\"otel-collector|prometheus|jaeger|flagd|flagd-ui|frontend|ad|cart|valkey-cart|checkout|currency|email|payment|product-catalog|astronomy-db|shipping|quote|recommendation|image-provider|grafana|load-generator|telemetry-docs\\\"}\",\"showInstances\":true},\"links\":[{\"title\":\"frontend dashboard\",\"url\":\"/d/frontend\"},{\"title\":\"ad dashboard\",\"url\":\"/d/ad\"},{\"title\":\"cart dashboard\",\"url\":\"/d/cart\"},{\"title\":\"valkey-cart dashboard\",\"url\":\"/d/valkey-cart\"},{\"title\":\"checkout dashboard\",\"url\":\"/d/checkout\"},{\"title\":\"currency dashboard\",\"url\":\"/d/currency\"},{\"title\":\"email dashboard\",\"url\":\"/d/email\"},{\"title\":\"payment dashboard\",\"url\":\"/d/payment\"},{\"title\":\"product-catalog dashboard\",\"url\":\"/d/product-catalog\"},{\"title\":\"astronomy-db dashboard\",\"url\":\"/d/astronomy-db\"},{\"title\":\"shipping dashboard\",\"url\":\"/d/shipping\"},{\"title\":\"quote dashboard\",\"url\":\"/d/quote\"},{\"title\":\"recommendation dashboard\",\"url\":\"/d/recommendation\"}]},{\"type\":\"row\",\"title\":\"Diagnostics\",\"gridPos\":{\"h\":1,\"w\":24,\"y\":14},\"collapsed\":false},{\"type\":\"timeseries\",\"title\":\"requests per second\",\"description\":\"Traffic frontend-proxy is serving. A drop to zero with the objectives still green means the traffic stopped arriving, which no ratio can show\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"y\":15},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[5m]))\",\"legendFormat\":\"__auto\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}},{\"type\":\"timeseries\",\"title\":\"errors by operation\",\"description\":\"Which of frontend-proxy's operations are failing, when availability drops\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"x\":12,\"y\":15},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum by (span_name) (rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code=\\\"STATUS_CODE_ERROR\\\"}[5m]))\",\"legendFormat\":\"{{span_name}}\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}},{\"type\":\"timeseries\",\"title\":\"requests by upstream\",\"description\":\"Where the proxy sent its traffic: the storefront, Grafana, Jaeger, the flag UI. A shift here explains a change in the objectives before any error does\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"${data.grafana_data_source.prometheus.uid}\"},\"gridPos\":{\"h\":8,\"w\":12,\"y\":23},\"targets\":[{\"refId\":\"A\",\"expr\":\"sum by (upstream_cluster) (rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\"}[5m]))\",\"legendFormat\":\"{{upstream_cluster}}\"}],\"fieldConfig\":{\"defaults\":{\"thresholds\":{\"mode\":\"absolute\",\"steps\":[{\"color\":\"text\",\"value\":null}]},\"unit\":\"short\"}}}]}",
+          "message": "Managed by protoconf",
+          "overwrite": true
+        }
+      },
+      "grafana_folder": {
+        "alerts": {
+          "title": "frontend-proxy SLOs",
+          "uid": "frontend-proxy-slos"
+        }
+      },
+      "grafana_rule_group": {
+        "slo_alerts": {
+          "folder_uid": "${grafana_folder.alerts.uid}",
+          "interval_seconds": "60",
+          "name": "frontend-proxy SLO alerts",
+          "rule": [
+            {
+              "annotations": {
+                "description": "About 2% of the 28-day error budget is gone. The target is 99.5%, so the budget is 0.5% of events; both the 1h and 5m windows are below 0.928. Share of requests frontend-proxy answered without an error status, over 28 days. 99.5% leaves about 202 minutes of errors a month; provisional until there is history to set it from",
+                "summary": "availability is burning its error budget 14.4x faster than it can afford"
+              },
+              "condition": "C",
+              "exec_err_state": "Error",
+              "labels": {
+                "component": "frontend-proxy",
+                "objective": "availability",
+                "severity": "page"
+              },
+              "name": "frontend-proxy: availability · fast burn",
+              "no_data_state": "NoData",
+              "data": [
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[1h])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "ref_id": "A",
+                  "relative_time_range": {
+                    "from": "3600",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[5m])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "ref_id": "B",
+                  "relative_time_range": {
+                    "from": "300",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "-100",
+                  "model": "{\"expression\":\"$A < 0.928 && $B < 0.928\",\"refId\":\"C\",\"type\":\"math\"}",
+                  "ref_id": "C",
+                  "relative_time_range": {
+                    "from": "3600",
+                    "to": "1"
+                  }
+                }
+              ]
+            },
+            {
+              "annotations": {
+                "description": "About 5% of the 28-day error budget is gone. The target is 99.5%, so the budget is 0.5% of events; both the 6h and 30m windows are below 0.97. Share of requests frontend-proxy answered without an error status, over 28 days. 99.5% leaves about 202 minutes of errors a month; provisional until there is history to set it from",
+                "summary": "availability is burning its error budget 6x faster than it can afford"
+              },
+              "condition": "C",
+              "exec_err_state": "Error",
+              "labels": {
+                "component": "frontend-proxy",
+                "objective": "availability",
+                "severity": "page"
+              },
+              "name": "frontend-proxy: availability · slow burn",
+              "no_data_state": "NoData",
+              "data": [
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "ref_id": "A",
+                  "relative_time_range": {
+                    "from": "21600",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[30m])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "ref_id": "B",
+                  "relative_time_range": {
+                    "from": "1800",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "-100",
+                  "model": "{\"expression\":\"$A < 0.97 && $B < 0.97\",\"refId\":\"C\",\"type\":\"math\"}",
+                  "ref_id": "C",
+                  "relative_time_range": {
+                    "from": "21600",
+                    "to": "1"
+                  }
+                }
+              ]
+            },
+            {
+              "annotations": {
+                "description": "About 10% of the 28-day error budget is gone. The target is 99.5%, so the budget is 0.5% of events; both the 3d and 6h windows are below 0.995. Share of requests frontend-proxy answered without an error status, over 28 days. 99.5% leaves about 202 minutes of errors a month; provisional until there is history to set it from",
+                "summary": "availability is burning its error budget 1x faster than it can afford"
+              },
+              "condition": "C",
+              "exec_err_state": "Error",
+              "labels": {
+                "component": "frontend-proxy",
+                "objective": "availability",
+                "severity": "ticket"
+              },
+              "name": "frontend-proxy: availability · budget leak",
+              "no_data_state": "NoData",
+              "data": [
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[3d])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "ref_id": "A",
+                  "relative_time_range": {
+                    "from": "259200",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "ref_id": "B",
+                  "relative_time_range": {
+                    "from": "21600",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "-100",
+                  "model": "{\"expression\":\"$A < 0.995 && $B < 0.995\",\"refId\":\"C\",\"type\":\"math\"}",
+                  "ref_id": "C",
+                  "relative_time_range": {
+                    "from": "259200",
+                    "to": "1"
+                  }
+                }
+              ]
+            },
+            {
+              "annotations": {
+                "description": "About 2% of the 28-day error budget is gone. The target is 99%, so the budget is 1% of events; both the 1h and 5m windows are below 0.856. Share of requests frontend-proxy answered within 1000ms, measured at its server span, so network time to the caller is not included. Provisional",
+                "summary": "latency is burning its error budget 14.4x faster than it can afford"
+              },
+              "condition": "C",
+              "exec_err_state": "Error",
+              "labels": {
+                "component": "frontend-proxy",
+                "objective": "latency",
+                "severity": "page"
+              },
+              "name": "frontend-proxy: latency · fast burn",
+              "no_data_state": "NoData",
+              "data": [
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[1h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "ref_id": "A",
+                  "relative_time_range": {
+                    "from": "3600",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[5m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "ref_id": "B",
+                  "relative_time_range": {
+                    "from": "300",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "-100",
+                  "model": "{\"expression\":\"$A < 0.856 && $B < 0.856\",\"refId\":\"C\",\"type\":\"math\"}",
+                  "ref_id": "C",
+                  "relative_time_range": {
+                    "from": "3600",
+                    "to": "1"
+                  }
+                }
+              ]
+            },
+            {
+              "annotations": {
+                "description": "About 5% of the 28-day error budget is gone. The target is 99%, so the budget is 1% of events; both the 6h and 30m windows are below 0.94. Share of requests frontend-proxy answered within 1000ms, measured at its server span, so network time to the caller is not included. Provisional",
+                "summary": "latency is burning its error budget 6x faster than it can afford"
+              },
+              "condition": "C",
+              "exec_err_state": "Error",
+              "labels": {
+                "component": "frontend-proxy",
+                "objective": "latency",
+                "severity": "page"
+              },
+              "name": "frontend-proxy: latency · slow burn",
+              "no_data_state": "NoData",
+              "data": [
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "ref_id": "A",
+                  "relative_time_range": {
+                    "from": "21600",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[30m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "ref_id": "B",
+                  "relative_time_range": {
+                    "from": "1800",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "-100",
+                  "model": "{\"expression\":\"$A < 0.94 && $B < 0.94\",\"refId\":\"C\",\"type\":\"math\"}",
+                  "ref_id": "C",
+                  "relative_time_range": {
+                    "from": "21600",
+                    "to": "1"
+                  }
+                }
+              ]
+            },
+            {
+              "annotations": {
+                "description": "About 10% of the 28-day error budget is gone. The target is 99%, so the budget is 1% of events; both the 3d and 6h windows are below 0.99. Share of requests frontend-proxy answered within 1000ms, measured at its server span, so network time to the caller is not included. Provisional",
+                "summary": "latency is burning its error budget 1x faster than it can afford"
+              },
+              "condition": "C",
+              "exec_err_state": "Error",
+              "labels": {
+                "component": "frontend-proxy",
+                "objective": "latency",
+                "severity": "ticket"
+              },
+              "name": "frontend-proxy: latency · budget leak",
+              "no_data_state": "NoData",
+              "data": [
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[3d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "ref_id": "A",
+                  "relative_time_range": {
+                    "from": "259200",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "ref_id": "B",
+                  "relative_time_range": {
+                    "from": "21600",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "-100",
+                  "model": "{\"expression\":\"$A < 0.99 && $B < 0.99\",\"refId\":\"C\",\"type\":\"math\"}",
+                  "ref_id": "C",
+                  "relative_time_range": {
+                    "from": "259200",
+                    "to": "1"
+                  }
+                }
+              ]
+            },
+            {
+              "annotations": {
+                "description": "About 2% of the 28-day error budget is gone. The target is 99.5%, so the budget is 0.5% of events; both the 1h and 5m windows are below 0.928. Share of the load generator's storefront requests that got a response other than a server error, measured at the client. It sees a proxy that is down or unreachable, which no server span can, but only for synthetic traffic; a 4xx is an answer, not an outage. Target 99.5% over 28 days, provisional",
+                "summary": "shopper-side availability is burning its error budget 14.4x faster than it can afford"
+              },
+              "condition": "C",
+              "exec_err_state": "Error",
+              "labels": {
+                "component": "frontend-proxy",
+                "objective": "shopper-side availability",
+                "severity": "page"
+              },
+              "name": "frontend-proxy: shopper-side availability · fast burn",
+              "no_data_state": "NoData",
+              "data": [
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[1h])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "ref_id": "A",
+                  "relative_time_range": {
+                    "from": "3600",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[5m])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "ref_id": "B",
+                  "relative_time_range": {
+                    "from": "300",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "-100",
+                  "model": "{\"expression\":\"$A < 0.928 && $B < 0.928\",\"refId\":\"C\",\"type\":\"math\"}",
+                  "ref_id": "C",
+                  "relative_time_range": {
+                    "from": "3600",
+                    "to": "1"
+                  }
+                }
+              ]
+            },
+            {
+              "annotations": {
+                "description": "About 5% of the 28-day error budget is gone. The target is 99.5%, so the budget is 0.5% of events; both the 6h and 30m windows are below 0.97. Share of the load generator's storefront requests that got a response other than a server error, measured at the client. It sees a proxy that is down or unreachable, which no server span can, but only for synthetic traffic; a 4xx is an answer, not an outage. Target 99.5% over 28 days, provisional",
+                "summary": "shopper-side availability is burning its error budget 6x faster than it can afford"
+              },
+              "condition": "C",
+              "exec_err_state": "Error",
+              "labels": {
+                "component": "frontend-proxy",
+                "objective": "shopper-side availability",
+                "severity": "page"
+              },
+              "name": "frontend-proxy: shopper-side availability · slow burn",
+              "no_data_state": "NoData",
+              "data": [
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[6h])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "ref_id": "A",
+                  "relative_time_range": {
+                    "from": "21600",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[30m])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "ref_id": "B",
+                  "relative_time_range": {
+                    "from": "1800",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "-100",
+                  "model": "{\"expression\":\"$A < 0.97 && $B < 0.97\",\"refId\":\"C\",\"type\":\"math\"}",
+                  "ref_id": "C",
+                  "relative_time_range": {
+                    "from": "21600",
+                    "to": "1"
+                  }
+                }
+              ]
+            },
+            {
+              "annotations": {
+                "description": "About 10% of the 28-day error budget is gone. The target is 99.5%, so the budget is 0.5% of events; both the 3d and 6h windows are below 0.995. Share of the load generator's storefront requests that got a response other than a server error, measured at the client. It sees a proxy that is down or unreachable, which no server span can, but only for synthetic traffic; a 4xx is an answer, not an outage. Target 99.5% over 28 days, provisional",
+                "summary": "shopper-side availability is burning its error budget 1x faster than it can afford"
+              },
+              "condition": "C",
+              "exec_err_state": "Error",
+              "labels": {
+                "component": "frontend-proxy",
+                "objective": "shopper-side availability",
+                "severity": "ticket"
+              },
+              "name": "frontend-proxy: shopper-side availability · budget leak",
+              "no_data_state": "NoData",
+              "data": [
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[3d])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "ref_id": "A",
+                  "relative_time_range": {
+                    "from": "259200",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
+                  "model": "{\"expr\":\"sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[6h])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "ref_id": "B",
+                  "relative_time_range": {
+                    "from": "21600",
+                    "to": "1"
+                  }
+                },
+                {
+                  "datasource_uid": "-100",
+                  "model": "{\"expression\":\"$A < 0.995 && $B < 0.995\",\"refId\":\"C\",\"type\":\"math\"}",
+                  "ref_id": "C",
+                  "relative_time_range": {
+                    "from": "259200",
+                    "to": "1"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "data": {
+      "grafana_data_source": {
+        "prometheus": {
+          "name": "Prometheus"
+        }
+      }
+    },
+    "provider": {
+      "grafana": [
+        {}
+      ]
+    },
+    "terraform": {
+      "required_providers": {
+        "grafana": {
+          "source": "registry.terraform.io/grafana/grafana",
+          "version": "4.46.0"
+        }
+      },
+      "backend": {
+        "local": {}
+      }
+    }
+  }
+}

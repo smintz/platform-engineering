@@ -1,0 +1,131 @@
+{
+  "resource": {
+    "kubernetes_config_map_v1": {
+      "astronomy-db": {
+        "data": {
+          "init.sql": "${file(\"${path.module}/../../../../../files/init.sql\")}"
+        },
+        "metadata": {
+          "name": "astronomy-db"
+        }
+      }
+    },
+    "kubernetes_deployment_v1": {
+      "astronomy-db": {
+        "metadata": {
+          "labels": {
+            "app": "astronomy-db"
+          },
+          "name": "astronomy-db"
+        },
+        "spec": {
+          "selector": {
+            "match_labels": {
+              "app": "astronomy-db"
+            }
+          },
+          "template": {
+            "metadata": {
+              "labels": {
+                "app": "astronomy-db"
+              }
+            },
+            "spec": {
+              "container": [
+                {
+                  "image": "postgres:18.4",
+                  "name": "astronomy-db",
+                  "env": [
+                    {
+                      "name": "OTEL_SERVICE_NAME",
+                      "value": "astronomy-db"
+                    },
+                    {
+                      "name": "OTEL_RESOURCE_ATTRIBUTES",
+                      "value": "service.version=3.0.0"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                      "value": "cumulative"
+                    },
+                    {
+                      "name": "POSTGRES_PASSWORD",
+                      "value": "changeit"
+                    }
+                  ],
+                  "port": [
+                    {
+                      "container_port": "5432"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "memory": "100Mi"
+                    }
+                  },
+                  "volume_mount": [
+                    {
+                      "mount_path": "/docker-entrypoint-initdb.d",
+                      "name": "astronomy-db",
+                      "read_only": true,
+                      "sub_path": ""
+                    }
+                  ]
+                }
+              ],
+              "volume": [
+                {
+                  "name": "astronomy-db",
+                  "config_map": {
+                    "name": "${kubernetes_config_map_v1.astronomy-db.metadata[0].name}"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "kubernetes_service_v1": {
+      "astronomy-db": {
+        "metadata": {
+          "labels": {
+            "app": "astronomy-db"
+          },
+          "name": "astronomy-db"
+        },
+        "spec": {
+          "selector": {
+            "app": "astronomy-db"
+          },
+          "port": [
+            {
+              "port": "5432",
+              "target_port": "5432"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "provider": {
+    "kubernetes": [
+      {
+        "config_path": "~/.kube/config"
+      }
+    ]
+  },
+  "terraform": {
+    "required_providers": {
+      "kubernetes": {
+        "source": "registry.terraform.io/hashicorp/kubernetes",
+        "version": "3.2.1"
+      }
+    },
+    "backend": {
+      "local": {
+        
+      }
+    }
+  }
+}

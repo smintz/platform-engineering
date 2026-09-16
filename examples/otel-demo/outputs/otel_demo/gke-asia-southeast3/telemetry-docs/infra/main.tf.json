@@ -1,0 +1,154 @@
+{
+  "resource": {
+    "kubernetes_deployment_v1": {
+      "telemetry-docs": {
+        "metadata": {
+          "labels": {
+            "app": "telemetry-docs"
+          },
+          "name": "telemetry-docs"
+        },
+        "spec": {
+          "selector": {
+            "match_labels": {
+              "app": "telemetry-docs"
+            }
+          },
+          "template": {
+            "metadata": {
+              "labels": {
+                "app": "telemetry-docs"
+              }
+            },
+            "spec": {
+              "container": [
+                {
+                  "image": "ghcr.io/open-telemetry/demo:3.0.0-telemetry-docs",
+                  "name": "telemetry-docs",
+                  "env": [
+                    {
+                      "name": "OTEL_SERVICE_NAME",
+                      "value": "telemetry-docs"
+                    },
+                    {
+                      "name": "OTEL_RESOURCE_ATTRIBUTES",
+                      "value": "service.version=3.0.0"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                      "value": "cumulative"
+                    },
+                    {
+                      "name": "TELEMETRY_DOCS_PORT",
+                      "value": "8000"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                      "value": "http://otel-collector:4317"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                      "value": "grpc"
+                    },
+                    {
+                      "name": "OTEL_COLLECTOR_HOST",
+                      "value": "otel-collector"
+                    },
+                    {
+                      "name": "OTEL_COLLECTOR_PORT_GRPC",
+                      "value": "4317"
+                    },
+                    {
+                      "name": "OTEL_COLLECTOR_PORT_HTTP",
+                      "value": "4318"
+                    }
+                  ],
+                  "port": [
+                    {
+                      "container_port": "8000"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "memory": "100Mi"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "kubernetes_service_v1": {
+      "telemetry-docs": {
+        "metadata": {
+          "labels": {
+            "app": "telemetry-docs"
+          },
+          "name": "telemetry-docs"
+        },
+        "spec": {
+          "selector": {
+            "app": "telemetry-docs"
+          },
+          "port": [
+            {
+              "port": "8000",
+              "target_port": "8000"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "data": {
+    "terraform_remote_state": {
+      "cluster": {
+        "backend": "gcs",
+        "config": {
+              "bucket": "home-run-it-tfstate",
+              "prefix": "gke-asia-southeast3/cluster"
+            }
+      }
+    },
+    "google_client_config": {
+      "gke_auth": {
+        
+      }
+    }
+  },
+  "provider": {
+    "google": [
+      {
+        "project": "home-run-it",
+        "region": "asia-southeast3"
+      }
+    ],
+    "kubernetes": [
+      {
+        "cluster_ca_certificate": "${base64decode(data.terraform_remote_state.cluster.outputs.ca_certificate)}",
+        "host": "https://${data.terraform_remote_state.cluster.outputs.endpoint}",
+        "token": "${data.google_client_config.gke_auth.access_token}"
+      }
+    ]
+  },
+  "terraform": {
+    "required_providers": {
+      "google": {
+        "source": "registry.terraform.io/hashicorp/google",
+        "version": "8.3.0"
+      },
+      "kubernetes": {
+        "source": "registry.terraform.io/hashicorp/kubernetes",
+        "version": "3.2.1"
+      }
+    },
+    "backend": {
+      "gcs": {
+        "bucket": "home-run-it-tfstate",
+        "prefix": "gke-asia-southeast3/telemetry-docs"
+      }
+    }
+  }
+}

@@ -1,0 +1,210 @@
+{
+  "resource": {
+    "kubernetes_config_map_v1": {
+      "grafana-datasources": {
+        "data": {
+          "datasources.yaml": "${file(\"${path.module}/datasources.yaml\")}"
+        },
+        "metadata": {
+          "name": "grafana-datasources"
+        }
+      }
+    },
+    "kubernetes_deployment_v1": {
+      "grafana": {
+        "metadata": {
+          "labels": {
+            "app": "grafana"
+          },
+          "name": "grafana"
+        },
+        "spec": {
+          "selector": {
+            "match_labels": {
+              "app": "grafana"
+            }
+          },
+          "template": {
+            "metadata": {
+              "labels": {
+                "app": "grafana"
+              }
+            },
+            "spec": {
+              "container": [
+                {
+                  "image": "grafana/grafana:13.2.1",
+                  "name": "grafana",
+                  "env": [
+                    {
+                      "name": "OTEL_SERVICE_NAME",
+                      "value": "grafana"
+                    },
+                    {
+                      "name": "OTEL_RESOURCE_ATTRIBUTES",
+                      "value": "service.version=3.0.0"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                      "value": "cumulative"
+                    },
+                    {
+                      "name": "GF_SECURITY_ADMIN_PASSWORD",
+                      "value": "admin"
+                    },
+                    {
+                      "name": "GF_AUTH_ANONYMOUS_ENABLED",
+                      "value": "true"
+                    },
+                    {
+                      "name": "GF_AUTH_ANONYMOUS_ORG_ROLE",
+                      "value": "Viewer"
+                    },
+                    {
+                      "name": "GF_SERVER_ROOT_URL",
+                      "value": "%(protocol)s://%(domain)s:%(http_port)s/grafana/"
+                    },
+                    {
+                      "name": "GF_SERVER_SERVE_FROM_SUB_PATH",
+                      "value": "true"
+                    },
+                    {
+                      "name": "PROMETHEUS_URL",
+                      "value": "http://prometheus:9090"
+                    },
+                    {
+                      "name": "PROMETHEUS_OTLP_ENDPOINT",
+                      "value": "http://prometheus:9090/api/v1/otlp"
+                    },
+                    {
+                      "name": "JAEGER_HOST",
+                      "value": "jaeger"
+                    },
+                    {
+                      "name": "JAEGER_UI_PORT",
+                      "value": "16686"
+                    },
+                    {
+                      "name": "JAEGER_URL",
+                      "value": "http://jaeger:16686/jaeger/ui"
+                    },
+                    {
+                      "name": "JAEGER_OTLP_ENDPOINT",
+                      "value": "http://jaeger:4318"
+                    }
+                  ],
+                  "port": [
+                    {
+                      "container_port": "3000"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "memory": "1Gi"
+                    }
+                  },
+                  "volume_mount": [
+                    {
+                      "mount_path": "/var/lib/grafana",
+                      "name": "grafana-data"
+                    },
+                    {
+                      "mount_path": "/etc/grafana/provisioning/datasources",
+                      "name": "grafana-datasources",
+                      "read_only": true,
+                      "sub_path": ""
+                    }
+                  ]
+                }
+              ],
+              "volume": [
+                {
+                  "name": "grafana-data",
+                  "empty_dir": {
+                    
+                  }
+                },
+                {
+                  "name": "grafana-datasources",
+                  "config_map": {
+                    "name": "${kubernetes_config_map_v1.grafana-datasources.metadata[0].name}"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "kubernetes_service_v1": {
+      "grafana": {
+        "metadata": {
+          "labels": {
+            "app": "grafana"
+          },
+          "name": "grafana"
+        },
+        "spec": {
+          "selector": {
+            "app": "grafana"
+          },
+          "port": [
+            {
+              "port": "3000",
+              "target_port": "3000"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "data": {
+    "terraform_remote_state": {
+      "cluster": {
+        "backend": "gcs",
+        "config": {
+              "bucket": "home-run-it-tfstate",
+              "prefix": "gke-asia-southeast3/cluster"
+            }
+      }
+    },
+    "google_client_config": {
+      "gke_auth": {
+        
+      }
+    }
+  },
+  "provider": {
+    "google": [
+      {
+        "project": "home-run-it",
+        "region": "asia-southeast3"
+      }
+    ],
+    "kubernetes": [
+      {
+        "cluster_ca_certificate": "${base64decode(data.terraform_remote_state.cluster.outputs.ca_certificate)}",
+        "host": "https://${data.terraform_remote_state.cluster.outputs.endpoint}",
+        "token": "${data.google_client_config.gke_auth.access_token}"
+      }
+    ]
+  },
+  "terraform": {
+    "required_providers": {
+      "google": {
+        "source": "registry.terraform.io/hashicorp/google",
+        "version": "8.3.0"
+      },
+      "kubernetes": {
+        "source": "registry.terraform.io/hashicorp/kubernetes",
+        "version": "3.2.1"
+      }
+    },
+    "backend": {
+      "gcs": {
+        "bucket": "home-run-it-tfstate",
+        "prefix": "gke-asia-southeast3/grafana"
+      }
+    }
+  }
+}

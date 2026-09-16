@@ -58,8 +58,10 @@ def WithDemoWorkload(image, port, *hooks):
         return next(component)
 
     return (
-        # component.domain is already set: inherited hooks run first
-        WithState(lambda component: Workload(component.name, image, port, CLUSTERS[component.domain]), BACKEND),
+        # component.domain is already set: inherited hooks run first. The provider is built
+        # per component — one shared message would be frozen, and on GKE each config's own
+        # copy is what the cluster fills its credentials into.
+        WithState(lambda component: Workload(component.name, image, port, CLUSTERS[component.domain]()), BACKEND),
         platform.component_filter(shape),
     )
 

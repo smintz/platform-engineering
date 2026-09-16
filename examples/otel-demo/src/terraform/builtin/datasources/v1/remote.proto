@@ -10,7 +10,7 @@ import "terraform/v1/meta.proto";
 // TerraformRemoteState version is 0
 message TerraformRemoteState {
   // The remote backend to use, e.g. `remote` or `http`.
-  string backend = 1;
+  optional string backend = 1;
 
   // The configuration of the remote backend. Accepts any arguments valid in the
   // equivalent `terraform { backend "<TYPE>" { ... } }` block.
@@ -24,15 +24,15 @@ message TerraformRemoteState {
   google.protobuf.Value outputs = 4;
 
   // The Terraform workspace to use, if the backend supports workspaces.
-  string workspace = 5;
+  optional string workspace = 5;
 
   google.protobuf.Value for_each = 6 [json_name = "for_each"];
 
   repeated string depends_on = 7 [json_name = "depends_on"];
 
-  int32 count = 8;
+  optional int32 count = 8;
 
-  string provider = 9;
+  optional string provider = 9;
 
   terraform.v1.Lifecycle lifecycle = 10;
 }

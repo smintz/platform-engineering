@@ -1,21 +1,75 @@
+load("@gke//gke.pinc", "gke")
 load("@grafana//grafana.pinc", "WithGrafanaDashboard")
 load("@kubernetes//kubernetes.pinc", "KubeConfig")
-load("@terraform_state//terraform.pinc", "LocalBackend")
+load("@platform//platform/platform.pinc", "platform")
+load("@terraform_state//terraform.pinc", "GCSBackend", "LocalBackend")
+load("//terraform/kubernetes/provider/v3/kubernetes.proto", "Kubernetes")
 
-# Where every state lives: next to its config, on whatever disk runs terraform.
-BACKEND = LocalBackend()
+# Where this example runs, and what every component gets wherever it runs. Policy rather
+# than platform: the platform provides the drivers, and this file picks which of them.
 
-# The cluster each failure domain deploys to; otel_demo.mpconf renders the demo once per
-# entry. colima is whatever kubectl points at. gke is the cluster examples/gke provisions,
-# through the kubeconfig its `make credentials` writes.
-CLUSTERS = {
-    "colima": KubeConfig(),
-    "gke": KubeConfig(path = "~/.kube/gke-platform"),
-}
+# The GCP project the gke domain lands in — the one value to change before applying there.
+PROJECT = "home-run-it"
+REGION = "asia-southeast3"
+
+# The two domains the demo renders for: the cluster kubectl points at, and a GKE cluster in
+# one region. A failure domain is a blast radius, and these are two.
+LOCAL = "local"
+GKE = "gke-" + REGION
+
+# Where state lives, by domain: next to the config for the local cluster, and in a bucket
+# for anything on GKE, where the cluster's own state already is and where a second machine —
+# or CI — can pick it up. The state driver asks a backend for a domain and a name, so one
+# backend that answers for both keeps this out of every component.
+def _by_domain(local, remote):
+    def pick(domain):
+        return remote if domain == GKE else local
+
+    return struct(
+        state = lambda domain, name: pick(domain).state(domain, name),
+        remote = lambda domain, name: pick(domain).remote(domain, name),
+        key_for = lambda domain, name: pick(domain).key_for(domain, name),
+    )
+
+GKE_BACKEND = GCSBackend(PROJECT + "-tfstate", lambda domain, name: "%s/%s" % (domain, name))
+BACKEND = _by_domain(LocalBackend(), GKE_BACKEND)
 
 # What this Grafana calls its datasources, keyed by the kind an objective asks for. The
 # name is provisioned in files/grafana-datasources.yaml.
 DATASOURCES = {"prometheus": "Prometheus", "jaeger": "Jaeger"}
+
+# The GKE cluster the gke domain runs on, built from the driver's components: a network with
+# one subnet, a router and a NAT, and a zonal cluster on that subnet. The demo provisions it
+# rather than finding it — the cluster is part of the graph, so applying the gke domain
+# creates it and then deploys onto it.
+GCP = gke.Gcp(project = PROJECT, region = REGION, name = "platform", backend = GKE_BACKEND)
+GKE_SUBNET = gke.Subnet(GCP, "platform", "10.0.0.0/20", "10.4.0.0/14", "10.8.0.0/20")
+
+def GkeNetwork(*hooks):
+    return gke.Network(
+        GCP,
+        platform.WithDeps(GKE_SUBNET.component, gke.Router(GCP), gke.Nat(GCP)),
+        *hooks
+    )
+
+GkeCluster = gke.Cluster(GCP, GkeNetwork, GKE_SUBNET)
+
+# The Kubernetes provider a component starts from, by domain. A constructor rather than a
+# message: every component needs its own, and a shared one is frozen the moment this file is
+# loaded. `local` reads kubectl's current context; on GKE the provider starts empty and the
+# cluster fills in its endpoint, CA and a token, so nothing depends on a kubeconfig.
+CLUSTERS = {
+    LOCAL: KubeConfig,
+    GKE: Kubernetes,
+}
+
+# What a domain adds to every component in it. On GKE that is the cluster itself: inherited,
+# so all two dozen components declare it without any of them saying so, and each one's state
+# is handed the credentials the cluster publishes. Nothing here names an address.
+DOMAIN_HOOKS = {
+    LOCAL: (),
+    GKE: (platform.Inherit(platform.WithDeps(GkeCluster)),),
+}
 
 # Defaults is what every component gets whether or not it asked: today, a dashboard and
 # alert rules for whatever objectives it declared. A component with none renders nothing,

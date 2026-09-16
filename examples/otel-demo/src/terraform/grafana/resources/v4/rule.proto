@@ -11,23 +11,23 @@ import "terraform/v1/meta.proto";
 message GrafanaRuleGroup {
   // Allow modifying the rule group from other sources than Terraform or the Grafana
   // API. Defaults to `false`.
-  bool disable_provenance = 1 [json_name = "disable_provenance"];
+  optional bool disable_provenance = 1 [json_name = "disable_provenance"];
 
   // The UID of the folder that the group belongs to.
-  string folder_uid = 2 [json_name = "folder_uid"];
+  optional string folder_uid = 2 [json_name = "folder_uid"];
 
-  string id = 3;
+  optional string id = 3;
 
   // The interval, in seconds, at which all rules in the group are evaluated. If a
   // group contains many rules, the rules are evaluated sequentially.
-  int64 interval_seconds = 4 [json_name = "interval_seconds"];
+  optional int64 interval_seconds = 4 [json_name = "interval_seconds"];
 
   // The name of the rule group.
-  string name = 5;
+  optional string name = 5;
 
   // The Organization ID. If not set, the Org ID defined in the provider block will be
   // used.
-  string org_id = 6 [json_name = "org_id"];
+  optional string org_id = 6 [json_name = "org_id"];
 
   repeated Rule rule = 7;
 
@@ -35,9 +35,9 @@ message GrafanaRuleGroup {
 
   repeated string depends_on = 9 [json_name = "depends_on"];
 
-  int32 count = 10;
+  optional int32 count = 10;
 
-  string provider = 11;
+  optional string provider = 11;
 
   terraform.v1.Lifecycle lifecycle = 12;
 
@@ -49,25 +49,25 @@ message GrafanaRuleGroup {
     map<string, string> annotations = 1;
 
     // The `ref_id` of the query node in the `data` field to use as the alert condition.
-    string condition = 2;
+    optional string condition = 2;
 
     // Describes what state to enter when the rule's query is invalid and the rule
     // cannot be executed. Options are OK, Error, KeepLast, and Alerting.  Defaults to
     // Alerting if not set.
-    string exec_err_state = 3 [json_name = "exec_err_state"];
+    optional string exec_err_state = 3 [json_name = "exec_err_state"];
 
     // The amount of time for which the rule must be breached for the rule to be
     // considered to be Firing. Before this time has elapsed, the rule is only
     // considered to be Pending. Defaults to `0`.
-    string for = 4;
+    optional string for = 4;
 
     // Sets whether the alert should be paused or not. Defaults to `false`.
-    bool is_paused = 5 [json_name = "is_paused"];
+    optional bool is_paused = 5 [json_name = "is_paused"];
 
     // The amount of time for which the rule will considered to be Recovering after
     // initially Firing. Before this time has elapsed, the rule will continue to fire
     // once it's been triggered.
-    string keep_firing_for = 6 [json_name = "keep_firing_for"];
+    optional string keep_firing_for = 6 [json_name = "keep_firing_for"];
 
     // Key-value pairs to attach to the alert rule that can be used in matching,
     // grouping, and routing. Defaults to `map[]`.
@@ -75,17 +75,17 @@ message GrafanaRuleGroup {
 
     // The number of missing series evaluations that must occur before the rule is
     // considered to be resolved.
-    int64 missing_series_evals_to_resolve = 8 [json_name = "missing_series_evals_to_resolve"];
+    optional int64 missing_series_evals_to_resolve = 8 [json_name = "missing_series_evals_to_resolve"];
 
     // The name of the alert rule.
-    string name = 9;
+    optional string name = 9;
 
     // Describes what state to enter when the rule's query returns No Data. Options are
     // OK, NoData, KeepLast, and Alerting. Defaults to NoData if not set.
-    string no_data_state = 10 [json_name = "no_data_state"];
+    optional string no_data_state = 10 [json_name = "no_data_state"];
 
     // The unique identifier of the alert rule.
-    string uid = 11;
+    optional string uid = 11;
 
     repeated Data data = 12;
 
@@ -96,27 +96,27 @@ message GrafanaRuleGroup {
     message Data {
       // The UID of the datasource being queried, or "-100" if this stage is an expression
       // stage.
-      string datasource_uid = 1 [json_name = "datasource_uid"];
+      optional string datasource_uid = 1 [json_name = "datasource_uid"];
 
       // Custom JSON data to send to the specified datasource when querying.
-      string model = 2;
+      optional string model = 2;
 
       // An optional identifier for the type of query being executed. Defaults to ``.
-      string query_type = 3 [json_name = "query_type"];
+      optional string query_type = 3 [json_name = "query_type"];
 
       // A unique string to identify this query stage within a rule.
-      string ref_id = 4 [json_name = "ref_id"];
+      optional string ref_id = 4 [json_name = "ref_id"];
 
       RelativeTimeRange relative_time_range = 5 [json_name = "relative_time_range"];
 
       message RelativeTimeRange {
         // The number of seconds in the past, relative to when the rule is evaluated, at
         // which the time range begins.
-        int64 from = 1;
+        optional int64 from = 1;
 
         // The number of seconds in the past, relative to when the rule is evaluated, at
         // which the time range ends.
-        int64 to = 2;
+        optional int64 to = 2;
       }
     }
 
@@ -127,7 +127,7 @@ message GrafanaRuleGroup {
       repeated string active_timings = 1 [json_name = "active_timings"];
 
       // The contact point to route notifications that match this rule to.
-      string contact_point = 2 [json_name = "contact_point"];
+      optional string contact_point = 2 [json_name = "contact_point"];
 
       // A list of alert labels to group alerts into notifications by. Use the special
       // label `...` to group alerts by all labels, effectively disabling grouping. If
@@ -137,30 +137,30 @@ message GrafanaRuleGroup {
 
       // Minimum time interval between two notifications for the same group. Default is 5
       // minutes.
-      string group_interval = 4 [json_name = "group_interval"];
+      optional string group_interval = 4 [json_name = "group_interval"];
 
       // Time to wait to buffer alerts of the same group before sending a notification.
       // Default is 30 seconds.
-      string group_wait = 5 [json_name = "group_wait"];
+      optional string group_wait = 5 [json_name = "group_wait"];
 
       // A list of mute timing names to apply to alerts that match this policy.
       repeated string mute_timings = 6 [json_name = "mute_timings"];
 
       // Minimum time interval for re-sending a notification if an alert is still firing.
       // Default is 4 hours.
-      string repeat_interval = 7 [json_name = "repeat_interval"];
+      optional string repeat_interval = 7 [json_name = "repeat_interval"];
     }
 
     message Record {
       // The ref id of the query node in the data field to use as the source of the
       // metric.
-      string from = 1;
+      optional string from = 1;
 
       // The name of the metric to write to.
-      string metric = 2;
+      optional string metric = 2;
 
       // The UID of the datasource to write the metric to.
-      string target_datasource_uid = 3 [json_name = "target_datasource_uid"];
+      optional string target_datasource_uid = 3 [json_name = "target_datasource_uid"];
     }
   }
 }

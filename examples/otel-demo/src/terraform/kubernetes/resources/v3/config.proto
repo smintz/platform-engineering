@@ -24,12 +24,12 @@ message KubernetesConfigMap {
   // BinaryData field, this is enforced during validation process.
   map<string, string> data = 2;
 
-  string id = 3;
+  optional string id = 3;
 
   // Immutable, if set to true, ensures that data stored in the ConfigMap cannot be
   // updated (only object metadata can be modified). If not set to true, the field can
   // be modified at any time. Defaulted to nil.
-  bool immutable = 4;
+  optional bool immutable = 4;
 
   Metadata metadata = 5;
 
@@ -37,9 +37,9 @@ message KubernetesConfigMap {
 
   repeated string depends_on = 7 [json_name = "depends_on"];
 
-  int32 count = 8;
+  optional int32 count = 8;
 
-  string provider = 9;
+  optional string provider = 9;
 
   terraform.v1.Lifecycle lifecycle = 10;
 
@@ -53,10 +53,10 @@ message KubernetesConfigMap {
     // has not been provided. This value will also be combined with a unique suffix.
     // More info:
     // ty/blob/master/contributors/devel/sig-architecture/api-conventions.md#idempotency
-    string generate_name = 2 [json_name = "generate_name"];
+    optional string generate_name = 2 [json_name = "generate_name"];
 
     // A sequence number representing a specific generation of the desired state.
-    int64 generation = 3;
+    optional int64 generation = 3;
 
     // Map of string keys and values that can be used to organize and categorize (scope
     // and select) the config map. May match selectors of replication controllers and
@@ -66,19 +66,19 @@ message KubernetesConfigMap {
 
     // Name of the config map, must be unique. Cannot be updated. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-    string name = 5;
+    optional string name = 5;
 
     // Namespace defines the space within which name of the config map must be unique.
-    string namespace = 6;
+    optional string namespace = 6;
 
     // An opaque value that represents the internal version of this config map that can
     // be used by clients to determine when config map has changed. More info:
     // ors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-    string resource_version = 7 [json_name = "resource_version"];
+    optional string resource_version = 7 [json_name = "resource_version"];
 
     // The unique in time and space value for this config map. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
-    string uid = 8;
+    optional string uid = 8;
   }
 }
 
@@ -99,12 +99,12 @@ message KubernetesConfigMapV1 {
   // BinaryData field, this is enforced during validation process.
   map<string, string> data = 2;
 
-  string id = 3;
+  optional string id = 3;
 
   // Immutable, if set to true, ensures that data stored in the ConfigMap cannot be
   // updated (only object metadata can be modified). If not set to true, the field can
   // be modified at any time. Defaulted to nil.
-  bool immutable = 4;
+  optional bool immutable = 4;
 
   Metadata metadata = 5;
 
@@ -112,9 +112,9 @@ message KubernetesConfigMapV1 {
 
   repeated string depends_on = 7 [json_name = "depends_on"];
 
-  int32 count = 8;
+  optional int32 count = 8;
 
-  string provider = 9;
+  optional string provider = 9;
 
   terraform.v1.Lifecycle lifecycle = 10;
 
@@ -128,10 +128,10 @@ message KubernetesConfigMapV1 {
     // has not been provided. This value will also be combined with a unique suffix.
     // More info:
     // ty/blob/master/contributors/devel/sig-architecture/api-conventions.md#idempotency
-    string generate_name = 2 [json_name = "generate_name"];
+    optional string generate_name = 2 [json_name = "generate_name"];
 
     // A sequence number representing a specific generation of the desired state.
-    int64 generation = 3;
+    optional int64 generation = 3;
 
     // Map of string keys and values that can be used to organize and categorize (scope
     // and select) the config map. May match selectors of replication controllers and
@@ -141,19 +141,19 @@ message KubernetesConfigMapV1 {
 
     // Name of the config map, must be unique. Cannot be updated. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-    string name = 5;
+    optional string name = 5;
 
     // Namespace defines the space within which name of the config map must be unique.
-    string namespace = 6;
+    optional string namespace = 6;
 
     // An opaque value that represents the internal version of this config map that can
     // be used by clients to determine when config map has changed. More info:
     // ors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-    string resource_version = 7 [json_name = "resource_version"];
+    optional string resource_version = 7 [json_name = "resource_version"];
 
     // The unique in time and space value for this config map. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
-    string uid = 8;
+    optional string uid = 8;
   }
 }
 
@@ -163,12 +163,12 @@ message KubernetesConfigMapV1Data {
   map<string, string> data = 1;
 
   // Set the name of the field manager for the specified labels.
-  string field_manager = 2 [json_name = "field_manager"];
+  optional string field_manager = 2 [json_name = "field_manager"];
 
   // Force overwriting data that is managed outside of Terraform.
-  bool force = 3;
+  optional bool force = 3;
 
-  string id = 4;
+  optional string id = 4;
 
   Metadata metadata = 5;
 
@@ -176,17 +176,17 @@ message KubernetesConfigMapV1Data {
 
   repeated string depends_on = 7 [json_name = "depends_on"];
 
-  int32 count = 8;
+  optional int32 count = 8;
 
-  string provider = 9;
+  optional string provider = 9;
 
   terraform.v1.Lifecycle lifecycle = 10;
 
   message Metadata {
     // The name of the ConfigMap.
-    string name = 1;
+    optional string name = 1;
 
     // The namespace of the ConfigMap.
-    string namespace = 2;
+    optional string namespace = 2;
   }
 }
