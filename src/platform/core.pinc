@@ -80,9 +80,16 @@ def Finally(*hooks):
     return module("Finally", kind = "finalize", hooks = hooks)
 
 # Inherit marks hooks that also apply to every dependency declared with WithDeps, and to
-# their dependencies in turn.
+# their dependencies in turn. The hooks may be markers themselves — an inherited WithDeps is
+# how one dependency reaches every component in a graph — and Component reads them as its
+# own, minus any that would make a component its own dependency.
 def Inherit(*hooks):
     return module("Inherit", kind = "inherit", hooks = hooks)
+
+# _declares answers whether an inherited marker is what put `factory` in this component's
+# dependencies, so building that dependency does not hand it a dependency on itself.
+def _declares(hook, factory):
+    return type(hook) == "module" and hook.kind == "deps" and factory in hook.deps
 
 # mutate_config is the primitive every config write goes through — usable by any hook
 # that already holds the component message. WithConfig is its declarative wrapper.
@@ -156,15 +163,21 @@ def Component(slug, *hooks):
     # call site stays one line and the pieces cannot be split up by accident
     hooks = flatten(hooks)
     markers = [h for h in hooks if type(h) == "module"]
-    deferred = [h for m in markers if m.kind == "downstream" for h in m.hooks]
     inherited = [h for m in markers if m.kind == "inherit" for h in m.hooks]
+
+    # What is inherited can itself be a marker, and then it is this component's marker too:
+    # a dependency every component in a graph carries — the cluster its workload runs on —
+    # is ambient in exactly the way a failure domain is, and neither is worth repeating on
+    # two dozen components. It reaches this component's own dependencies below.
+    markers = markers + [h for h in inherited if type(h) == "module"]
+    deferred = [h for m in markers if m.kind == "downstream" for h in m.hooks]
     deps = [d for m in markers if m.kind == "deps" for d in m.deps]
     finalizers = [h for m in markers if m.kind == "finalize" for h in m.hooks]
 
     # inherited first: it is ambient context (failure domain, environment), and local
     # hooks read it — a hook that derives a value from component.domain has to run after
     # whatever set the domain.
-    hooks = inherited + [h for h in hooks if type(h) != "module"]
+    hooks = [h for h in inherited if type(h) != "module"] + [h for h in hooks if type(h) != "module"]
 
     component = component_proto(name = slug)
 
@@ -178,7 +191,10 @@ def Component(slug, *hooks):
     if deps and not component.upstreams:
         component.upstreams = component_proto.Upstreams()
     for dep_factory in deps:
-        dep = dep_factory(Inherit(*inherited))
+        # a component never inherits a dependency on itself: the marker that named this
+        # factory is dropped on the way in, or an inherited dependency would build itself
+        # forever. Its own dependencies still reach it, declared in its own list.
+        dep = dep_factory(Inherit(*[h for h in inherited if not _declares(h, dep_factory)]))
         component.upstreams.components.append(dep.msg)
         dep.RunForDownstream(component)
 
