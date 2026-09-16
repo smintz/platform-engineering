@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+// Provider: googlecloud 8
+package terraform.googlecloud.datasources.v8;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GoogleClientConfig version is 0
+message GoogleClientConfig {
+  // The OAuth2 access token used by the client to authenticate against the Google
+  // Cloud API.
+  optional string access_token = 1 [json_name = "access_token"];
+
+  // The default labels configured on the provider.
+  map<string, string> default_labels = 2 [json_name = "default_labels"];
+
+  // The ID of this data source in Terraform state. It is created in a
+  // projects/{{project}}/regions/{{region}}/zones/{{zone}} format and is NOT used by
+  // the data source in requests to Google APIs.
+  optional string id = 3;
+
+  // The ID of the project to apply any resources to.
+  optional string project = 4;
+
+  // The region to operate under.
+  optional string region = 5;
+
+  // The zone to operate under.
+  optional string zone = 6;
+
+  google.protobuf.Value for_each = 7 [json_name = "for_each"];
+
+  repeated string depends_on = 8 [json_name = "depends_on"];
+
+  optional int32 count = 9;
+
+  optional string provider = 10;
+
+  terraform.v1.Lifecycle lifecycle = 11;
+}
+
+// GoogleClientOpenidUserinfo version is 0
+message GoogleClientOpenidUserinfo {
+  // The email of the account used by the provider to authenticate with GCP.
+  optional string email = 1;
+
+  // The ID of this data source in Terraform state. Its value is the same as the
+  // `email` attribute. Do not use this field, use the `email` attribute instead.
+  optional string id = 2;
+
+  google.protobuf.Value for_each = 3 [json_name = "for_each"];
+
+  repeated string depends_on = 4 [json_name = "depends_on"];
+
+  optional int32 count = 5;
+
+  optional string provider = 6;
+
+  terraform.v1.Lifecycle lifecycle = 7;
+}

@@ -11698,6 +11698,81 @@ message GoogleComputeNetworkAttachment {
   }
 }
 
+// GoogleComputeNetworkEdgeSecurityService version is 0
+message GoogleComputeNetworkEdgeSecurityService {
+  // Creation timestamp in RFC3339 text format.
+  optional string creation_timestamp = 1 [json_name = "creation_timestamp"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 2 [json_name = "deletion_policy"];
+
+  // Free-text description of the resource.
+  optional string description = 3;
+
+  // Fingerprint of this resource. A hash of the contents stored in this object. This
+  // field is used in optimistic locking. This field will be ignored when inserting a
+  // NetworkEdgeSecurityService.
+  //
+  // An up-to-date fingerprint must be provided in order to update the
+  // NetworkEdgeSecurityService, otherwise the request will fail with error 412
+  // conditionNotMet.
+  optional string fingerprint = 4;
+
+  optional string id = 5;
+
+  // Name of the resource. Provided by the client when the resource is created.
+  optional string name = 6;
+
+  optional string project = 7;
+
+  // The region of the gateway security policy.
+  optional string region = 8;
+
+  // The resource URL for the network edge security service associated with this
+  // network edge security service.
+  optional string security_policy = 9 [json_name = "security_policy"];
+
+  // Server-defined URL for the resource.
+  optional string self_link = 10 [json_name = "self_link"];
+
+  // Server-defined URL for this resource with the resource id.
+  optional string self_link_with_service_id = 11 [json_name = "self_link_with_service_id"];
+
+  // The unique identifier for the resource. This identifier is defined by the server.
+  optional string service_id = 12 [json_name = "service_id"];
+
+  repeated Timeouts timeouts = 13;
+
+  google.protobuf.Value for_each = 14 [json_name = "for_each"];
+
+  repeated string depends_on = 15 [json_name = "depends_on"];
+
+  optional int32 count = 16;
+
+  optional string provider = 17;
+
+  terraform.v1.Lifecycle lifecycle = 18;
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
 // GoogleComputeNetworkEndpoint version is 0
 message GoogleComputeNetworkEndpoint {
   // Whether Terraform will be prevented from destroying the instance. Defaults to

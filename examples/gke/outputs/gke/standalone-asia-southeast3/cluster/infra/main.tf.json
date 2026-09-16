@@ -4,16 +4,20 @@
       "cluster": {
         "deletion_protection": false,
         "initial_node_count": "1",
-        "location": "us-central1-a",
-        "name": "platform",
+        "location": "asia-southeast3-a",
+        "name": "standalone",
         "network": "${data.terraform_remote_state.network.outputs.network}",
         "networking_mode": "VPC_NATIVE",
         "project": "${google_project_service.container.project}",
         "remove_default_node_pool": true,
-        "subnetwork": "${data.terraform_remote_state.network.outputs.subnetwork}",
+        "subnetwork": "${data.terraform_remote_state.network.outputs.standalone-subnetwork}",
         "ip_allocation_policy": {
           "cluster_secondary_range_name": "pods",
           "services_secondary_range_name": "services"
+        },
+        "node_config": {
+          "disk_type": "hyperdisk-balanced",
+          "machine_type": "n4-standard-4"
         },
         "private_cluster_config": {
           "enable_private_nodes": true
@@ -22,14 +26,14 @@
           "channel": "REGULAR"
         },
         "workload_identity_config": {
-          "workload_pool": "your-gcp-project-id.svc.id.goog"
+          "workload_pool": "home-run-it.svc.id.goog"
         }
       }
     },
     "google_container_node_pool": {
       "pool": {
         "cluster": "${google_container_cluster.cluster.id}",
-        "location": "us-central1-a",
+        "location": "asia-southeast3-a",
         "name": "default",
         "node_count": "2",
         "management": {
@@ -37,7 +41,8 @@
           "auto_upgrade": true
         },
         "node_config": {
-          "machine_type": "e2-standard-4",
+          "disk_type": "hyperdisk-balanced",
+          "machine_type": "n4-standard-4",
           "oauth_scopes": [
             "https://www.googleapis.com/auth/cloud-platform"
           ],
@@ -51,21 +56,21 @@
     "google_project_iam_member": {
       "nodes_role": {
         "member": "${google_service_account.nodes.member}",
-        "project": "your-gcp-project-id",
+        "project": "home-run-it",
         "role": "roles/container.defaultNodeServiceAccount"
       }
     },
     "google_project_service": {
       "container": {
         "disable_on_destroy": false,
-        "project": "your-gcp-project-id",
+        "project": "home-run-it",
         "service": "container.googleapis.com"
       }
     },
     "google_service_account": {
       "nodes": {
-        "account_id": "platform-nodes",
-        "project": "your-gcp-project-id"
+        "account_id": "standalone-nodes",
+        "project": "home-run-it"
       }
     }
   },
@@ -74,8 +79,8 @@
       "network": {
         "backend": "gcs",
         "config": {
-              "bucket": "your-gcp-project-id-tfstate",
-              "prefix": "us-central1-a/network"
+              "bucket": "home-run-it-tfstate",
+              "prefix": "standalone-asia-southeast3/network"
             }
       }
     }
@@ -83,22 +88,30 @@
   "provider": {
     "google": [
       {
-        "project": "your-gcp-project-id",
-        "region": "us-central1"
+        "project": "home-run-it",
+        "region": "asia-southeast3"
       }
     ]
+  },
+  "output": {
+    "ca_certificate": {
+      "value": "${google_container_cluster.cluster.master_auth[0].cluster_ca_certificate}"
+    },
+    "endpoint": {
+      "value": "${google_container_cluster.cluster.endpoint}"
+    }
   },
   "terraform": {
     "required_providers": {
       "google": {
         "source": "registry.terraform.io/hashicorp/google",
-        "version": "8.2.0"
+        "version": "8.3.0"
       }
     },
     "backend": {
       "gcs": {
-        "bucket": "your-gcp-project-id-tfstate",
-        "prefix": "us-central1-a/cluster"
+        "bucket": "home-run-it-tfstate",
+        "prefix": "standalone-asia-southeast3/cluster"
       }
     }
   }
