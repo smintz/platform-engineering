@@ -1,45 +1,53 @@
 {
-  "url": ".",
-  "deps": {
-    "gke": {
-      "label": "gke",
-      "url": "../../drivers/cluster/gke",
-      "branch": "main",
-      "sourcePath": "src",
-      "getterUrl": "file:///Users/smintz/git/platform-engineering/drivers/cluster/gke?ref=main",
-      "fileDescriptorSetSum": "175efcd4efc85c703041c54e3fd5b484"
+  "url":  ".",
+  "deps":  {
+    "github_actions":  {
+      "label":  "github_actions",
+      "url":  "../../drivers/cicd/github_actions",
+      "branch":  "main",
+      "sourcePath":  "src",
+      "getterUrl":  "file:///Users/smintz/git/platform-engineering/drivers/cicd/github_actions?ref=main",
+      "fileDescriptorSetSum":  "844af02b535c004257e275327d0e067a"
     },
-    "grafana": {
-      "label": "grafana",
-      "url": "../../drivers/monitoring/grafana",
-      "branch": "main",
-      "sourcePath": "src",
-      "getterUrl": "file:///Users/smintz/git/platform-engineering/drivers/monitoring/grafana?ref=main",
-      "fileDescriptorSetSum": "6c777af39d79bef01c4637316c0d9211"
+    "gke":  {
+      "label":  "gke",
+      "url":  "../../drivers/cluster/gke",
+      "branch":  "main",
+      "sourcePath":  "src",
+      "getterUrl":  "file:///Users/smintz/git/platform-engineering/drivers/cluster/gke?ref=main",
+      "fileDescriptorSetSum":  "175efcd4efc85c703041c54e3fd5b484"
     },
-    "kubernetes": {
-      "label": "kubernetes",
-      "url": "../../drivers/runtime/kubernetes",
-      "branch": "main",
-      "sourcePath": "src",
-      "getterUrl": "file:///Users/smintz/git/platform-engineering/drivers/runtime/kubernetes?ref=main",
-      "fileDescriptorSetSum": "175efcd4efc85c703041c54e3fd5b484"
+    "grafana":  {
+      "label":  "grafana",
+      "url":  "../../drivers/monitoring/grafana",
+      "branch":  "main",
+      "sourcePath":  "src",
+      "getterUrl":  "file:///Users/smintz/git/platform-engineering/drivers/monitoring/grafana?ref=main",
+      "fileDescriptorSetSum":  "6c777af39d79bef01c4637316c0d9211"
     },
-    "platform": {
-      "label": "platform",
-      "url": "../..",
-      "branch": "main",
-      "sourcePath": "src",
-      "getterUrl": "file:///Users/smintz/git/platform-engineering?ref=main",
-      "fileDescriptorSetSum": "b1294967e96fdad58f1751bcf03ba663"
+    "kubernetes":  {
+      "label":  "kubernetes",
+      "url":  "../../drivers/runtime/kubernetes",
+      "branch":  "main",
+      "sourcePath":  "src",
+      "getterUrl":  "file:///Users/smintz/git/platform-engineering/drivers/runtime/kubernetes?ref=main",
+      "fileDescriptorSetSum":  "175efcd4efc85c703041c54e3fd5b484"
     },
-    "terraform_state": {
-      "label": "terraform_state",
-      "url": "../../drivers/state/terraform",
-      "branch": "main",
-      "sourcePath": "src",
-      "getterUrl": "file:///Users/smintz/git/platform-engineering/drivers/state/terraform?ref=main",
-      "fileDescriptorSetSum": "175efcd4efc85c703041c54e3fd5b484"
+    "platform":  {
+      "label":  "platform",
+      "url":  "../..",
+      "branch":  "main",
+      "sourcePath":  "src",
+      "getterUrl":  "file:///Users/smintz/git/platform-engineering?ref=main",
+      "fileDescriptorSetSum":  "b1294967e96fdad58f1751bcf03ba663"
+    },
+    "terraform_state":  {
+      "label":  "terraform_state",
+      "url":  "../../drivers/state/terraform",
+      "branch":  "main",
+      "sourcePath":  "src",
+      "getterUrl":  "file:///Users/smintz/git/platform-engineering/drivers/state/terraform?ref=main",
+      "fileDescriptorSetSum":  "175efcd4efc85c703041c54e3fd5b484"
     }
   }
 }

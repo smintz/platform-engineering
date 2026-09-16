@@ -54,6 +54,13 @@ def GkeNetwork(*hooks):
 
 GkeCluster = gke.Cluster(GCP, GkeNetwork, GKE_SUBNET)
 
+# The identity GitHub Actions runs as when it applies the gke domain: a workload identity
+# pool trusting this repository, and a service account each for plan and apply. Applied by
+# hand once — it is what lets CI authenticate, so CI cannot be what creates it — and left
+# out of the pipeline for the same reason.
+GITHUB_REPOSITORY = "smintz/platform-engineering"
+GkeIdentity = gke.GithubWorkloadIdentity(GCP, GITHUB_REPOSITORY)
+
 # The Kubernetes provider a component starts from, by domain. A constructor rather than a
 # message: every component needs its own, and a shared one is frozen the moment this file is
 # loaded. `local` reads kubectl's current context; on GKE the provider starts empty and the

@@ -14,6 +14,8 @@ import "terraform/googlecloud/resources/v8/compute.proto";
 
 import "terraform/googlecloud/resources/v8/container.proto";
 
+import "terraform/googlecloud/resources/v8/iam.proto";
+
 import "terraform/googlecloud/resources/v8/project.proto";
 
 import "terraform/googlecloud/resources/v8/service.proto";
@@ -72,11 +74,19 @@ message Terraform {
 
     map<string, terraform.googlecloud.resources.v8.GoogleContainerNodePool> google_container_node_pool = 639 [json_name = "google_container_node_pool"];
 
+    map<string, terraform.googlecloud.resources.v8.GoogleIamWorkloadIdentityPool> google_iam_workload_identity_pool = 975 [json_name = "google_iam_workload_identity_pool"];
+
+    map<string, terraform.googlecloud.resources.v8.GoogleIamWorkloadIdentityPoolProvider> google_iam_workload_identity_pool_provider = 981 [
+      json_name = "google_iam_workload_identity_pool_provider"
+    ];
+
     map<string, terraform.googlecloud.resources.v8.GoogleProjectIamMember> google_project_iam_member = 1265 [json_name = "google_project_iam_member"];
 
     map<string, terraform.googlecloud.resources.v8.GoogleProjectService> google_project_service = 1269 [json_name = "google_project_service"];
 
     map<string, terraform.googlecloud.resources.v8.GoogleServiceAccount> google_service_account = 1350 [json_name = "google_service_account"];
+
+    map<string, terraform.googlecloud.resources.v8.GoogleServiceAccountIamMember> google_service_account_iam_member = 1352 [json_name = "google_service_account_iam_member"];
 
     map<string, terraform.kubernetes.resources.v3.KubernetesConfigMapV1> kubernetes_config_map_v1 = 1496 [json_name = "kubernetes_config_map_v1"];
 
