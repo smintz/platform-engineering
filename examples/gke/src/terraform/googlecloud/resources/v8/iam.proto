@@ -1,0 +1,3809 @@
+syntax = "proto3";
+
+// Provider: googlecloud 8
+package terraform.googlecloud.resources.v8;
+
+import "google/protobuf/struct.proto";
+
+import "terraform/v1/meta.proto";
+
+// GoogleIamAccessBoundaryPolicy version is 0
+message GoogleIamAccessBoundaryPolicy {
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 1 [json_name = "deletion_policy"];
+
+  // The display name of the rule.
+  optional string display_name = 2 [json_name = "display_name"];
+
+  // The hash of the resource. Used internally during updates.
+  optional string etag = 3;
+
+  optional string id = 4;
+
+  // The name of the policy.
+  optional string name = 5;
+
+  // The attachment point is identified by its URL-encoded full resource name.
+  optional string parent = 6;
+
+  repeated Rules rules = 7;
+
+  repeated Timeouts timeouts = 8;
+
+  google.protobuf.Value for_each = 9 [json_name = "for_each"];
+
+  repeated string depends_on = 10 [json_name = "depends_on"];
+
+  optional int32 count = 11;
+
+  optional string provider = 12;
+
+  terraform.v1.Lifecycle lifecycle = 13;
+
+  message Rules {
+    // The description of the rule.
+    optional string description = 1;
+
+    AccessBoundaryRule access_boundary_rule = 2 [json_name = "access_boundary_rule"];
+
+    message AccessBoundaryRule {
+      // A list of permissions that may be allowed for use on the specified resource.
+      repeated string available_permissions = 1 [json_name = "available_permissions"];
+
+      // The full resource name of a Google Cloud resource entity.
+      optional string available_resource = 2 [json_name = "available_resource"];
+
+      AvailabilityCondition availability_condition = 3 [json_name = "availability_condition"];
+
+      message AvailabilityCondition {
+        // Description of the expression. This is a longer text which describes the
+        // expression,
+        //
+        // e.g. when hovered over it in a UI.
+        optional string description = 1;
+
+        // Textual representation of an expression in Common Expression Language syntax.
+        optional string expression = 2;
+
+        // String indicating the location of the expression for error reporting,
+        //
+        // e.g. a file name and a position in the file.
+        optional string location = 3;
+
+        // Title for the expression, i.e. a short string describing its purpose.
+        //
+        // This can be used e.g. in UIs which allow to enter the expression.
+        optional string title = 4;
+      }
+    }
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamDenyPolicy version is 0
+message GoogleIamDenyPolicy {
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 1 [json_name = "deletion_policy"];
+
+  // The display name of the rule.
+  optional string display_name = 2 [json_name = "display_name"];
+
+  // The hash of the resource. Used internally during updates.
+  optional string etag = 3;
+
+  optional string id = 4;
+
+  // The name of the policy.
+  optional string name = 5;
+
+  // The attachment point is identified by its URL-encoded full resource name.
+  optional string parent = 6;
+
+  repeated Rules rules = 7;
+
+  repeated Timeouts timeouts = 8;
+
+  google.protobuf.Value for_each = 9 [json_name = "for_each"];
+
+  repeated string depends_on = 10 [json_name = "depends_on"];
+
+  optional int32 count = 11;
+
+  optional string provider = 12;
+
+  terraform.v1.Lifecycle lifecycle = 13;
+
+  message Rules {
+    // The description of the rule.
+    optional string description = 1;
+
+    DenyRule deny_rule = 2 [json_name = "deny_rule"];
+
+    message DenyRule {
+      // The permissions that are explicitly denied by this rule. Each permission uses the
+      // format '{service-fqdn}/{resource}.{verb}',
+      //
+      // where '{service-fqdn}' is the fully qualified domain name for the service. For
+      // example, 'iam.googleapis.com/roles.list'.
+      repeated string denied_permissions = 1 [json_name = "denied_permissions"];
+
+      // The identities that are prevented from using one or more permissions on Google
+      // Cloud resources.
+      repeated string denied_principals = 2 [json_name = "denied_principals"];
+
+      // Specifies the permissions that this rule excludes from the set of denied
+      // permissions given by deniedPermissions.
+      //
+      // If a permission appears in deniedPermissions and in exceptionPermissions then it
+      // will not be denied.
+      //
+      // The excluded permissions can be specified using the same syntax as
+      // deniedPermissions.
+      repeated string exception_permissions = 3 [json_name = "exception_permissions"];
+
+      // The identities that are excluded from the deny rule, even if they are listed in
+      // the deniedPrincipals.
+      //
+      // For example, you could add a Google group to the deniedPrincipals, then exclude
+      // specific users who belong to that group.
+      repeated string exception_principals = 4 [json_name = "exception_principals"];
+
+      DenialCondition denial_condition = 5 [json_name = "denial_condition"];
+
+      message DenialCondition {
+        // Description of the expression. This is a longer text which describes the
+        // expression,
+        //
+        // e.g. when hovered over it in a UI.
+        optional string description = 1;
+
+        // Textual representation of an expression in Common Expression Language syntax.
+        optional string expression = 2;
+
+        // String indicating the location of the expression for error reporting,
+        //
+        // e.g. a file name and a position in the file.
+        optional string location = 3;
+
+        // Title for the expression, i.e. a short string describing its purpose.
+        //
+        // This can be used e.g. in UIs which allow to enter the expression.
+        optional string title = 4;
+      }
+    }
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamFolderAccessPolicy version is 0
+message GoogleIamFolderAccessPolicy {
+  // The ID to use for the access policy, which
+  //
+  // will become the final component of the access policy's
+  //
+  // resource name.
+  //
+  // This value must start with a lowercase letter followed by up to 62
+  //
+  // lowercase letters, numbers, hyphens, or dots. Pattern,
+  //
+  // /a-z{2,62}/.
+  //
+  // This value must be unique among all access policies with the same parent.
+  optional string access_policy_id = 1 [json_name = "access_policy_id"];
+
+  // User defined annotations. See https://google.aip.dev/148#annotations for
+  //
+  // more details such as format and size limitations
+  //
+  //
+  // **Note**: This field is non-authoritative, and will only manage the annotations
+  // present in your configuration.
+  //
+  // Please refer to the field 'effective_annotations' for all of the annotations
+  // present on the resource.
+  map<string, string> annotations = 2;
+
+  // The time when the access policy was created.
+  optional string create_time = 3 [json_name = "create_time"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 4 [json_name = "deletion_policy"];
+
+  // The description of the access policy. Must be less than
+  //
+  // or equal to 63 characters.
+  optional string display_name = 5 [json_name = "display_name"];
+
+  // All of annotations (key/value pairs) present on the resource in GCP, including
+  // the annotations configured through Terraform, other clients and services.
+  map<string, string> effective_annotations = 6 [json_name = "effective_annotations"];
+
+  // The etag for the access policy.
+  //
+  // If this is provided on update, it must match the server's etag.
+  optional string etag = 7;
+
+  // Resource ID segment making up resource 'name'. It identifies the resource within
+  // its parent collection as described in https://google.aip.dev/122.
+  optional string folder = 8;
+
+  optional string id = 9;
+
+  // Resource ID segment making up resource 'name'. It identifies the resource within
+  // its parent collection as described in https://google.aip.dev/122.
+  optional string location = 10;
+
+  // Identifier. The resource name of the access policy.
+  //
+  // The following formats are supported:
+  //
+  // * 'projects/{project_id}/locations/{location}/accessPolicies/{policy_id}'
+  //
+  // * 'projects/{project_number}/locations/{location}/accessPolicies/{policy_id}'
+  //
+  // * 'folders/{folder_id}/locations/{location}/accessPolicies/{policy_id}'
+  //
+  // 'organizations/{organization_id}/locations/{location}/accessPolicies/{policy_id}'
+  optional string name = 11;
+
+  // The globally unique ID of the access policy.
+  optional string uid = 12;
+
+  // The time when the access policy was most recently
+  //
+  // updated.
+  optional string update_time = 13 [json_name = "update_time"];
+
+  Details details = 14;
+
+  repeated Timeouts timeouts = 15;
+
+  google.protobuf.Value for_each = 16 [json_name = "for_each"];
+
+  repeated string depends_on = 17 [json_name = "depends_on"];
+
+  optional int32 count = 18;
+
+  optional string provider = 19;
+
+  terraform.v1.Lifecycle lifecycle = 20;
+
+  message Details {
+    repeated Rules rules = 1;
+
+    message Rules {
+      // Customer specified description of the rule. Must be less than or equal to
+      //
+      // 256 characters.
+      optional string description = 1;
+
+      // The effect of the rule.
+      //
+      // Possible values:
+      //
+      // DENY
+      //
+      // ALLOW Possible values: ["DENY", "ALLOW"]
+      optional string effect = 2;
+
+      // The identities that are excluded from the access policy rule, even if they
+      //
+      // are listed in the 'principals'. For example, you could add a Google
+      //
+      // group to the 'principals', then exclude specific users who belong to
+      //
+      // that group.
+      repeated string excluded_principals = 3 [json_name = "excluded_principals"];
+
+      // The identities for which this rule's effect governs using one or more
+      //
+      // permissions on Google Cloud resources. This field can contain the
+      //
+      // following values:
+      //
+      // * 'principal://goog/subject/{email_id}': A specific Google Account.
+      //
+      // Includes Gmail, Cloud Identity, and Google Workspace user accounts. For
+      //
+      // example, 'principal://goog/subject/alice@example.com'.
+      //
+      // 'principal://iam.googleapis.com/projects/-/serviceAccounts/{service_account_id}':
+      //
+      // A Google Cloud service account. For example,
+      //
+      // eapis.com/projects/-/serviceAccounts/my-service-account@iam.gserviceaccount.com'.
+      //
+      // * 'principalSet://goog/group/{group_id}': A Google group. For example,
+      //
+      // 'principalSet://goog/group/admins@example.com'.
+      //
+      // * 'principalSet://goog/cloudIdentityCustomerId/{customer_id}': All of the
+      //
+      // principals associated with the specified Google Workspace or Cloud
+      //
+      // Identity customer ID. For example,
+      //
+      // 'principalSet://goog/cloudIdentityCustomerId/C01Abc35'.
+      //
+      // If an identifier that was previously set on a policy is soft deleted, then
+      //
+      // calls to read that policy will return the identifier with a deleted
+      //
+      // prefix. Users cannot set identifiers with this syntax.
+      //
+      // * 'deleted:principal://goog/subject/{email_id}?uid={uid}': A specific
+      //
+      // Google Account that was deleted recently. For example,
+      //
+      // 'deleted:principal://goog/subject/alice@example.com?uid=1234567890'. If
+      //
+      // the Google Account is recovered, this identifier reverts to the standard
+      //
+      // identifier for a Google Account.
+      //
+      // * 'deleted:principalSet://goog/group/{group_id}?uid={uid}': A Google group
+      //
+      // that was deleted recently. For example,
+      //
+      // 'deleted:principalSet://goog/group/admins@example.com?uid=1234567890'.
+      //
+      // If the Google group is restored, this identifier reverts to the standard
+      //
+      // identifier for a Google group.
+      //
+      // ://iam.googleapis.com/projects/-/serviceAccounts/{service_account_id}?uid={uid}':
+      //
+      // A Google Cloud service account that was deleted recently. For example,
+      //
+      // cts/-/serviceAccounts/my-service-account@iam.gserviceaccount.com?uid=1234567890'.
+      //
+      // If the service account is undeleted, this identifier reverts to the
+      //
+      // standard identifier for a service account.
+      repeated string principals = 4;
+
+      repeated Conditions conditions = 5;
+
+      Operation operation = 6;
+
+      message Conditions {
+        // Textual representation of an expression in Common Expression Language
+        //
+        // syntax.
+        optional string expression = 1;
+
+        optional string service = 2;
+      }
+
+      message Operation {
+        // Specifies the permissions that this rule excludes from the set of
+        //
+        // affected permissions given by 'permissions'. If a permission appears in
+        //
+        // 'permissions' _and_ in 'excluded_permissions' then it will _not_ be
+        //
+        // subject to the policy effect.
+        //
+        // The excluded permissions can be specified using the same syntax as
+        //
+        // 'permissions'.
+        repeated string excluded_permissions = 1 [json_name = "excluded_permissions"];
+
+        // The permissions that are explicitly affected by this rule. Each
+        //
+        // permission uses the format '{service_fqdn}/{resource}.{verb}', where
+        //
+        // '{service_fqdn}' is the fully qualified domain name for the service.
+        //
+        // Currently supported permissions are as follows:
+        //
+        // * 'eventarc.googleapis.com/messageBuses.publish'.
+        repeated string permissions = 2;
+      }
+    }
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamFoldersPolicyBinding version is 0
+message GoogleIamFoldersPolicyBinding {
+  // Optional. User defined annotations. See https://google.aip.dev/148#annotations
+  // for more details such as format and size limitations
+  //
+  //
+  //
+  // **Note**: This field is non-authoritative, and will only manage the annotations
+  // present in your configuration.
+  //
+  // Please refer to the field 'effective_annotations' for all of the annotations
+  // present on the resource.
+  map<string, string> annotations = 1;
+
+  // Output only. The time when the policy binding was created.
+  optional string create_time = 2 [json_name = "create_time"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 3 [json_name = "deletion_policy"];
+
+  // Optional. The description of the policy binding. Must be less than or equal to 63
+  // characters.
+  optional string display_name = 4 [json_name = "display_name"];
+
+  // All of annotations (key/value pairs) present on the resource in GCP, including
+  // the annotations configured through Terraform, other clients and services.
+  map<string, string> effective_annotations = 5 [json_name = "effective_annotations"];
+
+  // Optional. The etag for the policy binding. If this is provided on update, it must
+  // match the server's etag.
+  optional string etag = 6;
+
+  // The parent folder for the PolicyBinding.
+  optional string folder = 7;
+
+  optional string id = 8;
+
+  // The location of the PolicyBinding.
+  optional string location = 9;
+
+  // The name of the policy binding in the format
+  // '{binding_parent/locations/{location}/policyBindings/{policy_binding_id}'
+  optional string name = 10;
+
+  // Required. Immutable. The resource name of the policy to be bound. The binding
+  // parent and policy must belong to the same Organization (or Project).
+  optional string policy = 11;
+
+  // The Policy Binding ID.
+  optional string policy_binding_id = 12 [json_name = "policy_binding_id"];
+
+  // Immutable. The kind of the policy to attach in this binding. This
+  //
+  // field must be one of the following:  - Left empty (will be automatically set
+  //
+  // to the policy kind) - The input policy kind   Possible values:
+  // POLICY_KIND_UNSPECIFIED PRINCIPAL_ACCESS_BOUNDARY ACCESS
+  optional string policy_kind = 13 [json_name = "policy_kind"];
+
+  // Output only. The globally unique ID of the policy to be bound.
+  optional string policy_uid = 14 [json_name = "policy_uid"];
+
+  // Output only. The globally unique ID of the policy binding. Assigned when the
+  // policy binding is created.
+  optional string uid = 15;
+
+  // Output only. The time when the policy binding was most recently updated.
+  optional string update_time = 16 [json_name = "update_time"];
+
+  Condition condition = 17;
+
+  Target target = 18;
+
+  repeated Timeouts timeouts = 19;
+
+  google.protobuf.Value for_each = 20 [json_name = "for_each"];
+
+  repeated string depends_on = 21 [json_name = "depends_on"];
+
+  optional int32 count = 22;
+
+  optional string provider = 23;
+
+  terraform.v1.Lifecycle lifecycle = 24;
+
+  message Condition {
+    // Optional. Description of the expression. This is a longer text which describes
+    // the expression, e.g. when hovered over it in a UI.
+    optional string description = 1;
+
+    // Textual representation of an expression in Common Expression Language syntax.
+    optional string expression = 2;
+
+    // Optional. String indicating the location of the expression for error reporting,
+    // e.g. a file name and a position in the file.
+    optional string location = 3;
+
+    // Optional. Title for the expression, i.e. a short string describing its purpose.
+    // This can be used e.g. in UIs which allow to enter the expression.
+    optional string title = 4;
+  }
+
+  message Target {
+    // Required. Immutable. Full Resource Name of the principal set used for principal
+    // access boundary policy bindings.
+    //
+    // Examples for each one of the following supported principal set types:
+    //
+    // * Folder: '//cloudresourcemanager.googleapis.com/folders/FOLDER_ID'
+    //
+    // It must be parent by the policy binding's parent (the folder).
+    optional string principal_set = 1 [json_name = "principal_set"];
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamOauthClient version is 0
+message GoogleIamOauthClient {
+  // Required. The list of OAuth grant types is allowed for the OauthClient.
+  repeated string allowed_grant_types = 1 [json_name = "allowed_grant_types"];
+
+  // Required. The list of redirect uris that is allowed to redirect back
+  //
+  // when authorization process is completed.
+  repeated string allowed_redirect_uris = 2 [json_name = "allowed_redirect_uris"];
+
+  // Required. The list of scopes that the OauthClient is allowed to request during
+  //
+  // OAuth flows.
+  //
+  //
+  // The following scopes are supported:
+  //
+  //
+  // * 'https://www.googleapis.com/auth/cloud-platform': See, edit, configure,
+  //
+  // and delete your Google Cloud data and see the email address for your Google
+  //
+  // Account.
+  //
+  // * 'openid': The OAuth client can associate you with your personal
+  //
+  // information on Google Cloud.
+  //
+  // * 'email': The OAuth client can read a federated identity's email address.
+  //
+  // * 'groups': The OAuth client can read a federated identity's groups.
+  repeated string allowed_scopes = 3 [json_name = "allowed_scopes"];
+
+  // Output only. The system-generated OauthClient id.
+  optional string client_id = 4 [json_name = "client_id"];
+
+  // Immutable. The type of OauthClient. Either public or private.
+  //
+  // For private clients, the client secret can be managed using the dedicated
+  //
+  // OauthClientCredential resource.
+  //
+  // Possible values:
+  //
+  // CLIENT_TYPE_UNSPECIFIED
+  //
+  // PUBLIC_CLIENT
+  //
+  // CONFIDENTIAL_CLIENT
+  optional string client_type = 5 [json_name = "client_type"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 6 [json_name = "deletion_policy"];
+
+  // A user-specified description of the OauthClient.
+  //
+  //
+  // Cannot exceed 256 characters.
+  optional string description = 7;
+
+  // Whether the OauthClient is disabled. You cannot use a disabled OAuth
+  //
+  // client.
+  optional bool disabled = 8;
+
+  // A user-specified display name of the OauthClient.
+  //
+  //
+  // Cannot exceed 32 characters.
+  optional string display_name = 9 [json_name = "display_name"];
+
+  // Time after which the OauthClient will be permanently purged and cannot
+  //
+  // be recovered.
+  optional string expire_time = 10 [json_name = "expire_time"];
+
+  optional string id = 11;
+
+  // Resource ID segment making up resource 'name'. It identifies the resource within
+  // its parent collection as described in https://google.aip.dev/122.
+  optional string location = 12;
+
+  // Immutable. Identifier. The resource name of the OauthClient.
+  //
+  //
+  // Format:'projects/{project}/locations/{location}/oauthClients/{oauth_client}'.
+  optional string name = 13;
+
+  // Required. The ID to use for the OauthClient, which becomes the final component of
+  //
+  // the resource name. This value should be a string of 6 to 63 lowercase
+  //
+  // letters, digits, or hyphens. It must start with a letter, and cannot have a
+  //
+  // trailing hyphen. The prefix 'gcp-' is reserved for use by Google, and may
+  //
+  // not be specified.
+  optional string oauth_client_id = 14 [json_name = "oauth_client_id"];
+
+  optional string project = 15;
+
+  // The state of the OauthClient.
+  //
+  // Possible values:
+  //
+  // STATE_UNSPECIFIED
+  //
+  // ACTIVE
+  //
+  // DELETED
+  optional string state = 16;
+
+  repeated Timeouts timeouts = 17;
+
+  google.protobuf.Value for_each = 18 [json_name = "for_each"];
+
+  repeated string depends_on = 19 [json_name = "depends_on"];
+
+  optional int32 count = 20;
+
+  optional string provider = 21;
+
+  terraform.v1.Lifecycle lifecycle = 22;
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamOauthClientCredential version is 0
+message GoogleIamOauthClientCredential {
+  // The system-generated OAuth client secret.
+  //
+  //
+  // The client secret must be stored securely. If the client secret is
+  //
+  // leaked, you must delete and re-create the client credential. To learn
+  //
+  // more, see [OAuth client and credential security risks and
+  //
+  // mitigations](https://cloud.google.com/iam/docs/workforce-oauth-app#security)
+  optional string client_secret = 1 [json_name = "client_secret"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 2 [json_name = "deletion_policy"];
+
+  // Whether the OauthClientCredential is disabled. You cannot use a
+  //
+  // disabled OauthClientCredential.
+  optional bool disabled = 3;
+
+  // A user-specified display name of the OauthClientCredential.
+  //
+  //
+  // Cannot exceed 32 characters.
+  optional string display_name = 4 [json_name = "display_name"];
+
+  optional string id = 5;
+
+  // Resource ID segment making up resource 'name'. It identifies the resource within
+  // its parent collection as described in https://google.aip.dev/122.
+  optional string location = 6;
+
+  // Immutable. Identifier. The resource name of the OauthClientCredential.
+  //
+  //
+  // Format:
+  //
+  // oject}/locations/{location}/oauthClients/{oauth_client}/credentials/{credential}'
+  optional string name = 7;
+
+  // Required. The ID to use for the OauthClientCredential, which becomes the
+  //
+  // final component of the resource name. This value should be 4-32 characters,
+  //
+  // and may contain the characters [a-z0-9-]. The prefix 'gcp-' is
+  //
+  // reserved for use by Google, and may not be specified.
+  optional string oauth_client_credential_id = 8 [json_name = "oauth_client_credential_id"];
+
+  // Resource ID segment making up resource 'name'. It identifies the resource within
+  // its parent collection as described in https://google.aip.dev/122.
+  optional string oauthclient = 9;
+
+  optional string project = 10;
+
+  repeated Timeouts timeouts = 11;
+
+  google.protobuf.Value for_each = 12 [json_name = "for_each"];
+
+  repeated string depends_on = 13 [json_name = "depends_on"];
+
+  optional int32 count = 14;
+
+  optional string provider = 15;
+
+  terraform.v1.Lifecycle lifecycle = 16;
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamOrganizationAccessPolicy version is 0
+message GoogleIamOrganizationAccessPolicy {
+  // The ID to use for the access policy, which
+  //
+  // will become the final component of the access policy's
+  //
+  // resource name.
+  //
+  // This value must start with a lowercase letter followed by up to 62
+  //
+  // lowercase letters, numbers, hyphens, or dots. Pattern,
+  //
+  // /a-z{2,62}/.
+  //
+  // This value must be unique among all access policies with the same parent.
+  optional string access_policy_id = 1 [json_name = "access_policy_id"];
+
+  // User defined annotations. See https://google.aip.dev/148#annotations for
+  //
+  // more details such as format and size limitations
+  //
+  //
+  // **Note**: This field is non-authoritative, and will only manage the annotations
+  // present in your configuration.
+  //
+  // Please refer to the field 'effective_annotations' for all of the annotations
+  // present on the resource.
+  map<string, string> annotations = 2;
+
+  // The time when the access policy was created.
+  optional string create_time = 3 [json_name = "create_time"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 4 [json_name = "deletion_policy"];
+
+  // The description of the access policy. Must be less than
+  //
+  // or equal to 63 characters.
+  optional string display_name = 5 [json_name = "display_name"];
+
+  // All of annotations (key/value pairs) present on the resource in GCP, including
+  // the annotations configured through Terraform, other clients and services.
+  map<string, string> effective_annotations = 6 [json_name = "effective_annotations"];
+
+  // The etag for the access policy.
+  //
+  // If this is provided on update, it must match the server's etag.
+  optional string etag = 7;
+
+  optional string id = 8;
+
+  // Resource ID segment making up resource 'name'. It identifies the resource within
+  // its parent collection as described in https://google.aip.dev/122.
+  optional string location = 9;
+
+  // Identifier. The resource name of the access policy.
+  //
+  // The following formats are supported:
+  //
+  // * 'projects/{project_id}/locations/{location}/accessPolicies/{policy_id}'
+  //
+  // * 'projects/{project_number}/locations/{location}/accessPolicies/{policy_id}'
+  //
+  // * 'folders/{folder_id}/locations/{location}/accessPolicies/{policy_id}'
+  //
+  // 'organizations/{organization_id}/locations/{location}/accessPolicies/{policy_id}'
+  optional string name = 10;
+
+  // Resource ID segment making up resource 'name'. It identifies the resource within
+  // its parent collection as described in https://google.aip.dev/122.
+  optional string organization = 11;
+
+  // The globally unique ID of the access policy.
+  optional string uid = 12;
+
+  // The time when the access policy was most recently
+  //
+  // updated.
+  optional string update_time = 13 [json_name = "update_time"];
+
+  Details details = 14;
+
+  repeated Timeouts timeouts = 15;
+
+  google.protobuf.Value for_each = 16 [json_name = "for_each"];
+
+  repeated string depends_on = 17 [json_name = "depends_on"];
+
+  optional int32 count = 18;
+
+  optional string provider = 19;
+
+  terraform.v1.Lifecycle lifecycle = 20;
+
+  message Details {
+    repeated Rules rules = 1;
+
+    message Rules {
+      // Customer specified description of the rule. Must be less than or equal to
+      //
+      // 256 characters.
+      optional string description = 1;
+
+      // The effect of the rule.
+      //
+      // Possible values:
+      //
+      // DENY
+      //
+      // ALLOW Possible values: ["DENY", "ALLOW"]
+      optional string effect = 2;
+
+      // The identities that are excluded from the access policy rule, even if they
+      //
+      // are listed in the 'principals'. For example, you could add a Google
+      //
+      // group to the 'principals', then exclude specific users who belong to
+      //
+      // that group.
+      repeated string excluded_principals = 3 [json_name = "excluded_principals"];
+
+      // The identities for which this rule's effect governs using one or more
+      //
+      // permissions on Google Cloud resources. This field can contain the
+      //
+      // following values:
+      //
+      // * 'principal://goog/subject/{email_id}': A specific Google Account.
+      //
+      // Includes Gmail, Cloud Identity, and Google Workspace user accounts. For
+      //
+      // example, 'principal://goog/subject/alice@example.com'.
+      //
+      // 'principal://iam.googleapis.com/projects/-/serviceAccounts/{service_account_id}':
+      //
+      // A Google Cloud service account. For example,
+      //
+      // eapis.com/projects/-/serviceAccounts/my-service-account@iam.gserviceaccount.com'.
+      //
+      // * 'principalSet://goog/group/{group_id}': A Google group. For example,
+      //
+      // 'principalSet://goog/group/admins@example.com'.
+      //
+      // * 'principalSet://goog/cloudIdentityCustomerId/{customer_id}': All of the
+      //
+      // principals associated with the specified Google Workspace or Cloud
+      //
+      // Identity customer ID. For example,
+      //
+      // 'principalSet://goog/cloudIdentityCustomerId/C01Abc35'.
+      //
+      // If an identifier that was previously set on a policy is soft deleted, then
+      //
+      // calls to read that policy will return the identifier with a deleted
+      //
+      // prefix. Users cannot set identifiers with this syntax.
+      //
+      // * 'deleted:principal://goog/subject/{email_id}?uid={uid}': A specific
+      //
+      // Google Account that was deleted recently. For example,
+      //
+      // 'deleted:principal://goog/subject/alice@example.com?uid=1234567890'. If
+      //
+      // the Google Account is recovered, this identifier reverts to the standard
+      //
+      // identifier for a Google Account.
+      //
+      // * 'deleted:principalSet://goog/group/{group_id}?uid={uid}': A Google group
+      //
+      // that was deleted recently. For example,
+      //
+      // 'deleted:principalSet://goog/group/admins@example.com?uid=1234567890'.
+      //
+      // If the Google group is restored, this identifier reverts to the standard
+      //
+      // identifier for a Google group.
+      //
+      // ://iam.googleapis.com/projects/-/serviceAccounts/{service_account_id}?uid={uid}':
+      //
+      // A Google Cloud service account that was deleted recently. For example,
+      //
+      // cts/-/serviceAccounts/my-service-account@iam.gserviceaccount.com?uid=1234567890'.
+      //
+      // If the service account is undeleted, this identifier reverts to the
+      //
+      // standard identifier for a service account.
+      repeated string principals = 4;
+
+      repeated Conditions conditions = 5;
+
+      Operation operation = 6;
+
+      message Conditions {
+        // Textual representation of an expression in Common Expression Language
+        //
+        // syntax.
+        optional string expression = 1;
+
+        optional string service = 2;
+      }
+
+      message Operation {
+        // Specifies the permissions that this rule excludes from the set of
+        //
+        // affected permissions given by 'permissions'. If a permission appears in
+        //
+        // 'permissions' _and_ in 'excluded_permissions' then it will _not_ be
+        //
+        // subject to the policy effect.
+        //
+        // The excluded permissions can be specified using the same syntax as
+        //
+        // 'permissions'.
+        repeated string excluded_permissions = 1 [json_name = "excluded_permissions"];
+
+        // The permissions that are explicitly affected by this rule. Each
+        //
+        // permission uses the format '{service_fqdn}/{resource}.{verb}', where
+        //
+        // '{service_fqdn}' is the fully qualified domain name for the service.
+        //
+        // Currently supported permissions are as follows:
+        //
+        // * 'eventarc.googleapis.com/messageBuses.publish'.
+        repeated string permissions = 2;
+      }
+    }
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamOrganizationsPolicyBinding version is 0
+message GoogleIamOrganizationsPolicyBinding {
+  // Optional. User defined annotations. See https://google.aip.dev/148#annotations
+  // for more details such as format and size limitations
+  //
+  //
+  //
+  // **Note**: This field is non-authoritative, and will only manage the annotations
+  // present in your configuration.
+  //
+  // Please refer to the field 'effective_annotations' for all of the annotations
+  // present on the resource.
+  map<string, string> annotations = 1;
+
+  // Output only. The time when the policy binding was created.
+  optional string create_time = 2 [json_name = "create_time"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 3 [json_name = "deletion_policy"];
+
+  // Optional. The description of the policy binding. Must be less than or equal to 63
+  // characters.
+  optional string display_name = 4 [json_name = "display_name"];
+
+  // All of annotations (key/value pairs) present on the resource in GCP, including
+  // the annotations configured through Terraform, other clients and services.
+  map<string, string> effective_annotations = 5 [json_name = "effective_annotations"];
+
+  // Optional. The etag for the policy binding. If this is provided on update, it must
+  // match the server's etag.
+  optional string etag = 6;
+
+  optional string id = 7;
+
+  // The location of the Policy Binding
+  optional string location = 8;
+
+  // The name of the policy binding in the format
+  // '{binding_parent/locations/{location}/policyBindings/{policy_binding_id}'
+  optional string name = 9;
+
+  // The parent organization of the Policy Binding.
+  optional string organization = 10;
+
+  // Required. Immutable. The resource name of the policy to be bound. The binding
+  // parent and policy must belong to the same Organization (or Project).
+  optional string policy = 11;
+
+  // The Policy Binding ID.
+  optional string policy_binding_id = 12 [json_name = "policy_binding_id"];
+
+  // Immutable. The kind of the policy to attach in this binding. This
+  //
+  // field must be one of the following:  - Left empty (will be automatically set
+  //
+  // to the policy kind) - The input policy kind   Possible values:
+  // POLICY_KIND_UNSPECIFIED PRINCIPAL_ACCESS_BOUNDARY ACCESS
+  optional string policy_kind = 13 [json_name = "policy_kind"];
+
+  // Output only. The globally unique ID of the policy to be bound.
+  optional string policy_uid = 14 [json_name = "policy_uid"];
+
+  // Output only. The globally unique ID of the policy binding. Assigned when the
+  // policy binding is created.
+  optional string uid = 15;
+
+  // Output only. The time when the policy binding was most recently updated.
+  optional string update_time = 16 [json_name = "update_time"];
+
+  Condition condition = 17;
+
+  Target target = 18;
+
+  repeated Timeouts timeouts = 19;
+
+  google.protobuf.Value for_each = 20 [json_name = "for_each"];
+
+  repeated string depends_on = 21 [json_name = "depends_on"];
+
+  optional int32 count = 22;
+
+  optional string provider = 23;
+
+  terraform.v1.Lifecycle lifecycle = 24;
+
+  message Condition {
+    // Optional. Description of the expression. This is a longer text which describes
+    // the expression, e.g. when hovered over it in a UI.
+    optional string description = 1;
+
+    // Textual representation of an expression in Common Expression Language syntax.
+    optional string expression = 2;
+
+    // Optional. String indicating the location of the expression for error reporting,
+    // e.g. a file name and a position in the file.
+    optional string location = 3;
+
+    // Optional. Title for the expression, i.e. a short string describing its purpose.
+    // This can be used e.g. in UIs which allow to enter the expression.
+    optional string title = 4;
+  }
+
+  message Target {
+    // Required. Immutable. Full Resource Name of the principal set used for principal
+    // access boundary policy bindings.
+    //
+    // Examples for each one of the following supported principal set types:
+    //
+    // * Organization
+    // '//cloudresourcemanager.googleapis.com/organizations/ORGANIZATION_ID'
+    //
+    // * Workforce Identity:
+    // '//iam.googleapis.com/locations/global/workforcePools/WORKFORCE_POOL_ID'
+    //
+    // * Workspace Identity:
+    // '//iam.googleapis.com/locations/global/workspace/WORKSPACE_ID'
+    //
+    // It must be parent by the policy binding's parent (the organization).
+    optional string principal_set = 1 [json_name = "principal_set"];
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamPrincipalAccessBoundaryPolicy version is 0
+message GoogleIamPrincipalAccessBoundaryPolicy {
+  // User defined annotations. See https://google.aip.dev/148#annotations
+  //
+  // for more details such as format and size limitations
+  //
+  //
+  //
+  // **Note**: This field is non-authoritative, and will only manage the annotations
+  // present in your configuration.
+  //
+  // Please refer to the field 'effective_annotations' for all of the annotations
+  // present on the resource.
+  map<string, string> annotations = 1;
+
+  // Output only. The time when the principal access boundary policy was created.
+  optional string create_time = 2 [json_name = "create_time"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 3 [json_name = "deletion_policy"];
+
+  // The description of the principal access boundary policy. Must be less than or
+  // equal to 63 characters.
+  optional string display_name = 4 [json_name = "display_name"];
+
+  // All of annotations (key/value pairs) present on the resource in GCP, including
+  // the annotations configured through Terraform, other clients and services.
+  map<string, string> effective_annotations = 5 [json_name = "effective_annotations"];
+
+  // The etag for the principal access boundary. If this is provided on update, it
+  // must match the server's etag.
+  optional string etag = 6;
+
+  optional string id = 7;
+
+  // The location the principal access boundary policy is in.
+  optional string location = 8;
+
+  // Identifier. The resource name of the principal access boundary policy.  The
+  // following format is supported:
+  //
+  // rganization_id}/locations/{location}/principalAccessBoundaryPolicies/{policy_id}'
+  optional string name = 9;
+
+  // The parent organization of the principal access boundary policy.
+  optional string organization = 10;
+
+  // The ID to use to create the principal access boundary policy.
+  //
+  // This value must start with a lowercase letter followed by up to 62 lowercase
+  // letters, numbers, hyphens, or dots. Pattern, /a-z{2,62}/.
+  optional string principal_access_boundary_policy_id = 11 [json_name = "principal_access_boundary_policy_id"];
+
+  // Output only. The globally unique ID of the principal access boundary policy.
+  optional string uid = 12;
+
+  // Output only. The time when the principal access boundary policy was most recently
+  // updated.
+  optional string update_time = 13 [json_name = "update_time"];
+
+  Details details = 14;
+
+  repeated Timeouts timeouts = 15;
+
+  google.protobuf.Value for_each = 16 [json_name = "for_each"];
+
+  repeated string depends_on = 17 [json_name = "depends_on"];
+
+  optional int32 count = 18;
+
+  optional string provider = 19;
+
+  terraform.v1.Lifecycle lifecycle = 20;
+
+  message Details {
+    // The version number that indicates which Google Cloud services
+    //
+    // are included in the enforcement (e.g. \"latest\", \"1\", ...). If empty, the
+    //
+    // PAB policy version will be set to the current latest version, and this version
+    //
+    // won't get updated when new versions are released.
+    optional string enforcement_version = 1 [json_name = "enforcement_version"];
+
+    repeated Rules rules = 2;
+
+    message Rules {
+      // The description of the principal access boundary policy rule. Must be less than
+      // or equal to 256 characters.
+      optional string description = 1;
+
+      // The access relationship of principals to the resources in this rule.
+      //
+      // Possible values: ALLOW
+      optional string effect = 2;
+
+      // A list of Cloud Resource Manager resources. The resource
+      //
+      // and all the descendants are included. The number of resources in a policy
+      //
+      // is limited to 500 across all rules.
+      //
+      // The following resource types are supported:
+      //
+      // * Organizations, such as
+      // '//cloudresourcemanager.googleapis.com/organizations/123'.
+      //
+      // * Folders, such as '//cloudresourcemanager.googleapis.com/folders/123'.
+      //
+      // * Projects, such as '//cloudresourcemanager.googleapis.com/projects/123'
+      //
+      // or '//cloudresourcemanager.googleapis.com/projects/my-project-id'.
+      repeated string resources = 3;
+    }
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamProjectAccessPolicy version is 0
+message GoogleIamProjectAccessPolicy {
+  // The ID to use for the access policy, which
+  //
+  // will become the final component of the access policy's
+  //
+  // resource name.
+  //
+  // This value must start with a lowercase letter followed by up to 62
+  //
+  // lowercase letters, numbers, hyphens, or dots. Pattern,
+  //
+  // /a-z{2,62}/.
+  //
+  // This value must be unique among all access policies with the same parent.
+  optional string access_policy_id = 1 [json_name = "access_policy_id"];
+
+  // User defined annotations. See https://google.aip.dev/148#annotations for
+  //
+  // more details such as format and size limitations
+  //
+  //
+  // **Note**: This field is non-authoritative, and will only manage the annotations
+  // present in your configuration.
+  //
+  // Please refer to the field 'effective_annotations' for all of the annotations
+  // present on the resource.
+  map<string, string> annotations = 2;
+
+  // The time when the access policy was created.
+  optional string create_time = 3 [json_name = "create_time"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 4 [json_name = "deletion_policy"];
+
+  // The description of the access policy. Must be less than
+  //
+  // or equal to 63 characters.
+  optional string display_name = 5 [json_name = "display_name"];
+
+  // All of annotations (key/value pairs) present on the resource in GCP, including
+  // the annotations configured through Terraform, other clients and services.
+  map<string, string> effective_annotations = 6 [json_name = "effective_annotations"];
+
+  // The etag for the access policy.
+  //
+  // If this is provided on update, it must match the server's etag.
+  optional string etag = 7;
+
+  optional string id = 8;
+
+  // Resource ID segment making up resource 'name'. It identifies the resource within
+  // its parent collection as described in https://google.aip.dev/122.
+  optional string location = 9;
+
+  // Identifier. The resource name of the access policy.
+  //
+  // The following formats are supported:
+  //
+  // * 'projects/{project_id}/locations/{location}/accessPolicies/{policy_id}'
+  //
+  // * 'projects/{project_number}/locations/{location}/accessPolicies/{policy_id}'
+  //
+  // * 'folders/{folder_id}/locations/{location}/accessPolicies/{policy_id}'
+  //
+  // 'organizations/{organization_id}/locations/{location}/accessPolicies/{policy_id}'
+  optional string name = 10;
+
+  optional string project = 11;
+
+  // The globally unique ID of the access policy.
+  optional string uid = 12;
+
+  // The time when the access policy was most recently
+  //
+  // updated.
+  optional string update_time = 13 [json_name = "update_time"];
+
+  Details details = 14;
+
+  repeated Timeouts timeouts = 15;
+
+  google.protobuf.Value for_each = 16 [json_name = "for_each"];
+
+  repeated string depends_on = 17 [json_name = "depends_on"];
+
+  optional int32 count = 18;
+
+  optional string provider = 19;
+
+  terraform.v1.Lifecycle lifecycle = 20;
+
+  message Details {
+    repeated Rules rules = 1;
+
+    message Rules {
+      // Customer specified description of the rule. Must be less than or equal to
+      //
+      // 256 characters.
+      optional string description = 1;
+
+      // The effect of the rule.
+      //
+      // Possible values:
+      //
+      // DENY
+      //
+      // ALLOW Possible values: ["DENY", "ALLOW"]
+      optional string effect = 2;
+
+      // The identities that are excluded from the access policy rule, even if they
+      //
+      // are listed in the 'principals'. For example, you could add a Google
+      //
+      // group to the 'principals', then exclude specific users who belong to
+      //
+      // that group.
+      repeated string excluded_principals = 3 [json_name = "excluded_principals"];
+
+      // The identities for which this rule's effect governs using one or more
+      //
+      // permissions on Google Cloud resources. This field can contain the
+      //
+      // following values:
+      //
+      // * 'principal://goog/subject/{email_id}': A specific Google Account.
+      //
+      // Includes Gmail, Cloud Identity, and Google Workspace user accounts. For
+      //
+      // example, 'principal://goog/subject/alice@example.com'.
+      //
+      // 'principal://iam.googleapis.com/projects/-/serviceAccounts/{service_account_id}':
+      //
+      // A Google Cloud service account. For example,
+      //
+      // eapis.com/projects/-/serviceAccounts/my-service-account@iam.gserviceaccount.com'.
+      //
+      // * 'principalSet://goog/group/{group_id}': A Google group. For example,
+      //
+      // 'principalSet://goog/group/admins@example.com'.
+      //
+      // * 'principalSet://goog/cloudIdentityCustomerId/{customer_id}': All of the
+      //
+      // principals associated with the specified Google Workspace or Cloud
+      //
+      // Identity customer ID. For example,
+      //
+      // 'principalSet://goog/cloudIdentityCustomerId/C01Abc35'.
+      //
+      // If an identifier that was previously set on a policy is soft deleted, then
+      //
+      // calls to read that policy will return the identifier with a deleted
+      //
+      // prefix. Users cannot set identifiers with this syntax.
+      //
+      // * 'deleted:principal://goog/subject/{email_id}?uid={uid}': A specific
+      //
+      // Google Account that was deleted recently. For example,
+      //
+      // 'deleted:principal://goog/subject/alice@example.com?uid=1234567890'. If
+      //
+      // the Google Account is recovered, this identifier reverts to the standard
+      //
+      // identifier for a Google Account.
+      //
+      // * 'deleted:principalSet://goog/group/{group_id}?uid={uid}': A Google group
+      //
+      // that was deleted recently. For example,
+      //
+      // 'deleted:principalSet://goog/group/admins@example.com?uid=1234567890'.
+      //
+      // If the Google group is restored, this identifier reverts to the standard
+      //
+      // identifier for a Google group.
+      //
+      // ://iam.googleapis.com/projects/-/serviceAccounts/{service_account_id}?uid={uid}':
+      //
+      // A Google Cloud service account that was deleted recently. For example,
+      //
+      // cts/-/serviceAccounts/my-service-account@iam.gserviceaccount.com?uid=1234567890'.
+      //
+      // If the service account is undeleted, this identifier reverts to the
+      //
+      // standard identifier for a service account.
+      repeated string principals = 4;
+
+      repeated Conditions conditions = 5;
+
+      Operation operation = 6;
+
+      message Conditions {
+        // Textual representation of an expression in Common Expression Language
+        //
+        // syntax.
+        optional string expression = 1;
+
+        optional string service = 2;
+      }
+
+      message Operation {
+        // Specifies the permissions that this rule excludes from the set of
+        //
+        // affected permissions given by 'permissions'. If a permission appears in
+        //
+        // 'permissions' _and_ in 'excluded_permissions' then it will _not_ be
+        //
+        // subject to the policy effect.
+        //
+        // The excluded permissions can be specified using the same syntax as
+        //
+        // 'permissions'.
+        repeated string excluded_permissions = 1 [json_name = "excluded_permissions"];
+
+        // The permissions that are explicitly affected by this rule. Each
+        //
+        // permission uses the format '{service_fqdn}/{resource}.{verb}', where
+        //
+        // '{service_fqdn}' is the fully qualified domain name for the service.
+        //
+        // Currently supported permissions are as follows:
+        //
+        // * 'eventarc.googleapis.com/messageBuses.publish'.
+        repeated string permissions = 2;
+      }
+    }
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamProjectsPolicyBinding version is 0
+message GoogleIamProjectsPolicyBinding {
+  // Optional. User defined annotations. See https://google.aip.dev/148#annotations
+  // for more details such as format and size limitations
+  //
+  //
+  //
+  // **Note**: This field is non-authoritative, and will only manage the annotations
+  // present in your configuration.
+  //
+  // Please refer to the field 'effective_annotations' for all of the annotations
+  // present on the resource.
+  map<string, string> annotations = 1;
+
+  // Output only. The time when the policy binding was created.
+  optional string create_time = 2 [json_name = "create_time"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 3 [json_name = "deletion_policy"];
+
+  // Optional. The description of the policy binding. Must be less than or equal to 63
+  // characters.
+  optional string display_name = 4 [json_name = "display_name"];
+
+  // All of annotations (key/value pairs) present on the resource in GCP, including
+  // the annotations configured through Terraform, other clients and services.
+  map<string, string> effective_annotations = 5 [json_name = "effective_annotations"];
+
+  // Optional. The etag for the policy binding. If this is provided on update, it must
+  // match the server's etag.
+  optional string etag = 6;
+
+  optional string id = 7;
+
+  // The location of the Policy Binding
+  optional string location = 8;
+
+  // The name of the policy binding in the format
+  // '{binding_parent/locations/{location}/policyBindings/{policy_binding_id}'
+  optional string name = 9;
+
+  // Required. Immutable. The resource name of the policy to be bound. The binding
+  // parent and policy must belong to the same Organization (or Project).
+  optional string policy = 10;
+
+  // The Policy Binding ID.
+  optional string policy_binding_id = 11 [json_name = "policy_binding_id"];
+
+  // Immutable. The kind of the policy to attach in this binding. This
+  //
+  // field must be one of the following:  - Left empty (will be automatically set
+  //
+  // to the policy kind) - The input policy kind   Possible values:
+  // POLICY_KIND_UNSPECIFIED PRINCIPAL_ACCESS_BOUNDARY ACCESS
+  optional string policy_kind = 12 [json_name = "policy_kind"];
+
+  // Output only. The globally unique ID of the policy to be bound.
+  optional string policy_uid = 13 [json_name = "policy_uid"];
+
+  optional string project = 14;
+
+  // Output only. The globally unique ID of the policy binding. Assigned when the
+  // policy binding is created.
+  optional string uid = 15;
+
+  // Output only. The time when the policy binding was most recently updated.
+  optional string update_time = 16 [json_name = "update_time"];
+
+  Condition condition = 17;
+
+  Target target = 18;
+
+  repeated Timeouts timeouts = 19;
+
+  google.protobuf.Value for_each = 20 [json_name = "for_each"];
+
+  repeated string depends_on = 21 [json_name = "depends_on"];
+
+  optional int32 count = 22;
+
+  optional string provider = 23;
+
+  terraform.v1.Lifecycle lifecycle = 24;
+
+  message Condition {
+    // Optional. Description of the expression. This is a longer text which describes
+    // the expression, e.g. when hovered over it in a UI.
+    optional string description = 1;
+
+    // Textual representation of an expression in Common Expression Language syntax.
+    optional string expression = 2;
+
+    // Optional. String indicating the location of the expression for error reporting,
+    // e.g. a file name and a position in the file.
+    optional string location = 3;
+
+    // Optional. Title for the expression, i.e. a short string describing its purpose.
+    // This can be used e.g. in UIs which allow to enter the expression.
+    optional string title = 4;
+  }
+
+  message Target {
+    // Required. Immutable. Full Resource Name of the principal set used for principal
+    // access boundary policy bindings.
+    //
+    // Examples for each one of the following supported principal set types:
+    //
+    // * Project:
+    //
+    // * '//cloudresourcemanager.googleapis.com/projects/PROJECT_NUMBER'
+    //
+    // * '//cloudresourcemanager.googleapis.com/projects/PROJECT_ID'
+    //
+    // * Workload Identity Pool:
+    // rojects/PROJECT_NUMBER/locations/LOCATION/workloadIdentityPools/WORKLOAD_POOL_ID'
+    //
+    // It must be parent by the policy binding's parent (the project).
+    optional string principal_set = 1 [json_name = "principal_set"];
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamWorkforcePool version is 0
+message GoogleIamWorkforcePool {
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 1 [json_name = "deletion_policy"];
+
+  // A user-specified description of the pool. Cannot exceed 256 characters.
+  optional string description = 2;
+
+  // Whether the pool is disabled. You cannot use a disabled pool to exchange tokens,
+  //
+  // or use existing tokens to access resources. If the pool is re-enabled, existing
+  // tokens grant access again.
+  optional bool disabled = 3;
+
+  // A user-specified display name of the pool in Google Cloud Console. Cannot exceed
+  // 32 characters.
+  optional string display_name = 4 [json_name = "display_name"];
+
+  optional string id = 5;
+
+  // The location for the resource.
+  optional string location = 6;
+
+  // Output only. The resource name of the pool.
+  //
+  // Format: 'locations/{location}/workforcePools/{workforcePoolId}'
+  optional string name = 7;
+
+  // Immutable. The resource name of the parent. Format: 'organizations/{org-id}'.
+  optional string parent = 8;
+
+  // Duration that the Google Cloud access tokens, console sign-in sessions,
+  //
+  // and 'gcloud' sign-in sessions from this pool are valid.
+  //
+  // Must be greater than 15 minutes (900s) and less than 12 hours (43200s).
+  //
+  // If 'sessionDuration' is not configured, minted credentials have a default
+  // duration of one hour (3600s).
+  //
+  // A duration in seconds with up to nine fractional digits, ending with ''s''.
+  // Example: "'3.5s'".
+  optional string session_duration = 9 [json_name = "session_duration"];
+
+  // Output only. The state of the pool.
+  //
+  // * STATE_UNSPECIFIED: State unspecified.
+  //
+  // * ACTIVE: The pool is active, and may be used in Google Cloud policies.
+  //
+  // * DELETED: The pool is soft-deleted. Soft-deleted pools are permanently deleted
+  //
+  // after approximately 30 days. You can restore a soft-deleted pool using
+  //
+  // orkforcePools/undelete#google.iam.admin.v1.WorkforcePools.UndeleteWorkforcePool).
+  //
+  // You cannot reuse the ID of a soft-deleted pool until it is permanently deleted.
+  //
+  // While a pool is deleted, you cannot use it to exchange tokens, or use
+  //
+  // existing tokens to access resources. If the pool is undeleted, existing
+  //
+  // tokens grant access again.
+  optional string state = 10;
+
+  // The name of the pool. The ID must be a globally unique string of 6 to 63
+  // lowercase letters,
+  //
+  // digits, or hyphens. It must start with a letter, and cannot have a trailing
+  // hyphen.
+  //
+  // The prefix 'gcp-' is reserved for use by Google, and may not be specified.
+  optional string workforce_pool_id = 11 [json_name = "workforce_pool_id"];
+
+  AccessRestrictions access_restrictions = 12 [json_name = "access_restrictions"];
+
+  repeated Timeouts timeouts = 13;
+
+  google.protobuf.Value for_each = 14 [json_name = "for_each"];
+
+  repeated string depends_on = 15 [json_name = "depends_on"];
+
+  optional int32 count = 16;
+
+  optional string provider = 17;
+
+  terraform.v1.Lifecycle lifecycle = 18;
+
+  message AccessRestrictions {
+    // Disable programmatic sign-in by disabling token issue via the Security Token API
+    // endpoint.
+    //
+    // See [Security Token Service
+    // API](https://cloud.google.com/iam/docs/reference/sts/rest).
+    optional bool disable_programmatic_signin = 1 [json_name = "disable_programmatic_signin"];
+
+    repeated AllowedServices allowed_services = 2 [json_name = "allowed_services"];
+
+    message AllowedServices {
+      // Domain name of the service.
+      //
+      // Example: console.cloud.google
+      optional string domain = 1;
+    }
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamWorkforcePoolIamBinding version is 0
+message GoogleIamWorkforcePoolIamBinding {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  optional string location = 3;
+
+  repeated string members = 4;
+
+  optional string role = 5;
+
+  optional string workforce_pool_id = 6 [json_name = "workforce_pool_id"];
+
+  Condition condition = 7;
+
+  google.protobuf.Value for_each = 8 [json_name = "for_each"];
+
+  repeated string depends_on = 9 [json_name = "depends_on"];
+
+  optional int32 count = 10;
+
+  optional string provider = 11;
+
+  terraform.v1.Lifecycle lifecycle = 12;
+
+  message Condition {
+    optional string description = 1;
+
+    optional string expression = 2;
+
+    optional string title = 3;
+  }
+}
+
+// GoogleIamWorkforcePoolIamMember version is 0
+message GoogleIamWorkforcePoolIamMember {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  optional string location = 3;
+
+  optional string member = 4;
+
+  optional string role = 5;
+
+  optional string workforce_pool_id = 6 [json_name = "workforce_pool_id"];
+
+  Condition condition = 7;
+
+  google.protobuf.Value for_each = 8 [json_name = "for_each"];
+
+  repeated string depends_on = 9 [json_name = "depends_on"];
+
+  optional int32 count = 10;
+
+  optional string provider = 11;
+
+  terraform.v1.Lifecycle lifecycle = 12;
+
+  message Condition {
+    optional string description = 1;
+
+    optional string expression = 2;
+
+    optional string title = 3;
+  }
+}
+
+// GoogleIamWorkforcePoolIamPolicy version is 0
+message GoogleIamWorkforcePoolIamPolicy {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  optional string location = 3;
+
+  optional string policy_data = 4 [json_name = "policy_data"];
+
+  optional string workforce_pool_id = 5 [json_name = "workforce_pool_id"];
+
+  google.protobuf.Value for_each = 6 [json_name = "for_each"];
+
+  repeated string depends_on = 7 [json_name = "depends_on"];
+
+  optional int32 count = 8;
+
+  optional string provider = 9;
+
+  terraform.v1.Lifecycle lifecycle = 10;
+}
+
+// GoogleIamWorkforcePoolProvider version is 0
+message GoogleIamWorkforcePoolProvider {
+  // A [Common Expression Language](https://github.com/google/cel-spec) expression, in
+  //
+  // plain text, to restrict what otherwise valid authentication credentials issued by
+  // the
+  //
+  // provider should not be accepted.
+  //
+  //
+  // The expression must output a boolean representing whether to allow the
+  // federation.
+  //
+  //
+  // The following keywords may be referenced in the expressions:
+  //
+  // * 'assertion': JSON representing the authentication credential issued by the
+  // provider.
+  //
+  // * 'google': The Google attributes mapped from the assertion in the
+  // 'attribute_mappings'.
+  //
+  // 'google.profile_photo' and 'google.display_name' are not supported.
+  //
+  // * 'attribute': The custom attributes mapped from the assertion in the
+  // 'attribute_mappings'.
+  //
+  //
+  // The maximum length of the attribute condition expression is 4096 characters.
+  //
+  // If unspecified, all valid authentication credentials will be accepted.
+  //
+  //
+  // The following example shows how to only allow credentials with a mapped
+  // 'google.groups' value of 'admins':
+  //
+  // '''
+  //
+  // "'admins' in google.groups"
+  //
+  // '''
+  optional string attribute_condition = 1 [json_name = "attribute_condition"];
+
+  // Maps attributes from the authentication credentials issued by an external
+  // identity provider
+  //
+  // to Google Cloud attributes, such as 'subject' and 'segment'.
+  //
+  //
+  // Each key must be a string specifying the Google Cloud IAM attribute to map to.
+  //
+  //
+  // The following keys are supported:
+  //
+  // * 'google.subject': The principal IAM is authenticating. You can reference this
+  // value in IAM bindings.
+  //
+  // This is also the subject that appears in Cloud Logging logs. This is a required
+  // field and
+  //
+  // the mapped subject cannot exceed 127 bytes.
+  //
+  // * 'google.groups': Groups the authenticating user belongs to. You can grant
+  // groups access to
+  //
+  // resources using an IAM 'principalSet' binding; access applies to all members of
+  // the group.
+  //
+  // * 'google.display_name': The name of the authenticated user. This is an optional
+  // field and
+  //
+  // the mapped display name cannot exceed 100 bytes. If not set, 'google.subject'
+  // will be displayed instead.
+  //
+  // This attribute cannot be referenced in IAM bindings.
+  //
+  // * 'google.profile_photo': The URL that specifies the authenticated user's
+  // thumbnail photo.
+  //
+  // This is an optional field. When set, the image will be visible as the user's
+  // profile picture.
+  //
+  // If not set, a generic user icon will be displayed instead.
+  //
+  // This attribute cannot be referenced in IAM bindings.
+  //
+  //
+  // You can also provide custom attributes by specifying
+  // 'attribute.{custom_attribute}', where {custom_attribute}
+  //
+  // is the name of the custom attribute to be mapped. You can define a maximum of 50
+  // custom attributes.
+  //
+  // The maximum length of a mapped attribute key is 100 characters, and the key may
+  // only contain the characters [a-z0-9_].
+  //
+  //
+  // You can reference these attributes in IAM policies to define fine-grained access
+  // for a workforce pool
+  //
+  // to Google Cloud resources. For example:
+  //
+  // * 'google.subject':
+  //
+  // ://iam.googleapis.com/locations/{location}/workforcePools/{pool}/subject/{value}'
+  //
+  // * 'google.groups':
+  //
+  // et://iam.googleapis.com/locations/{location}/workforcePools/{pool}/group/{value}'
+  //
+  // * 'attribute.{custom_attribute}':
+  //
+  // /locations/{location}/workforcePools/{pool}/attribute.{custom_attribute}/{value}'
+  //
+  //
+  // Each value must be a [Common Expression
+  // Language](https://github.com/google/cel-spec)
+  //
+  // function that maps an identity provider credential to the normalized attribute
+  // specified
+  //
+  // by the corresponding map key.
+  //
+  //
+  // You can use the 'assertion' keyword in the expression to access a JSON
+  // representation of
+  //
+  // the authentication credential issued by the provider.
+  //
+  //
+  // The maximum length of an attribute mapping expression is 2048 characters. When
+  // evaluated,
+  //
+  // the total size of all mapped attributes must not exceed 8KB.
+  //
+  //
+  // For OIDC providers, you must supply a custom mapping that includes the
+  // 'google.subject' attribute.
+  //
+  // For example, the following maps the sub claim of the incoming credential to the
+  // 'subject' attribute
+  //
+  // on a Google token:
+  //
+  // '''
+  //
+  // {"google.subject": "assertion.sub"}
+  //
+  // '''
+  //
+  //
+  // An object containing a list of '"key": value' pairs.
+  //
+  // Example: '{ "name": "wrench", "mass": "1.3kg", "count": "3" }'.
+  map<string, string> attribute_mapping = 2 [json_name = "attribute_mapping"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 3 [json_name = "deletion_policy"];
+
+  // A user-specified description of the provider. Cannot exceed 256 characters.
+  optional string description = 4;
+
+  // If true, populates additional debug information in Cloud Audit Logs for this
+  // provider. Logged attribute mappings and values can be found in
+  // 'sts.googleapis.com' data access logs. Default value is false.
+  optional bool detailed_audit_logging = 5 [json_name = "detailed_audit_logging"];
+
+  // Whether the provider is disabled. You cannot use a disabled provider to exchange
+  // tokens.
+  //
+  // However, existing tokens still grant access.
+  optional bool disabled = 6;
+
+  // A user-specified display name for the provider. Cannot exceed 32 characters.
+  optional string display_name = 7 [json_name = "display_name"];
+
+  optional string id = 8;
+
+  // The location for the resource.
+  optional string location = 9;
+
+  // Output only. The resource name of the provider.
+  //
+  // Format:
+  // 'locations/{location}/workforcePools/{workforcePoolId}/providers/{providerId}'
+  optional string name = 10;
+
+  // The ID for the provider, which becomes the final component of the resource name.
+  //
+  // This value must be 4-32 characters, and may contain the characters [a-z0-9-].
+  //
+  // The prefix 'gcp-' is reserved for use by Google, and may not be specified.
+  optional string provider_id = 11 [json_name = "provider_id"];
+
+  // Agentspace only. Specifies whether the workforce identity pool
+  //
+  // provider uses SCIM-managed groups instead of the 'google.groups'
+  //
+  // attribute mapping for authorization checks.
+  //
+  //
+  // The 'scimUsage' and 'extendedAttributesOauth2Client' fields are
+  //
+  // mutually exclusive. A request that enables both fields on the same
+  //
+  // workforce identity pool provider will produce an error.
+  //
+  // * SCIM_USAGE_UNSPECIFIED: Default behaviour
+  //
+  // * ENABLED_FOR_GROUPS: Use SCIM-managed groups instead of the 'google.groups'
+  //
+  // attribute mapping for authorization checks Possible values:
+  // ["SCIM_USAGE_UNSPECIFIED", "ENABLED_FOR_GROUPS"]
+  optional string scim_usage = 12 [json_name = "scim_usage"];
+
+  // The current state of the provider.
+  //
+  // * STATE_UNSPECIFIED: State unspecified.
+  //
+  // * ACTIVE: The provider is active and may be used to validate authentication
+  // credentials.
+  //
+  // * DELETED: The provider is soft-deleted. Soft-deleted providers are permanently
+  //
+  // deleted after approximately 30 days. You can restore a soft-deleted provider
+  // using
+  //
+  // iders/undelete#google.iam.admin.v1.WorkforcePools.UndeleteWorkforcePoolProvider).
+  optional string state = 13;
+
+  // The ID to use for the pool, which becomes the final component of the resource
+  // name.
+  //
+  // The IDs must be a globally unique string of 6 to 63 lowercase letters, digits, or
+  // hyphens.
+  //
+  // It must start with a letter, and cannot have a trailing hyphen.
+  //
+  // The prefix 'gcp-' is reserved for use by Google, and may not be specified.
+  optional string workforce_pool_id = 14 [json_name = "workforce_pool_id"];
+
+  ExtendedAttributesOauth2Client extended_attributes_oauth2_client = 15 [json_name = "extended_attributes_oauth2_client"];
+
+  ExtraAttributesOauth2Client extra_attributes_oauth2_client = 16 [json_name = "extra_attributes_oauth2_client"];
+
+  Oidc oidc = 17;
+
+  Saml saml = 18;
+
+  repeated Timeouts timeouts = 19;
+
+  google.protobuf.Value for_each = 20 [json_name = "for_each"];
+
+  repeated string depends_on = 21 [json_name = "depends_on"];
+
+  optional int32 count = 22;
+
+  optional string provider = 23;
+
+  terraform.v1.Lifecycle lifecycle = 24;
+
+  message ExtendedAttributesOauth2Client {
+    // Represents the IdP and type of claims that should be fetched.
+    //
+    // * AZURE_AD_GROUPS_ID:  Used to get the user's group claims from the Azure AD
+    // identity provider
+    //
+    // using configuration provided in ExtendedAttributesOAuth2Client and 'id'
+    //
+    // property of the 'microsoft.graph.group' object is used for claim mapping. See
+    //
+    // earn.microsoft.com/en-us/graph/api/resources/group?view=graph-rest-1.0#properties
+    //
+    // for more details on 'microsoft.graph.group' properties. The
+    //
+    // group IDs obtained from Azure AD are present in 'assertion.groups' for
+    //
+    // OIDC providers and 'assertion.attributes.groups' for SAML providers for
+    //
+    // attribute mapping. Possible values: ["AZURE_AD_GROUPS_ID"]
+    optional string attributes_type = 1 [json_name = "attributes_type"];
+
+    // The OAuth 2.0 client ID for retrieving extended attributes from the identity
+    // provider. Required to get the Access Token using client credentials grant flow.
+    optional string client_id = 2 [json_name = "client_id"];
+
+    // The OIDC identity provider's issuer URI. Must be a valid URI using the 'https'
+    // scheme. Required to get the OIDC discovery document.
+    optional string issuer_uri = 3 [json_name = "issuer_uri"];
+
+    ClientSecret client_secret = 4 [json_name = "client_secret"];
+
+    QueryParameters query_parameters = 5 [json_name = "query_parameters"];
+
+    message ClientSecret {
+      Value value = 1;
+
+      message Value {
+        // The plain text of the client secret value.
+        optional string plain_text = 1 [json_name = "plain_text"];
+
+        // The plain text of the client secret value.
+        optional string plain_text_wo = 2 [json_name = "plain_text_wo"];
+
+        // Triggers update of 'plain_text_wo' write-only. Increment this value when an
+        // update to 'plain_text_wo' is needed. For more info see [updating write-only
+        // ders/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
+        optional string plain_text_wo_version = 3 [json_name = "plain_text_wo_version"];
+
+        // A thumbprint to represent the current client secret value.
+        optional string thumbprint = 4;
+      }
+    }
+
+    message QueryParameters {
+      // The filter used to request specific records from IdP. In case of attributes type
+      // as AZURE_AD_GROUPS_ID, it represents the
+      //
+      // filter used to request specific groups for users from IdP. By default, all of the
+      // groups associated with the user are fetched. The
+      //
+      // groups should be security enabled. See
+      // https://learn.microsoft.com/en-us/graph/search-query-parameter for more details.
+      optional string filter = 1;
+    }
+  }
+
+  message ExtraAttributesOauth2Client {
+    // Represents the IdP and type of claims that should be fetched.
+    //
+    // * AZURE_AD_GROUPS_MAIL: Used to get the user's group claims from the Azure AD
+    // identity provider using configuration provided
+    //
+    // in ExtraAttributesOAuth2Client and 'mail' property of the 'microsoft.graph.group'
+    // object is used for claim mapping.
+    //
+    // See
+    // earn.microsoft.com/en-us/graph/api/resources/group?view=graph-rest-1.0#properties
+    // for more details on
+    //
+    // 'microsoft.graph.group' properties. The attributes obtained from idntity provider
+    // are mapped to 'assertion.groups'.
+    //
+    // * AZURE_AD_GROUPS_ID:  Used to get the user's group claims from the Azure AD
+    // identity provider
+    //
+    // using configuration provided in ExtraAttributesOAuth2Client and 'id'
+    //
+    // property of the 'microsoft.graph.group' object is used for claim mapping. See
+    //
+    // earn.microsoft.com/en-us/graph/api/resources/group?view=graph-rest-1.0#properties
+    //
+    // for more details on 'microsoft.graph.group' properties. The
+    //
+    // group IDs obtained from Azure AD are present in 'assertion.groups' for
+    //
+    // OIDC providers and 'assertion.attributes.groups' for SAML providers for
+    //
+    // attribute mapping.
+    //
+    // * AZURE_AD_GROUPS_DISPLAY_NAME: Used to get the user's group claims from the
+    // Azure AD identity provider
+    //
+    // using configuration provided in ExtraAttributesOAuth2Client and 'displayName'
+    // property
+    //
+    // of the 'microsoft.graph.group' object is used for claim mapping. See
+    //
+    // earn.microsoft.com/en-us/graph/api/resources/group?view=graph-rest-1.0#properties
+    //
+    // for more details on 'microsoft.graph.group' properties. The
+    //
+    // group displayNames obtained from Azure AD are present in 'assertion.groups' for
+    //
+    // OIDC providers and 'assertion.attributes.groups' for SAML providers for
+    //
+    // attribute mapping. Possible values: ["AZURE_AD_GROUPS_MAIL",
+    // "AZURE_AD_GROUPS_ID", "AZURE_AD_GROUPS_DISPLAY_NAME"]
+    optional string attributes_type = 1 [json_name = "attributes_type"];
+
+    // The OAuth 2.0 client ID for retrieving extra attributes from the identity
+    // provider. Required to get the Access Token using client credentials grant flow.
+    optional string client_id = 2 [json_name = "client_id"];
+
+    // The OIDC identity provider's issuer URI. Must be a valid URI using the 'https'
+    // scheme. Required to get the OIDC discovery document.
+    optional string issuer_uri = 3 [json_name = "issuer_uri"];
+
+    ClientSecret client_secret = 4 [json_name = "client_secret"];
+
+    QueryParameters query_parameters = 5 [json_name = "query_parameters"];
+
+    message ClientSecret {
+      Value value = 1;
+
+      message Value {
+        // The plain text of the client secret value.
+        optional string plain_text = 1 [json_name = "plain_text"];
+
+        // The plain text of the client secret value.
+        optional string plain_text_wo = 2 [json_name = "plain_text_wo"];
+
+        // Triggers update of 'plain_text_wo' write-only. Increment this value when an
+        // update to 'plain_text_wo' is needed. For more info see [updating write-only
+        // ders/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
+        optional string plain_text_wo_version = 3 [json_name = "plain_text_wo_version"];
+
+        // A thumbprint to represent the current client secret value.
+        optional string thumbprint = 4;
+      }
+    }
+
+    message QueryParameters {
+      // The filter used to request specific records from IdP. In case of attributes type
+      // as AZURE_AD_GROUPS_MAIL,
+      //
+      // AZURE_AD_GROUPS_ID and AZURE_AD_GROUPS_DISPLAY_NAME, it represents the filter
+      // used to request specific
+      //
+      // groups for users from IdP. By default, all of the groups associated with the user
+      // are fetched. The groups
+      //
+      // should be security enabled. See
+      // https://learn.microsoft.com/en-us/graph/search-query-parameter for more
+      //
+      // details.
+      optional string filter = 1;
+    }
+  }
+
+  message Oidc {
+    // The client ID. Must match the audience claim of the JWT issued by the identity
+    // provider.
+    optional string client_id = 1 [json_name = "client_id"];
+
+    // The OIDC issuer URI. Must be a valid URI using the 'https' scheme.
+    optional string issuer_uri = 2 [json_name = "issuer_uri"];
+
+    // OIDC JWKs in JSON String format. For details on definition of a
+    //
+    // JWK, see https:tools.ietf.org/html/rfc7517. If not set, then we
+    //
+    // use the 'jwks_uri' from the discovery document fetched from the
+    //
+    // .well-known path for the 'issuer_uri'. Currently, RSA and EC asymmetric
+    //
+    // keys are supported. The JWK must use following format and include only
+    //
+    // the following fields:
+    //
+    // '''
+    //
+    //  "keys": [
+    //
+    //          "kty": "RSA/EC",
+    //
+    // "alg": "<algorithm>",
+    //
+    // "use": "sig",
+    //
+    // "kid": "<key-id>",
+    //
+    // "n": "",
+    //
+    // "e": "",
+    //
+    // "x": "",
+    //
+    // "y": "",
+    //
+    // "crv": ""
+    //
+    //  ]
+    //
+    // '''
+    optional string jwks_json = 3 [json_name = "jwks_json"];
+
+    ClientSecret client_secret = 4 [json_name = "client_secret"];
+
+    WebSsoConfig web_sso_config = 5 [json_name = "web_sso_config"];
+
+    message ClientSecret {
+      Value value = 1;
+
+      message Value {
+        // The plain text of the client secret value.
+        optional string plain_text = 1 [json_name = "plain_text"];
+
+        // The plain text of the client secret value.
+        optional string plain_text_wo = 2 [json_name = "plain_text_wo"];
+
+        // Triggers update of 'plain_text_wo' write-only. Increment this value when an
+        // update to 'plain_text_wo' is needed. For more info see [updating write-only
+        // ders/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
+        optional string plain_text_wo_version = 3 [json_name = "plain_text_wo_version"];
+
+        // A thumbprint to represent the current client secret value.
+        optional string thumbprint = 4;
+      }
+    }
+
+    message WebSsoConfig {
+      // Additional scopes to request for in the OIDC authentication request on top of
+      // scopes requested by default. By default, the 'openid', 'profile' and 'email'
+      // scopes that are supported by the identity provider are requested.
+      //
+      // Each additional scope may be at most 256 characters. A maximum of 10 additional
+      // scopes may be configured.
+      repeated string additional_scopes = 1 [json_name = "additional_scopes"];
+
+      // The behavior for how OIDC Claims are included in the 'assertion' object used for
+      // attribute mapping and attribute condition.
+      //
+      // * MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS: Merge the UserInfo Endpoint Claims with
+      // ID Token Claims, preferring UserInfo Claim Values for the same Claim Name. This
+      // option is available only for the Authorization Code Flow.
+      //
+      // * ONLY_ID_TOKEN_CLAIMS: Only include ID Token Claims. Possible values:
+      // ["MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS", "ONLY_ID_TOKEN_CLAIMS"]
+      optional string assertion_claims_behavior = 2 [json_name = "assertion_claims_behavior"];
+
+      // The Response Type to request for in the OIDC Authorization Request for web
+      // sign-in.
+      //
+      //
+      // The 'CODE' Response Type is recommended to avoid the Implicit Flow, for security
+      // reasons.
+      //
+      // * CODE: The 'response_type=code' selection uses the Authorization Code Flow for
+      // web sign-in. Requires a configured client secret.
+      //
+      // * ID_TOKEN: The 'response_type=id_token' selection uses the Implicit Flow for web
+      // sign-in. Possible values: ["CODE", "ID_TOKEN"]
+      optional string response_type = 3 [json_name = "response_type"];
+    }
+  }
+
+  message Saml {
+    // SAML Identity provider configuration metadata xml doc.
+    //
+    // The xml document should comply with [SAML 2.0
+    // cation](https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf).
+    //
+    // The max size of the acceptable xml document will be bounded to 128k characters.
+    //
+    //
+    // The metadata xml document should satisfy the following constraints:
+    //
+    // 1) Must contain an Identity Provider Entity ID.
+    //
+    // 2) Must contain at least one non-expired signing key certificate.
+    //
+    // 3) For each signing key:
+    //
+    // a) Valid from should be no more than 7 days from now.
+    //
+    // b) Valid to should be no more than 10 years in the future.
+    //
+    // 4) Up to 3 IdP signing keys are allowed in the metadata xml.
+    //
+    //
+    // When updating the provider's metadata xml, at least one non-expired signing key
+    //
+    // must overlap with the existing metadata. This requirement is skipped if there are
+    //
+    // no non-expired signing keys present in the existing metadata.
+    optional string idp_metadata_xml = 1 [json_name = "idp_metadata_xml"];
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamWorkforcePoolProviderKey version is 0
+message GoogleIamWorkforcePoolProviderKey {
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 1 [json_name = "deletion_policy"];
+
+  // The time after which the key will be permanently deleted and cannot be recovered.
+  //
+  // Note that the key may get purged before this time if the total limit of keys per
+  // provider is exceeded.
+  optional string expire_time = 2 [json_name = "expire_time"];
+
+  optional string id = 3;
+
+  // The ID to use for the key, which becomes the final component of the resource
+  // name. This value must be 4-32 characters, and may contain the characters
+  // [a-z0-9-].
+  optional string key_id = 4 [json_name = "key_id"];
+
+  // The location for the resource.
+  optional string location = 5;
+
+  // Identifier. The resource name of the key.
+  //
+  // Format:
+  // /{location}/workforcePools/{workforcePoolId}/providers/{providerId}/keys/{keyId}'
+  optional string name = 6;
+
+  // The ID of the provider.
+  optional string provider_id = 7 [json_name = "provider_id"];
+
+  // The state of the key.
+  optional string state = 8;
+
+  // The purpose of the key. Possible values: ["ENCRYPTION"]
+  optional string use = 9;
+
+  // The ID of the workforce pool.
+  optional string workforce_pool_id = 10 [json_name = "workforce_pool_id"];
+
+  KeyData key_data = 11 [json_name = "key_data"];
+
+  repeated Timeouts timeouts = 12;
+
+  google.protobuf.Value for_each = 13 [json_name = "for_each"];
+
+  repeated string depends_on = 14 [json_name = "depends_on"];
+
+  optional int32 count = 15;
+
+  optional string provider = 16;
+
+  terraform.v1.Lifecycle lifecycle = 17;
+
+  message KeyData {
+    // The format of the key.
+    optional string format = 1;
+
+    // The key data. The format of the key is represented by the format field.
+    optional string key = 2;
+
+    // The specifications for the key. Possible values: ["RSA_2048", "RSA_3072",
+    // "RSA_4096"]
+    optional string key_spec = 3 [json_name = "key_spec"];
+
+    // Latest timestamp when this key is valid. Attempts to use this key after this time
+    // will fail.
+    //
+    // Only present if the key data represents a X.509 certificate.
+    //
+    //
+    // Uses RFC 3339, where generated output will always be Z-normalized and uses 0, 3,
+    // 6 or 9 fractional digits.
+    //
+    // Offsets other than "Z" are also accepted.
+    //
+    // Examples: "2014-10-02T15:01:23Z", "2014-10-02T15:01:23.045123456Z" or
+    // "2014-10-02T15:01:23+05:30".
+    optional string not_after_time = 4 [json_name = "not_after_time"];
+
+    // Earliest timestamp when this key is valid. Attempts to use this key before this
+    // time will fail.
+    //
+    // Only present if the key data represents a X.509 certificate.
+    //
+    //
+    // Uses RFC 3339, where generated output will always be Z-normalized and uses 0, 3,
+    // 6 or 9 fractional digits.
+    //
+    // Offsets other than "Z" are also accepted.
+    //
+    // Examples: "2014-10-02T15:01:23Z", "2014-10-02T15:01:23.045123456Z" or
+    // "2014-10-02T15:01:23+05:30".
+    optional string not_before_time = 5 [json_name = "not_before_time"];
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+  }
+}
+
+// GoogleIamWorkforcePoolProviderScimTenant version is 0
+message GoogleIamWorkforcePoolProviderScimTenant {
+  // Represents the base URI as defined in [RFC 7644, Section
+  //
+  // 1.3](https://datatracker.ietf.org/doc/html/rfc7644#section-1.3). Clients
+  //
+  // must use this as the root address for managing resources under the tenant.
+  //
+  // Format:
+  //
+  // https://iamscim.googleapis.com/{version}/{tenant_id}/
+  optional string base_uri = 1 [json_name = "base_uri"];
+
+  // Maps BYOID claims to SCIM claims. This is a required field for new SCIM Tenants
+  // being created.
+  map<string, string> claim_mapping = 2 [json_name = "claim_mapping"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 3 [json_name = "deletion_policy"];
+
+  // A user-specified description of the provider. Cannot exceed 256 characters.
+  optional string description = 4;
+
+  // A user-specified display name for the scim tenant. Cannot exceed 32 characters.
+  optional string display_name = 5 [json_name = "display_name"];
+
+  // Deletes the SCIM tenant immediately. This operation cannot be undone.
+  optional bool hard_delete = 6 [json_name = "hard_delete"];
+
+  optional string id = 7;
+
+  // The location for the resource.
+  optional string location = 8;
+
+  // Identifier. The resource name of the scim tenant.
+  //
+  // Format:
+  // {workforce_pool}/providers/{workforce_pool_provider}/scimTenants/{scim_tenant_id}
+  optional string name = 9;
+
+  // The ID of the provider.
+  optional string provider_id = 10 [json_name = "provider_id"];
+
+  // The timestamp that represents the time when the SCIM tenant is purged.
+  optional string purge_time = 11 [json_name = "purge_time"];
+
+  // The ID to use for the SCIM tenant, which becomes the final component of the
+  // resource name. This value must be 4-32 characters, and may contain the characters
+  // [a-z0-9-].
+  optional string scim_tenant_id = 12 [json_name = "scim_tenant_id"];
+
+  // Service Agent created by SCIM Tenant API. SCIM tokens created under
+  //
+  // this tenant will be attached to this service agent.
+  optional string service_agent = 13 [json_name = "service_agent"];
+
+  // The current state of the scim tenant.
+  //
+  // * ACTIVE: The scim tenant is active and may be used to validate authentication
+  // credentials.
+  //
+  // * DELETED: The scim tenant is soft-deleted. Soft-deleted scim tenants are
+  // permanently
+  //
+  // deleted after approximately 30 days.
+  optional string state = 14;
+
+  // The ID of the workforce pool.
+  optional string workforce_pool_id = 15 [json_name = "workforce_pool_id"];
+
+  repeated Timeouts timeouts = 16;
+
+  google.protobuf.Value for_each = 17 [json_name = "for_each"];
+
+  repeated string depends_on = 18 [json_name = "depends_on"];
+
+  optional int32 count = 19;
+
+  optional string provider = 20;
+
+  terraform.v1.Lifecycle lifecycle = 21;
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamWorkforcePoolProviderScimToken version is 0
+message GoogleIamWorkforcePoolProviderScimToken {
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 1 [json_name = "deletion_policy"];
+
+  // A user-specified display name for the scim token. Cannot exceed 32 characters.
+  optional string display_name = 2 [json_name = "display_name"];
+
+  optional string id = 3;
+
+  // The location for the resource.
+  optional string location = 4;
+
+  // Identifier. The resource name of the scim token.
+  //
+  // Format:
+  // rs/{workforce_pool_provider}/scimTenants/{scim_tenant_id}/tokens/{scim_token_id}'
+  optional string name = 5;
+
+  // The ID of the Provider.
+  optional string provider_id = 6 [json_name = "provider_id"];
+
+  // The ID of the SCIM Tenant.
+  optional string scim_tenant_id = 7 [json_name = "scim_tenant_id"];
+
+  // The ID to use for the SCIM Token, which becomes the final component of the
+  // resource name. This value should be 4-32 characters and follow the pattern:
+  // '([a-z]([a-z0-9\\-]{2,30}[a-z0-9]))'.
+  optional string scim_token_id = 8 [json_name = "scim_token_id"];
+
+  // The token string provided to the IdP for authentication and will be set only
+  // during creation.
+  optional string security_token = 9 [json_name = "security_token"];
+
+  // The current state of the scim token.
+  //
+  // * ACTIVE: The token is active and may be used to provision users and groups.
+  //
+  // * DELETED: The token is soft-deleted. Soft-deleted tokens are permanently deleted
+  // after approximately 30 days.
+  optional string state = 10;
+
+  // The ID of the Workforce Pool.
+  optional string workforce_pool_id = 11 [json_name = "workforce_pool_id"];
+
+  repeated Timeouts timeouts = 12;
+
+  google.protobuf.Value for_each = 13 [json_name = "for_each"];
+
+  repeated string depends_on = 14 [json_name = "depends_on"];
+
+  optional int32 count = 15;
+
+  optional string provider = 16;
+
+  terraform.v1.Lifecycle lifecycle = 17;
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamWorkloadIdentityPool version is 0
+message GoogleIamWorkloadIdentityPool {
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 1 [json_name = "deletion_policy"];
+
+  // A description of the pool. Cannot exceed 256 characters.
+  optional string description = 2;
+
+  // Whether the pool is disabled. You cannot use a disabled pool to exchange tokens,
+  // or use
+  //
+  // existing tokens to access resources. If the pool is re-enabled, existing tokens
+  // grant
+  //
+  // access again.
+  optional bool disabled = 3;
+
+  // A display name for the pool. Cannot exceed 32 characters.
+  optional string display_name = 4 [json_name = "display_name"];
+
+  optional string id = 5;
+
+  // The mode for the pool is operating in. Pools with an unspecified mode will
+  // operate as if they
+  //
+  // are in 'FEDERATION_ONLY' mode.
+  //
+  //
+  // ~> **Note** This field cannot be changed after the Workload Identity Pool is
+  // created. While
+  //
+  // 'terraform plan' may show an update if you change this field's value, 'terraform
+  // apply'
+  //
+  // **will fail with an API error** (such as 'Error 400: Attempted to update an
+  // immutable field.').
+  //
+  // To specify a different 'mode', please create a new Workload Identity Pool
+  // resource.
+  //
+  //
+  // * 'FEDERATION_ONLY': Pools can only be used for federating external workload
+  // identities into
+  //
+  // Google Cloud. Unless otherwise noted, no structure or format constraints are
+  // applied to
+  //
+  // workload identities in a 'FEDERATION_ONLY' mode pool, and you may not create any
+  // resources
+  //
+  // within the pool besides providers.
+  //
+  // * 'TRUST_DOMAIN': Pools can be used to assign identities to Google Cloud
+  // workloads. All
+  //
+  // identities within a 'TRUST_DOMAIN' mode pool must consist of a single namespace
+  // and individual
+  //
+  // workload identifier. The subject identifier for all identities must conform to
+  // the following
+  //
+  // format: 'ns/<namespace>/sa/<workload_identifier>'.
+  //
+  // 'google_iam_workload_identity_pool_provider's cannot be created within
+  // 'TRUST_DOMAIN'
+  //
+  // mode pools.
+  //
+  // * 'SYSTEM_TRUST_DOMAIN': Pools are managed by Google Cloud services. Neither
+  //
+  // 'google_iam_workload_identity_pool_namespace's nor
+  // 'google_iam_workload_identity_pool_provider's
+  //
+  // can be created within 'SYSTEM_TRUST_DOMAIN' mode pools. All identities within a
+  //
+  // 'SYSTEM_TRUST_DOMAIN' mode pool are in one of the following formats:
+  //
+  //
+  // piffe://<trust-domain>/ns/<kubernetes-namespace>/sa/<kubernetes-service-account>'
+  //
+  // * 'spiffe://<trust-domain>/resources/<resource-scope>/<resource-name>' Possible
+  // values: ["FEDERATION_ONLY", "TRUST_DOMAIN", "SYSTEM_TRUST_DOMAIN"]
+  optional string mode = 6;
+
+  // The resource name of the pool as
+  //
+  // ject_number}/locations/global/workloadIdentityPools/{workload_identity_pool_id}'.
+  optional string name = 7;
+
+  optional string project = 8;
+
+  // The state of the pool.
+  //
+  // * 'STATE_UNSPECIFIED': State unspecified.
+  //
+  // * 'ACTIVE': The pool is active, and may be used in Google Cloud policies.
+  //
+  // * 'DELETED': The pool is soft-deleted. Soft-deleted pools are permanently deleted
+  // after
+  //
+  // approximately 30 days. You can restore a soft-deleted pool using
+  //
+  // 'UndeleteWorkloadIdentityPool'. You cannot reuse the ID of a soft-deleted pool
+  // until it is
+  //
+  // permanently deleted. While a pool is deleted, you cannot use it to exchange
+  // tokens, or
+  //
+  // use existing tokens to access resources. If the pool is undeleted, existing
+  // tokens grant
+  //
+  // access again.
+  optional string state = 9;
+
+  // The ID to use for the pool, which becomes the final component of the resource
+  // name. This
+  //
+  // value should be 4-32 characters, and may contain the characters [a-z0-9-]. The
+  // prefix
+  //
+  // 'gcp-' is reserved for use by Google, and may not be specified.
+  optional string workload_identity_pool_id = 10 [json_name = "workload_identity_pool_id"];
+
+  repeated AttestationRules attestation_rules = 11 [json_name = "attestation_rules"];
+
+  InlineCertificateIssuanceConfig inline_certificate_issuance_config = 12 [json_name = "inline_certificate_issuance_config"];
+
+  InlineTrustConfig inline_trust_config = 13 [json_name = "inline_trust_config"];
+
+  repeated Timeouts timeouts = 14;
+
+  google.protobuf.Value for_each = 15 [json_name = "for_each"];
+
+  repeated string depends_on = 16 [json_name = "depends_on"];
+
+  optional int32 count = 17;
+
+  optional string provider = 18;
+
+  terraform.v1.Lifecycle lifecycle = 19;
+
+  message AttestationRules {
+    // A single workload operating on Google Cloud. For example:
+    //
+    // '//run.googleapis.com/projects/123/type/Service/*'.
+    optional string google_cloud_resource = 1 [json_name = "google_cloud_resource"];
+  }
+
+  message InlineCertificateIssuanceConfig {
+    // A required mapping of a cloud region to the CA pool resource located in that
+    // region used
+    //
+    // for certificate issuance, adhering to these constraints:
+    //
+    //
+    // * **Key format:** A supported cloud region name equivalent to the location
+    // identifier in
+    //
+    // the corresponding map entry's value.
+    //
+    // * **Value format:** A valid CA pool resource path format like:
+    //
+    // 'projects/{project}/locations/{location}/caPools/{ca_pool}'
+    //
+    // * **Region Matching:** Workloads are ONLY issued certificates from CA pools
+    // within the
+    //
+    // same region. Also the CA pool region (in value) must match the workload's region
+    // (key).
+    map<string, string> ca_pools = 1 [json_name = "ca_pools"];
+
+    // Key algorithm to use when generating the key pair. This key pair will be used to
+    // create
+    //
+    // the certificate. If unspecified, this will default to 'ECDSA_P256'.
+    //
+    //
+    // * 'RSA_2048': Specifies RSA with a 2048-bit modulus.
+    //
+    // * 'RSA_3072': Specifies RSA with a 3072-bit modulus.
+    //
+    // * 'RSA_4096': Specifies RSA with a 4096-bit modulus.
+    //
+    // * 'ECDSA_P256': Specifies ECDSA with curve P256.
+    //
+    // * 'ECDSA_P384': Specifies ECDSA with curve P384. Possible values: ["RSA_2048",
+    // "RSA_3072", "RSA_4096", "ECDSA_P256", "ECDSA_P384"]
+    optional string key_algorithm = 2 [json_name = "key_algorithm"];
+
+    // Lifetime of the workload certificates issued by the CA pool in seconds. Must be
+    // between
+    //
+    // '86400s' (24 hours) to '2592000s' (30 days), ends in the suffix "'s'" (indicating
+    // seconds)
+    //
+    // and is preceded by the number of seconds. If unspecified, this will be defaulted
+    // to
+    //
+    // '86400s' (24 hours).
+    optional string lifetime = 3;
+
+    // Rotation window percentage indicating when certificate rotation should be
+    // initiated based
+    //
+    // on remaining lifetime. Must be between '50' - '80'. If unspecified, this will be
+    // defaulted
+    //
+    // to '50'.
+    optional int64 rotation_window_percentage = 4 [json_name = "rotation_window_percentage"];
+
+    // If set to true, the trust domain will utilize the GCP-provisioned default CA. A
+    // default
+    //
+    // CA in the same region as the workload will be selected to issue the certificate.
+    // Enabling
+    //
+    // this will clear any existing 'ca_pools' configuration to provision the
+    // certificates.
+    //
+    //
+    // ~> **Note** This field is mutually exclusive with 'ca_pools'. If this flag is
+    // enabled,
+    //
+    // certificates will be automatically provisioned from the default shared CAs. This
+    // flag should
+    //
+    // not be set if you want to use your own CA pools to provision the certificates.
+    optional bool use_default_shared_ca = 5 [json_name = "use_default_shared_ca"];
+  }
+
+  message InlineTrustConfig {
+    repeated AdditionalTrustBundles additional_trust_bundles = 1 [json_name = "additional_trust_bundles"];
+
+    message AdditionalTrustBundles {
+      // If set to True, the trust bundle will include the private ca managed identity
+      // regional root
+      //
+      // public certificates.
+      //
+      //
+      // ~> **Note** 'trust_default_shared_ca' is only supported for managed identity
+      // trust domain
+      //
+      // resource.
+      optional bool trust_default_shared_ca = 1 [json_name = "trust_default_shared_ca"];
+
+      optional string trust_domain = 2 [json_name = "trust_domain"];
+
+      repeated TrustAnchors trust_anchors = 3 [json_name = "trust_anchors"];
+
+      message TrustAnchors {
+        // PEM certificate of the PKI used for validation. Must only contain one ca
+        //
+        // certificate(either root or intermediate cert).
+        optional string pem_certificate = 1 [json_name = "pem_certificate"];
+      }
+    }
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamWorkloadIdentityPoolIamBinding version is 0
+message GoogleIamWorkloadIdentityPoolIamBinding {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  repeated string members = 3;
+
+  optional string project = 4;
+
+  optional string role = 5;
+
+  optional string workload_identity_pool_id = 6 [json_name = "workload_identity_pool_id"];
+
+  Condition condition = 7;
+
+  google.protobuf.Value for_each = 8 [json_name = "for_each"];
+
+  repeated string depends_on = 9 [json_name = "depends_on"];
+
+  optional int32 count = 10;
+
+  optional string provider = 11;
+
+  terraform.v1.Lifecycle lifecycle = 12;
+
+  message Condition {
+    optional string description = 1;
+
+    optional string expression = 2;
+
+    optional string title = 3;
+  }
+}
+
+// GoogleIamWorkloadIdentityPoolIamMember version is 0
+message GoogleIamWorkloadIdentityPoolIamMember {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  optional string member = 3;
+
+  optional string project = 4;
+
+  optional string role = 5;
+
+  optional string workload_identity_pool_id = 6 [json_name = "workload_identity_pool_id"];
+
+  Condition condition = 7;
+
+  google.protobuf.Value for_each = 8 [json_name = "for_each"];
+
+  repeated string depends_on = 9 [json_name = "depends_on"];
+
+  optional int32 count = 10;
+
+  optional string provider = 11;
+
+  terraform.v1.Lifecycle lifecycle = 12;
+
+  message Condition {
+    optional string description = 1;
+
+    optional string expression = 2;
+
+    optional string title = 3;
+  }
+}
+
+// GoogleIamWorkloadIdentityPoolIamPolicy version is 0
+message GoogleIamWorkloadIdentityPoolIamPolicy {
+  optional string etag = 1;
+
+  optional string id = 2;
+
+  optional string policy_data = 3 [json_name = "policy_data"];
+
+  optional string project = 4;
+
+  optional string workload_identity_pool_id = 5 [json_name = "workload_identity_pool_id"];
+
+  google.protobuf.Value for_each = 6 [json_name = "for_each"];
+
+  repeated string depends_on = 7 [json_name = "depends_on"];
+
+  optional int32 count = 8;
+
+  optional string provider = 9;
+
+  terraform.v1.Lifecycle lifecycle = 10;
+}
+
+// GoogleIamWorkloadIdentityPoolManagedIdentity version is 0
+message GoogleIamWorkloadIdentityPoolManagedIdentity {
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 1 [json_name = "deletion_policy"];
+
+  // A description of the managed identity. Cannot exceed 256 characters.
+  optional string description = 2;
+
+  // Whether the managed identity is disabled. If disabled, credentials may no longer
+  // be issued for
+  //
+  // the identity, however existing credentials will still be accepted until they
+  // expire.
+  optional bool disabled = 3;
+
+  optional string id = 4;
+
+  // The resource name of the managed identity as
+  //
+  // ol_namespace_id}/managedIdentities/{workload_identity_pool_managed_identity_id}'.
+  optional string name = 5;
+
+  optional string project = 6;
+
+  // The current state of the managed identity.
+  //
+  // * 'ACTIVE': The managed identity is active.
+  //
+  // * 'DELETED': The managed identity is soft-deleted. Soft-deleted managed
+  // identities are
+  //
+  // permanently deleted after approximately 30 days. You can restore a soft-deleted
+  // managed
+  //
+  // identity using UndeleteWorkloadIdentityPoolManagedIdentity. You cannot reuse the
+  // ID of a
+  //
+  // soft-deleted managed identity until it is permanently deleted.
+  optional string state = 7;
+
+  // The ID to use for the pool, which becomes the final component of the resource
+  // name. This
+  //
+  // value should be 4-32 characters, and may contain the characters [a-z0-9-]. The
+  // prefix
+  //
+  // 'gcp-' is reserved for use by Google, and may not be specified.
+  optional string workload_identity_pool_id = 8 [json_name = "workload_identity_pool_id"];
+
+  // The ID to use for the managed identity. This value must:
+  //
+  // * contain at most 63 characters
+  //
+  // * contain only lowercase alphanumeric characters or '-'
+  //
+  // * start with an alphanumeric character
+  //
+  // * end with an alphanumeric character
+  //
+  //
+  // The prefix 'gcp-' will be reserved for future uses.
+  optional string workload_identity_pool_managed_identity_id = 9 [
+    json_name = "workload_identity_pool_managed_identity_id"
+  ];
+
+  // The ID to use for the namespace. This value must:
+  //
+  // * contain at most 63 characters
+  //
+  // * contain only lowercase alphanumeric characters or '-'
+  //
+  // * start with an alphanumeric character
+  //
+  // * end with an alphanumeric character
+  //
+  //
+  // The prefix 'gcp-' will be reserved for future uses.
+  optional string workload_identity_pool_namespace_id = 10 [json_name = "workload_identity_pool_namespace_id"];
+
+  repeated AttestationRules attestation_rules = 11 [json_name = "attestation_rules"];
+
+  repeated Timeouts timeouts = 12;
+
+  google.protobuf.Value for_each = 13 [json_name = "for_each"];
+
+  repeated string depends_on = 14 [json_name = "depends_on"];
+
+  optional int32 count = 15;
+
+  optional string provider = 16;
+
+  terraform.v1.Lifecycle lifecycle = 17;
+
+  message AttestationRules {
+    // A single workload operating on Google Cloud. For example:
+    //
+    // /compute.googleapis.com/projects/123/uid/zones/us-central1-a/instances/12345678'.
+    optional string google_cloud_resource = 1 [json_name = "google_cloud_resource"];
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamWorkloadIdentityPoolNamespace version is 0
+message GoogleIamWorkloadIdentityPoolNamespace {
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 1 [json_name = "deletion_policy"];
+
+  // A description of the namespace. Cannot exceed 256 characters.
+  optional string description = 2;
+
+  // Whether the namespace is disabled. If disabled, credentials may no longer be
+  // issued for
+  //
+  // identities within this namespace, however existing credentials will still be
+  // accepted until
+  //
+  // they expire.
+  optional bool disabled = 3;
+
+  optional string id = 4;
+
+  // The resource name of the namespace as
+  //
+  // ls/{workload_identity_pool_id}/namespaces/{workload_identity_pool_namespace_id}'.
+  optional string name = 5;
+
+  // Defines the owner that is allowed to mutate this resource. If present, this
+  // resource can only
+  //
+  // be mutated by the owner.
+  repeated OwnerService owner_service = 6 [json_name = "owner_service"];
+
+  optional string project = 7;
+
+  // The current state of the namespace.
+  //
+  // * 'ACTIVE': The namespace is active.
+  //
+  // * 'DELETED': The namespace is soft-deleted. Soft-deleted namespaces are
+  // permanently deleted
+  //
+  // after approximately 30 days. You can restore a soft-deleted namespace using
+  //
+  // UndeleteWorkloadIdentityPoolNamespace. You cannot reuse the ID of a soft-deleted
+  // namespace
+  //
+  // until it is permanently deleted.
+  optional string state = 8;
+
+  // The ID to use for the pool, which becomes the final component of the resource
+  // name. This
+  //
+  // value should be 4-32 characters, and may contain the characters [a-z0-9-]. The
+  // prefix
+  //
+  // 'gcp-' is reserved for use by Google, and may not be specified.
+  optional string workload_identity_pool_id = 9 [json_name = "workload_identity_pool_id"];
+
+  // The ID to use for the namespace. This value must:
+  //
+  // * contain at most 63 characters
+  //
+  // * contain only lowercase alphanumeric characters or '-'
+  //
+  // * start with an alphanumeric character
+  //
+  // * end with an alphanumeric character
+  //
+  //
+  // The prefix 'gcp-' will be reserved for future uses.
+  optional string workload_identity_pool_namespace_id = 10 [json_name = "workload_identity_pool_namespace_id"];
+
+  repeated Timeouts timeouts = 11;
+
+  google.protobuf.Value for_each = 12 [json_name = "for_each"];
+
+  repeated string depends_on = 13 [json_name = "depends_on"];
+
+  optional int32 count = 14;
+
+  optional string provider = 15;
+
+  terraform.v1.Lifecycle lifecycle = 16;
+
+  message OwnerService {
+    // principal_subject: string
+    optional string principal_subject = 1 [json_name = "principal_subject"];
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+}
+
+// GoogleIamWorkloadIdentityPoolProvider version is 0
+message GoogleIamWorkloadIdentityPoolProvider {
+  // [A Common Expression Language](https://github.com/google/cel-spec) expression, in
+  //
+  // plain text, to restrict what otherwise valid authentication credentials issued by
+  // the
+  //
+  // provider should not be accepted.
+  //
+  //
+  // The expression must output a boolean representing whether to allow the
+  // federation.
+  //
+  //
+  // The following keywords may be referenced in the expressions:
+  //
+  // * 'assertion': JSON representing the authentication credential issued by the
+  // provider.
+  //
+  // * 'google': The Google attributes mapped from the assertion in the
+  // 'attribute_mappings'.
+  //
+  // * 'attribute': The custom attributes mapped from the assertion in the
+  // 'attribute_mappings'.
+  //
+  //
+  // The maximum length of the attribute condition expression is 4096 characters. If
+  //
+  // unspecified, all valid authentication credential are accepted.
+  //
+  //
+  // The following example shows how to only allow credentials with a mapped
+  // 'google.groups'
+  //
+  // value of 'admins':
+  //
+  // '''
+  //
+  // "'admins' in google.groups"
+  //
+  // '''
+  optional string attribute_condition = 1 [json_name = "attribute_condition"];
+
+  // Maps attributes from authentication credentials issued by an external identity
+  // provider
+  //
+  // to Google Cloud attributes, such as 'subject' and 'segment'.
+  //
+  //
+  // Each key must be a string specifying the Google Cloud IAM attribute to map to.
+  //
+  //
+  // The following keys are supported:
+  //
+  // * 'google.subject': The principal IAM is authenticating. You can reference this
+  // value
+  //
+  // in IAM bindings. This is also the subject that appears in Cloud Logging logs.
+  //
+  // Cannot exceed 127 characters.
+  //
+  // * 'google.groups': Groups the external identity belongs to. You can grant groups
+  //
+  // access to resources using an IAM 'principalSet' binding; access applies to all
+  //
+  // members of the group.
+  //
+  //
+  // You can also provide custom attributes by specifying
+  // 'attribute.{custom_attribute}',
+  //
+  // where '{custom_attribute}' is the name of the custom attribute to be mapped. You
+  // can
+  //
+  // define a maximum of 50 custom attributes. The maximum length of a mapped
+  // attribute key
+  //
+  // is 100 characters, and the key may only contain the characters [a-z0-9_].
+  //
+  //
+  // You can reference these attributes in IAM policies to define fine-grained access
+  // for a
+  //
+  // workload to Google Cloud resources. For example:
+  //
+  // * 'google.subject':
+  //
+  // ects/{project}/locations/{location}/workloadIdentityPools/{pool}/subject/{value}'
+  //
+  // * 'google.groups':
+  //
+  // ojects/{project}/locations/{location}/workloadIdentityPools/{pool}/group/{value}'
+  //
+  // * 'attribute.{custom_attribute}':
+  //
+  // ons/{location}/workloadIdentityPools/{pool}/attribute.{custom_attribute}/{value}'
+  //
+  //
+  // Each value must be a [Common Expression
+  // Language](https://github.com/google/cel-spec)
+  //
+  // function that maps an identity provider credential to the normalized attribute
+  // specified
+  //
+  // by the corresponding map key.
+  //
+  //
+  // You can use the 'assertion' keyword in the expression to access a JSON
+  // representation of
+  //
+  // the authentication credential issued by the provider.
+  //
+  //
+  // The maximum length of an attribute mapping expression is 2048 characters. When
+  // evaluated,
+  //
+  // the total size of all mapped attributes must not exceed 8KB.
+  //
+  //
+  // For AWS providers, the following rules apply:
+  //
+  // - If no attribute mapping is defined, the following default mapping applies:
+  //
+  // '''
+  //
+  //      "google.subject":"assertion.arn",
+  //
+  // "attribute.aws_role":
+  //
+  // "assertion.arn.contains('assumed-role')"
+  //
+  // " ? assertion.arn.extract('{account_arn}assumed-role/')"
+  //
+  // "   + 'assumed-role/'"
+  //
+  // "   + assertion.arn.extract('assumed-role/{role_name}/')"
+  //
+  // " : assertion.arn",
+  //
+  //    '''
+  //
+  // - If any custom attribute mappings are defined, they must include a mapping to
+  // the
+  //
+  // 'google.subject' attribute.
+  //
+  //
+  // For OIDC providers, the following rules apply:
+  //
+  // - Custom attribute mappings must be defined, and must include a mapping to the
+  //
+  // 'google.subject' attribute. For example, the following maps the 'sub' claim of
+  // the
+  //
+  // incoming credential to the 'subject' attribute on a Google token.
+  //
+  // '''
+  //
+  // {"google.subject": "assertion.sub"}
+  //
+  // '''
+  map<string, string> attribute_mapping = 2 [json_name = "attribute_mapping"];
+
+  // Whether Terraform will be prevented from destroying the instance. Defaults to
+  // "DELETE".
+  //
+  // When a 'terraform destroy' or 'terraform apply' would delete the instance,
+  //
+  // the command will fail if this field is set to "PREVENT" in Terraform state.
+  //
+  // When set to "ABANDON", the command will remove the resource from Terraform
+  //
+  // management without updating or deleting the resource in the API.
+  //
+  // When set to "DELETE", deleting the resource is allowed.
+  optional string deletion_policy = 3 [json_name = "deletion_policy"];
+
+  // A description for the provider. Cannot exceed 256 characters.
+  optional string description = 4;
+
+  // Whether the provider is disabled. You cannot use a disabled provider to exchange
+  // tokens.
+  //
+  // However, existing tokens still grant access.
+  optional bool disabled = 5;
+
+  // A display name for the provider. Cannot exceed 32 characters.
+  optional string display_name = 6 [json_name = "display_name"];
+
+  optional string id = 7;
+
+  // The resource name of the provider as
+  //
+  // ools/{workload_identity_pool_id}/providers/{workload_identity_pool_provider_id}'.
+  optional string name = 8;
+
+  optional string project = 9;
+
+  // The state of the provider.
+  //
+  // * STATE_UNSPECIFIED: State unspecified.
+  //
+  // * ACTIVE: The provider is active, and may be used to validate authentication
+  // credentials.
+  //
+  // * DELETED: The provider is soft-deleted. Soft-deleted providers are permanently
+  // deleted
+  //
+  // after approximately 30 days. You can restore a soft-deleted provider using
+  //
+  // UndeleteWorkloadIdentityPoolProvider. You cannot reuse the ID of a soft-deleted
+  // provider
+  //
+  // until it is permanently deleted.
+  optional string state = 10;
+
+  // The ID used for the pool, which is the final component of the pool resource name.
+  // This
+  //
+  // value should be 4-32 characters, and may contain the characters [a-z0-9-]. The
+  // prefix
+  //
+  // 'gcp-' is reserved for use by Google, and may not be specified.
+  optional string workload_identity_pool_id = 11 [json_name = "workload_identity_pool_id"];
+
+  // The ID for the provider, which becomes the final component of the resource name.
+  // This
+  //
+  // value must be 4-32 characters, and may contain the characters [a-z0-9-]. The
+  // prefix
+  //
+  // 'gcp-' is reserved for use by Google, and may not be specified.
+  optional string workload_identity_pool_provider_id = 12 [json_name = "workload_identity_pool_provider_id"];
+
+  Aws aws = 13;
+
+  Oidc oidc = 14;
+
+  Saml saml = 15;
+
+  repeated Timeouts timeouts = 16;
+
+  X509 x509 = 17;
+
+  google.protobuf.Value for_each = 18 [json_name = "for_each"];
+
+  repeated string depends_on = 19 [json_name = "depends_on"];
+
+  optional int32 count = 20;
+
+  optional string provider = 21;
+
+  terraform.v1.Lifecycle lifecycle = 22;
+
+  message Aws {
+    // The AWS account ID.
+    optional string account_id = 1 [json_name = "account_id"];
+  }
+
+  message Oidc {
+    // Acceptable values for the 'aud' field (audience) in the OIDC token. Token
+    // exchange
+    //
+    // requests are rejected if the token audience does not match one of the configured
+    //
+    // values. Each audience may be at most 256 characters. A maximum of 10 audiences
+    // may
+    //
+    // be configured.
+    //
+    //
+    // If this list is empty, the OIDC token audience must be equal to the full
+    // canonical
+    //
+    // resource name of the WorkloadIdentityPoolProvider, with or without the HTTPS
+    // prefix.
+    //
+    // For example:
+    //
+    // '''
+    //
+    // ber>/locations/<location>/workloadIdentityPools/<pool-id>/providers/<provider-id>
+    //
+    // ber>/locations/<location>/workloadIdentityPools/<pool-id>/providers/<provider-id>
+    //
+    // '''
+    repeated string allowed_audiences = 1 [json_name = "allowed_audiences"];
+
+    // The OIDC issuer URL.
+    optional string issuer_uri = 2 [json_name = "issuer_uri"];
+
+    // OIDC JWKs in JSON String format. For details on definition of a
+    //
+    // JWK, see https:tools.ietf.org/html/rfc7517. If not set, then we
+    //
+    // use the 'jwks_uri' from the discovery document fetched from the
+    //
+    // .well-known path for the 'issuer_uri'. Currently, RSA and EC asymmetric
+    //
+    // keys are supported. The JWK must use following format and include only
+    //
+    // the following fields:
+    //
+    // '''
+    //
+    //  "keys": [
+    //
+    //          "kty": "RSA/EC",
+    //
+    // "alg": "<algorithm>",
+    //
+    // "use": "sig",
+    //
+    // "kid": "<key-id>",
+    //
+    // "n": "",
+    //
+    // "e": "",
+    //
+    // "x": "",
+    //
+    // "y": "",
+    //
+    // "crv": ""
+    //
+    //  ]
+    //
+    // '''
+    optional string jwks_json = 3 [json_name = "jwks_json"];
+  }
+
+  message Saml {
+    // SAML Identity provider configuration metadata xml doc.
+    optional string idp_metadata_xml = 1 [json_name = "idp_metadata_xml"];
+  }
+
+  message Timeouts {
+    optional string create = 1;
+
+    optional string delete = 2;
+
+    optional string update = 3;
+  }
+
+  message X509 {
+    TrustStore trust_store = 1 [json_name = "trust_store"];
+
+    message TrustStore {
+      repeated IntermediateCas intermediate_cas = 1 [json_name = "intermediate_cas"];
+
+      repeated TrustAnchors trust_anchors = 2 [json_name = "trust_anchors"];
+
+      message IntermediateCas {
+        // PEM certificate of the PKI used for validation. Must only contain one
+        //
+        // ca certificate(either root or intermediate cert).
+        optional string pem_certificate = 1 [json_name = "pem_certificate"];
+      }
+
+      message TrustAnchors {
+        // PEM certificate of the PKI used for validation. Must only contain one
+        //
+        // ca certificate(either root or intermediate cert).
+        optional string pem_certificate = 1 [json_name = "pem_certificate"];
+      }
+    }
+  }
+}
