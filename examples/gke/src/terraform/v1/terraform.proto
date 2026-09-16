@@ -34,23 +34,23 @@ message Terraform {
   TerraformSettings terraform = 8;
 
   message Resources {
-    map<string, terraform.googlecloud.resources.v8.GoogleComputeNetwork> google_compute_network = 385 [json_name = "google_compute_network"];
+    map<string, terraform.googlecloud.resources.v8.GoogleComputeNetwork> google_compute_network = 507 [json_name = "google_compute_network"];
 
-    map<string, terraform.googlecloud.resources.v8.GoogleComputeRouter> google_compute_router = 456 [json_name = "google_compute_router"];
+    map<string, terraform.googlecloud.resources.v8.GoogleComputeRouter> google_compute_router = 579 [json_name = "google_compute_router"];
 
-    map<string, terraform.googlecloud.resources.v8.GoogleComputeRouterNat> google_compute_router_nat = 459 [json_name = "google_compute_router_nat"];
+    map<string, terraform.googlecloud.resources.v8.GoogleComputeRouterNat> google_compute_router_nat = 582 [json_name = "google_compute_router_nat"];
 
-    map<string, terraform.googlecloud.resources.v8.GoogleComputeSubnetwork> google_compute_subnetwork = 479 [json_name = "google_compute_subnetwork"];
+    map<string, terraform.googlecloud.resources.v8.GoogleComputeSubnetwork> google_compute_subnetwork = 602 [json_name = "google_compute_subnetwork"];
 
-    map<string, terraform.googlecloud.resources.v8.GoogleContainerCluster> google_container_cluster = 515 [json_name = "google_container_cluster"];
+    map<string, terraform.googlecloud.resources.v8.GoogleContainerCluster> google_container_cluster = 638 [json_name = "google_container_cluster"];
 
-    map<string, terraform.googlecloud.resources.v8.GoogleContainerNodePool> google_container_node_pool = 516 [json_name = "google_container_node_pool"];
+    map<string, terraform.googlecloud.resources.v8.GoogleContainerNodePool> google_container_node_pool = 639 [json_name = "google_container_node_pool"];
 
-    map<string, terraform.googlecloud.resources.v8.GoogleProjectIamMember> google_project_iam_member = 1139 [json_name = "google_project_iam_member"];
+    map<string, terraform.googlecloud.resources.v8.GoogleProjectIamMember> google_project_iam_member = 1265 [json_name = "google_project_iam_member"];
 
-    map<string, terraform.googlecloud.resources.v8.GoogleProjectService> google_project_service = 1143 [json_name = "google_project_service"];
+    map<string, terraform.googlecloud.resources.v8.GoogleProjectService> google_project_service = 1269 [json_name = "google_project_service"];
 
-    map<string, terraform.googlecloud.resources.v8.GoogleServiceAccount> google_service_account = 1224 [json_name = "google_service_account"];
+    map<string, terraform.googlecloud.resources.v8.GoogleServiceAccount> google_service_account = 1350 [json_name = "google_service_account"];
   }
 
   message Datasources {
@@ -58,7 +58,7 @@ message Terraform {
   }
 
   message Providers {
-    repeated terraform.googlecloud.provider.v8.Google google = 1;
+    repeated terraform.googlecloud.provider.v8.Google google = 2;
   }
 
   message Variable {

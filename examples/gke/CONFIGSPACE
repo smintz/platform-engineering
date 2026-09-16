@@ -1,5 +1,6 @@
 platform=remote_repo(label="platform", url="../..", branch="main")
 
-# Only the state driver: a network and a cluster are Terraform in a GCS bucket. No runtime
+# The GKE driver, and the state driver its components keep their Terraform in. No runtime
 # driver — nothing here is a workload — and no CI driver, since it is applied by hand.
+gke=remote_repo(label="gke", url="../../drivers/cluster/gke", branch="main")
 terraform_state=remote_repo(label="terraform_state", url="../../drivers/state/terraform", branch="main")

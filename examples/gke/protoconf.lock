@@ -1,6 +1,14 @@
 {
   "url": ".",
   "deps": {
+    "gke": {
+      "label": "gke",
+      "url": "../../drivers/cluster/gke",
+      "branch": "main",
+      "sourcePath": "src",
+      "getterUrl": "file:///Users/smintz/git/platform-engineering/drivers/cluster/gke?ref=main",
+      "fileDescriptorSetSum": "175efcd4efc85c703041c54e3fd5b484"
+    },
     "platform": {
       "label": "platform",
       "url": "../..",

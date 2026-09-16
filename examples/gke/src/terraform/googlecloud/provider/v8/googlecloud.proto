@@ -475,7 +475,7 @@ message Google {
 
   optional string provider_fqdn = 211 [default = "registry.terraform.io/hashicorp/google"];
 
-  optional string provider_version = 212 [default = "8.2.0"];
+  optional string provider_version = 212 [default = "8.3.0"];
 
   message Batching {
     optional bool enable_batching = 1 [json_name = "enable_batching"];
