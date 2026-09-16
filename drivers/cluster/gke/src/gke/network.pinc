@@ -1,0 +1,45 @@
+load("@platform//platform/platform.pinc", "platform")
+load("@platform//terraform/v1/util.pinc", "util")
+load("@terraform_state//terraform.pinc", "WithRemoteOutput", "WithState")
+load("//gke/gcp.pinc", "Api", "Terraform")
+load("//terraform/googlecloud/resources/v8/compute.proto", "GoogleComputeNetwork")
+
+# The VPC, and the state everything inside it is written into. A subnet, a router and a NAT
+# are components of their own, but not states of their own: each is declared as a dependency
+# of this one and adds its resources here, through ForDownstream. So the pieces compose
+# separately and still apply as one thing.
+#
+# Custom-mode, so the only subnets in it are the ones declared that way.
+
+# The state a dependant reads the network's values out of, and the resource its pieces
+# attach to. They are here because they are this component's two names for itself.
+STATE = "network"
+RESOURCE = "network"
+NETWORK_ID = "${google_compute_network.%s.id}" % RESOURCE
+
+def Network(gcp, *hooks):
+    def contents(component):
+        def link(t, next):
+            # referencing the API's project, not the project itself, waits for it to be enabled
+            t.resource.network.project = t.var.compute.project
+            return next(t)
+
+        return Terraform(
+            gcp,
+            util.Link(
+                link,
+                compute = Api(gcp, "compute.googleapis.com"),
+                network = GoogleComputeNetwork(name = gcp.name, auto_create_subnetworks = False),
+            ),
+        )
+
+    return platform.Component(
+        STATE,
+        platform.WithDescription("Custom-mode VPC, and everything declared inside it"),
+        WithState(contents, gcp.backend),
+        # what anything off this network needs to name it. The far half of this handshake is
+        # also what gives a dependant its terraform_remote_state, so a cluster reads the
+        # outputs the subnets add to this state through the same data source.
+        WithRemoteOutput("network", NETWORK_ID, gcp.backend),
+        *hooks
+    )

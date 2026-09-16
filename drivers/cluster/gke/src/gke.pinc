@@ -1,0 +1,35 @@
+load("//gke/cluster.pinc", "Cluster")
+load("//gke/gcp.pinc", "Gcp")
+load("//gke/nat.pinc", "Nat")
+load("//gke/network.pinc", "Network")
+load("//gke/router.pinc", "Router")
+load("//gke/subnet.pinc", "Subnet")
+
+# GKE cluster driver: a VPC, the subnets, router and NAT inside it, and a cluster on one of
+# those subnets — each a component, so a workspace declares the pieces it wants and they
+# apply as two states (the network, and the cluster).
+#
+# Nothing here knows which project, region or bucket: a workspace builds a Gcp(...) and
+# hands it to every component, the way every other driver in this repo takes its
+# organisation-specific values as arguments.
+#
+#     GCP = gke.Gcp(project = "acme-dev", region = "us-central1", backend = BACKEND)
+#     SUBNET = gke.Subnet(GCP, "platform", "10.0.0.0/20", "10.4.0.0/14", "10.8.0.0/20")
+#
+#     def Network(*hooks):
+#         return gke.Network(GCP, platform.WithDeps(SUBNET.component, gke.Router(GCP), gke.Nat(GCP)), *hooks)
+#
+#     def Cluster(*hooks):
+#         return gke.Cluster(GCP, Network, SUBNET)(*hooks)
+#
+# A component that runs on the cluster declares it as a dependency and starts from an empty
+# Kubernetes provider: the cluster fills that provider in with its endpoint, CA and a token,
+# so nothing depends on a kubeconfig on the machine doing the applying.
+gke = struct(
+    Gcp = Gcp,
+    Network = Network,
+    Subnet = Subnet,
+    Router = Router,
+    Nat = Nat,
+    Cluster = Cluster,
+)
