@@ -271,6 +271,39 @@ def OidcCredentials(
 
     return credentials
 
+# The same trade on Google: the run's own OIDC token for a service account, with no key
+# stored anywhere. google-github-actions/auth writes application default credentials, and
+# those are what the google provider reads *and* what the google_client_config data source
+# mints a token from — so a workload whose Kubernetes provider is pointed at a GKE cluster
+# is authenticated to the cluster by this one step too, with no kubeconfig on the runner.
+#
+# Only the configs that declare the provider get the step, the same rule
+# GrafanaServiceAccountToken follows: a state that touches no Google API needs no identity.
+def GoogleOidcCredentials(
+        workload_identity_provider = "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}",
+        plan_service_account = "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
+        apply_service_account = "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}"):
+    def credentials(phase, config):
+        # getattr with a default: a workspace whose providers do not include google has no
+        # such field on the message, and asking for it would be an error rather than a no
+        if not config.provider or not getattr(config.provider, "google", None):
+            return []
+
+        return [
+            lib.Step(
+                "google-credentials",
+                lib.Uses("google-github-actions/auth@v2"),
+                lib.With(
+                    **{
+                        "workload_identity_provider": workload_identity_provider,
+                        "service_account": plan_service_account if phase == "plan" else apply_service_account,
+                    }
+                ),
+            ),
+        ]
+
+    return credentials
+
 def AccessKeyCredentials(
         region,
         access_key_id = "${{ secrets.AWS_ACCESS_KEY_ID }}",
@@ -754,6 +787,7 @@ def TerraformPipeline(
 actions = struct(
     TerraformPipeline = TerraformPipeline,
     OidcCredentials = OidcCredentials,
+    GoogleOidcCredentials = GoogleOidcCredentials,
     AccessKeyCredentials = AccessKeyCredentials,
     GrafanaServiceAccountToken = GrafanaServiceAccountToken,
     dependencies = dependencies,

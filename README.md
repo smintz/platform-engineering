@@ -185,7 +185,7 @@ Load a driver by the label you gave it in `CONFIGSPACE`.
 | GKE cluster        | `drivers/cluster/gke`         | `gke.Gcp(project, region, …)` and the components it configures: `gke.Network`, `gke.Subnet`, `gke.Router`, `gke.Nat`, `gke.Cluster`. A component depending on the cluster is handed its endpoint, CA and a token, so nothing it applies needs a kubeconfig |
 | Terraform state    | `drivers/state/terraform`     | `WithState(contents, backend)`; backends `S3Backend`, `GCSBackend`, `AzureRMBackend`, `RemoteBackend`, `LocalBackend`; cross-state values with `WithRemoteOutput` / `RemoteOutput` |
 | Grafana monitoring | `drivers/monitoring/grafana`  | `WithGrafanaDashboard(backend, datasources)`                                                                                                                                       |
-| GitHub Actions CI  | `drivers/cicd/github_actions` | `actions.TerraformPipeline(configs, output_root, credentials)`; credentials `OidcCredentials`, `AccessKeyCredentials`, `GrafanaServiceAccountToken`                                |
+| GitHub Actions CI  | `drivers/cicd/github_actions` | `actions.TerraformPipeline(configs, output_root, credentials)`; credentials `OidcCredentials` and `AccessKeyCredentials` (AWS), `GoogleOidcCredentials` (GCP, keyless — and what authenticates a GKE workload's Kubernetes provider too), `GrafanaServiceAccountToken` |
 
 Everything the platform core offers is on the `platform` struct from
 `@platform//platform/platform.pinc`: `Component`, the markers above, `WithConfig`,
