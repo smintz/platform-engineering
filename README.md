@@ -72,7 +72,7 @@ constructor interprets them instead:
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `platform.WithDeps(Factory, ...)` | These components are dependencies. Each is built, attached as an upstream, and its `ForDownstream` hooks run against this component.             |
 | `platform.ForDownstream(*hooks)`  | Run these hooks on every component that depends on this one — how a dependency hands over its address, credentials or anything else.             |
-| `platform.Inherit(*hooks)`        | Apply these hooks here _and_ to every dependency, transitively — ambient context such as the failure domain.                                     |
+| `platform.Inherit(*hooks)`        | Apply these hooks here _and_ to every dependency, transitively — ambient context such as the failure domain. The hooks may be markers: an inherited `WithDeps` is how one dependency — the cluster every workload runs on — reaches every component in a graph without any of them naming it. A component never inherits a dependency on itself. |
 | `platform.Finally(*hooks)`        | Run these after everything else, against the finished component — how a dashboard sees every objective, including ones dependencies contributed. |
 
 **Drivers.** Everything technology-specific — Kubernetes, ECS, Terraform state backends,
@@ -182,6 +182,7 @@ Load a driver by the label you gave it in `CONFIGSPACE`.
 | ------------------ | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Kubernetes runtime | `drivers/runtime/kubernetes`  | `Workload(name, image, port)`, `KubeConfig`, and workload hooks `WithContainerEnv`, `WithCommand`, `WithMemoryLimit`, `WithPort`, `WithConfigFiles`, `WithScratchDir`              |
 | ECS runtime        | `drivers/runtime/ecs`         | `ecs.WithTask`, `WithContainer`, `WithTaskEnv`, `WithTaskSecret`                                                                                                                   |
+| GKE cluster        | `drivers/cluster/gke`         | `gke.Gcp(project, region, …)` and the components it configures: `gke.Network`, `gke.Subnet`, `gke.Router`, `gke.Nat`, `gke.Cluster`. A component depending on the cluster is handed its endpoint, CA and a token, so nothing it applies needs a kubeconfig |
 | Terraform state    | `drivers/state/terraform`     | `WithState(contents, backend)`; backends `S3Backend`, `GCSBackend`, `AzureRMBackend`, `RemoteBackend`, `LocalBackend`; cross-state values with `WithRemoteOutput` / `RemoteOutput` |
 | Grafana monitoring | `drivers/monitoring/grafana`  | `WithGrafanaDashboard(backend, datasources)`                                                                                                                                       |
 | GitHub Actions CI  | `drivers/cicd/github_actions` | `actions.TerraformPipeline(configs, output_root, credentials)`; credentials `OidcCredentials`, `AccessKeyCredentials`, `GrafanaServiceAccountToken`                                |
@@ -250,10 +251,10 @@ It covers `test/` only: an example's committed output is yours to regenerate wit
 ```
 src/platform/        the platform core: components, hooks, markers, objectives (platform.pinc is the facade)
 src/terraform/v1/    the Terraform DSL the drivers build configs with
-drivers/<kind>/<n>/  one module per technology choice: runtime, state, monitoring, cicd
+drivers/<kind>/<n>/  one module per technology choice: runtime, cluster, state, monitoring, cicd
 test/                the reference workspace and golden output; `make test` is the build
-examples/otel-demo/  the OpenTelemetry demo on a local cluster or GKE, with SLOs and dashboards
-examples/gke/        a VPC and GKE cluster in GCP, for the demo's gke domain
+examples/otel-demo/  the OpenTelemetry demo on a local cluster or on GKE it provisions itself
+examples/gke/        the GKE driver's components on their own: a VPC and a cluster, nothing on it
 .github/workflows/   the drift check (hand-written) and the generated Terraform pipeline
 .planning/           roadmap and requirements for the platform's development
 ```

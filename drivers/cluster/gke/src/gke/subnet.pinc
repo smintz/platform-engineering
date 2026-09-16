@@ -1,0 +1,47 @@
+load("@platform//platform/platform.pinc", "platform")
+load("@platform//terraform/v1/util.pinc", "util")
+load("//gke/network.pinc", "NETWORK_ID", "STATE")
+load("//terraform/googlecloud/resources/v8/compute.proto", "GoogleComputeSubnetwork")
+
+# A subnet on the network, with the two secondary ranges a VPC-native GKE cluster needs:
+# nodes take the primary range, pods and Services take one secondary range each.
+#
+# No state of its own. It is declared as a dependency of a network, and its ForDownstream
+# hooks add the subnet — and the output a cluster reads it back from — to that network's
+# state. A second subnet is a second call sharing the same state, which is the whole reason
+# this is a component and not a field on the network.
+#
+# It returns a struct rather than a bare factory: whatever sits on a subnet needs its
+# component to declare the dependency, the output its id comes back on, and the range names
+# to point a cluster at. Those travel together or they drift apart.
+def Subnet(gcp, name, cidr, pods_cidr, services_cidr, pods = "pods", services = "services"):
+    output = name + "-subnetwork"
+
+    def component(*hooks):
+        return platform.Component(
+            name + "-subnet",
+            platform.WithDescription("Subnet %s, with pod and Service ranges" % name),
+            platform.ForDownstream(platform.WithConfig(
+                None,
+                util.Resource(
+                    name,
+                    GoogleComputeSubnetwork(
+                        name = name,
+                        region = gcp.region,
+                        ip_cidr_range = cidr,
+                        private_ip_google_access = True,
+                        secondary_ip_range = [
+                            GoogleComputeSubnetwork.SecondaryIpRange(range_name = pods, ip_cidr_range = pods_cidr),
+                            GoogleComputeSubnetwork.SecondaryIpRange(range_name = services, ip_cidr_range = services_cidr),
+                        ],
+                        # same state as the VPC, so it names the resource rather than an output
+                        network = NETWORK_ID,
+                    ),
+                ),
+                # how anything in another state gets this subnet's id
+                util.Output(output, "${google_compute_subnetwork.%s.id}" % name),
+            )),
+            *hooks
+        )
+
+    return struct(component = component, state = STATE, output = output, pods = pods, services = services)

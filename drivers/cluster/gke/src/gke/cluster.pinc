@@ -1,0 +1,139 @@
+load("@platform//platform/platform.pinc", "platform")
+load("@platform//terraform/v1/util.pinc", "util")
+load("@terraform_state//terraform.pinc", "RemoteOutput", "WithRemoteOutput", "WithState")
+load("//gke/gcp.pinc", "Api", "Terraform")
+load("//terraform/googlecloud/datasources/v8/client.proto", "GoogleClientConfig")
+load("//terraform/googlecloud/provider/v8/googlecloud.proto", "Google")
+load("//terraform/googlecloud/resources/v8/container.proto", ClusterProto = "GoogleContainerCluster", Pool = "GoogleContainerNodePool")
+load("//terraform/googlecloud/resources/v8/project.proto", "GoogleProjectIamMember")
+load("//terraform/googlecloud/resources/v8/service.proto", "GoogleServiceAccount")
+
+# The cluster, and a state of its own: it is the thing with a lifecycle separate from the
+# network — replaceable, and more than one to a network.
+STATE = "cluster"
+RESOURCE = "cluster"
+
+# 4 vCPU / 16 GiB by default. Machine families differ by region — asia-southeast3 has no E2 —
+# so a workspace in another region may have to say:
+#   gcloud compute machine-types list --zones <zone> --format='value(name)'
+# N4 boots only from Hyperdisk; GKE's default pd-balanced is rejected.
+MACHINE = "n4-standard-4"
+DISK = "hyperdisk-balanced"
+
+# What the cluster publishes, and what a dependant's Kubernetes provider is pointed at.
+ENDPOINT = "endpoint"
+CA_CERTIFICATE = "ca_certificate"
+
+# The bare interpolation behind RemoteOutput, for the one value that has to be wrapped in a
+# function call rather than used as it comes. Taken from RemoteOutput rather than spelled
+# again here, so the data source name stays the state driver's to decide.
+def _expression(output):
+    return RemoteOutput(STATE, output)[2:-1]
+
+# WithClusterAuth is what every component running on this cluster receives: the Google
+# provider, a token minted for whoever is applying, and a Kubernetes provider pointed at the
+# cluster's own endpoint and CA. No kubeconfig, no current-context, nothing on the applying
+# machine — which is what makes the same config apply from a laptop and from CI.
+#
+# The endpoint and CA come out of the cluster's state through the terraform_remote_state that
+# declaring the dependency already put in the dependant's config.
+def _authenticate(gcp):
+    def do(config, next):
+        for provider in config.provider.kubernetes:
+            provider.host = "https://" + RemoteOutput(STATE, ENDPOINT)
+            provider.cluster_ca_certificate = "${base64decode(%s)}" % _expression(CA_CERTIFICATE)
+            provider.token = "${data.google_client_config.gke_auth.access_token}"
+        return next(config)
+
+    return platform.WithConfig(
+        None,
+        util.Provider(Google(project = gcp.project, region = gcp.region)),
+        util.Data("gke_auth", GoogleClientConfig()),
+        do,
+    )
+
+# `network` is the network component this cluster sits on, and `subnet` what Subnet()
+# returned for one of the subnets declared in it. Both are needed and neither is an address:
+# depending on the network is what gives this state its terraform_remote_state, and the
+# subnet says which output on it to read and what its ranges are called.
+def Cluster(gcp, network, subnet, machine = MACHINE, disk = DISK, nodes = 2):
+    def contents(component):
+        def link(t, next):
+            # referencing the API's project, not the project itself, waits for it to be enabled
+            t.resource.cluster.project = t.var.container.project
+            t.resource.pool.cluster = t.var.cluster.id
+            t.resource.pool.node_config.service_account = t.var.nodes.email
+            t.resource.nodes_role.member = t.var.nodes.member
+            return next(t)
+
+        return Terraform(
+            gcp,
+            util.Link(
+                link,
+                container = Api(gcp, "container.googleapis.com"),
+                cluster = ClusterProto(
+                    name = gcp.name,
+                    location = gcp.zone,
+                    # both read out of the network's state: the VPC publishes its own id, and
+                    # the subnet added an output to that same state when it was declared in it
+                    network = RemoteOutput(subnet.state, "network"),
+                    subnetwork = RemoteOutput(subnet.state, subnet.output),
+                    networking_mode = "VPC_NATIVE",
+                    ip_allocation_policy = ClusterProto.IpAllocationPolicy(
+                        cluster_secondary_range_name = subnet.pods,
+                        services_secondary_range_name = subnet.services,
+                    ),
+                    private_cluster_config = ClusterProto.PrivateClusterConfig(enable_private_nodes = True),
+                    release_channel = ClusterProto.ReleaseChannel(channel = "REGULAR"),
+                    workload_identity_config = ClusterProto.WorkloadIdentityConfig(
+                        workload_pool = gcp.project + ".svc.id.goog",
+                    ),
+                    # GKE insists on a default pool; the one below replaces it. It is still
+                    # created first, as e2-medium unless told otherwise, and fails where E2
+                    # does not exist.
+                    remove_default_node_pool = True,
+                    initial_node_count = 1,
+                    node_config = ClusterProto.NodeConfig(machine_type = machine, disk_type = disk),
+                    # an example is meant to be torn down, and destroy fails on a protected cluster
+                    deletion_protection = False,
+                ),
+                nodes = GoogleServiceAccount(account_id = gcp.name + "-nodes", project = gcp.project),
+                nodes_role = GoogleProjectIamMember(
+                    project = gcp.project,
+                    role = "roles/container.defaultNodeServiceAccount",
+                ),
+                pool = Pool(
+                    name = "default",
+                    location = gcp.zone,
+                    node_count = nodes,
+                    node_config = Pool.NodeConfig(
+                        machine_type = machine,
+                        disk_type = disk,
+                        oauth_scopes = ["https://www.googleapis.com/auth/cloud-platform"],
+                        workload_metadata_config = Pool.NodeConfig.WorkloadMetadataConfig(mode = "GKE_METADATA"),
+                    ),
+                    management = Pool.Management(auto_repair = True, auto_upgrade = True),
+                ),
+            ),
+        )
+
+    def component(*hooks):
+        return platform.Component(
+            STATE,
+            platform.WithDescription("Zonal GKE cluster with private nodes"),
+            WithState(contents, gcp.backend),
+            # the network state applies first because this one reads it — which is also what
+            # puts the NAT its private nodes need in place before there are any nodes
+            platform.WithDeps(network),
+            # what a workload on this cluster needs to reach its API server
+            WithRemoteOutput(ENDPOINT, "${google_container_cluster.%s.endpoint}" % RESOURCE, gcp.backend),
+            WithRemoteOutput(
+                CA_CERTIFICATE,
+                "${google_container_cluster.%s.master_auth[0].cluster_ca_certificate}" % RESOURCE,
+                gcp.backend,
+            ),
+            platform.ForDownstream(_authenticate(gcp)),
+            *hooks
+        )
+
+    return component

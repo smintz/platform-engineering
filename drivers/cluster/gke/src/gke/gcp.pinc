@@ -1,0 +1,32 @@
+load("@platform//terraform/v1/util.pinc", "util")
+load("//terraform/googlecloud/provider/v8/googlecloud.proto", "Google")
+load("//terraform/googlecloud/resources/v8/project.proto", "GoogleProjectService")
+
+# Gcp is what a workspace tells this driver: which project, region and zone its cluster
+# lands in, what the resources are called there, and which backend holds the state. Nothing
+# organisation-specific is written in the driver — it arrives as an argument, so the same
+# components serve a laptop experiment and a production project.
+#
+# `name` is what the resources are called in GCP, where one project is one namespace per
+# resource type. Component names say what a component is, and are what its state is keyed by.
+def Gcp(project, region, zone = None, name = "platform", backend = None):
+    return struct(
+        project = project,
+        region = region,
+        # a zonal cluster by default: a third of the price of a regional one, and the blast
+        # radius an example should be honest about
+        zone = zone or region + "-a",
+        name = name,
+        backend = backend,
+    )
+
+# Terraform is a config with this project's provider already in it. Built fresh each call:
+# one provider message shared between configs would be the same object in each of them.
+def Terraform(gcp, *hooks):
+    return util.Terraform(util.Provider(Google(project = gcp.project, region = gcp.region)), *hooks)
+
+# Api turns a Google API on. Only the states that need one carry it: a resource referencing
+# the service's `project` attribute, rather than the project itself, is what makes Terraform
+# wait for it.
+def Api(gcp, service):
+    return GoogleProjectService(project = gcp.project, service = service, disable_on_destroy = False)

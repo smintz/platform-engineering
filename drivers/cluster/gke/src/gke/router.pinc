@@ -1,0 +1,32 @@
+load("@platform//platform/platform.pinc", "platform")
+load("@platform//terraform/v1/util.pinc", "util")
+load("//gke/network.pinc", "NETWORK_ID")
+load("//terraform/googlecloud/resources/v8/compute.proto", "GoogleComputeRouter")
+
+# A Cloud Router on the network. On its own it routes nothing: it is what a NAT gateway
+# attaches to, and a component of its own because anything else that needs one — a VPN, an
+# interconnect — attaches to the same router without the NAT knowing.
+#
+# Stateless, like the subnets: declared as a dependency of a network, it adds itself to that
+# network's state.
+
+# What attaches to this router. A NAT in the same state names the resource, not an output.
+RESOURCE = "router"
+ROUTER_NAME = "${google_compute_router.%s.name}" % RESOURCE
+
+def Router(gcp):
+    def component(*hooks):
+        return platform.Component(
+            "router",
+            platform.WithDescription("Cloud Router for the network's gateways"),
+            platform.ForDownstream(platform.WithConfig(
+                None,
+                util.Resource(
+                    RESOURCE,
+                    GoogleComputeRouter(name = gcp.name, region = gcp.region, network = NETWORK_ID),
+                ),
+            )),
+            *hooks
+        )
+
+    return component
