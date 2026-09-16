@@ -1,0 +1,130 @@
+{
+  "resource": {
+    "kubernetes_deployment_v1": {
+      "valkey-cart": {
+        "metadata": {
+          "labels": {
+            "app": "valkey-cart"
+          },
+          "name": "valkey-cart"
+        },
+        "spec": {
+          "selector": {
+            "match_labels": {
+              "app": "valkey-cart"
+            }
+          },
+          "template": {
+            "metadata": {
+              "labels": {
+                "app": "valkey-cart"
+              }
+            },
+            "spec": {
+              "container": [
+                {
+                  "image": "ghcr.io/valkey-io/valkey:9.0.4-alpine3.23",
+                  "name": "valkey-cart",
+                  "env": [
+                    {
+                      "name": "OTEL_SERVICE_NAME",
+                      "value": "valkey-cart"
+                    },
+                    {
+                      "name": "OTEL_RESOURCE_ATTRIBUTES",
+                      "value": "service.version=3.0.0"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                      "value": "cumulative"
+                    }
+                  ],
+                  "port": [
+                    {
+                      "container_port": "6379"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "memory": "20Mi"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "kubernetes_service_v1": {
+      "valkey-cart": {
+        "metadata": {
+          "labels": {
+            "app": "valkey-cart"
+          },
+          "name": "valkey-cart"
+        },
+        "spec": {
+          "selector": {
+            "app": "valkey-cart"
+          },
+          "port": [
+            {
+              "port": "6379",
+              "target_port": "6379"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "data": {
+    "terraform_remote_state": {
+      "cluster": {
+        "backend": "gcs",
+        "config": {
+              "bucket": "home-run-it-tfstate",
+              "prefix": "gke-asia-southeast3/cluster"
+            }
+      }
+    },
+    "google_client_config": {
+      "gke_auth": {
+        
+      }
+    }
+  },
+  "provider": {
+    "google": [
+      {
+        "project": "home-run-it",
+        "region": "asia-southeast3"
+      }
+    ],
+    "kubernetes": [
+      {
+        "cluster_ca_certificate": "${base64decode(data.terraform_remote_state.cluster.outputs.ca_certificate)}",
+        "host": "https://${data.terraform_remote_state.cluster.outputs.endpoint}",
+        "token": "${data.google_client_config.gke_auth.access_token}"
+      }
+    ]
+  },
+  "terraform": {
+    "required_providers": {
+      "google": {
+        "source": "registry.terraform.io/hashicorp/google",
+        "version": "8.3.0"
+      },
+      "kubernetes": {
+        "source": "registry.terraform.io/hashicorp/kubernetes",
+        "version": "3.2.1"
+      }
+    },
+    "backend": {
+      "gcs": {
+        "bucket": "home-run-it-tfstate",
+        "prefix": "gke-asia-southeast3/valkey-cart"
+      }
+    }
+  }
+}

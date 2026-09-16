@@ -1,0 +1,206 @@
+{
+  "protoFile": "terraform/v1/terraform.proto",
+  "value": {
+    "@type": "type.googleapis.com/terraform.v1.Terraform",
+    "resource": {
+      "kubernetes_config_map_v1": {
+        "product-catalog": {
+          "data": {
+            "otel-config.yml": "${file(\"${path.module}/otel-config.yml\")}"
+          },
+          "metadata": {
+            "name": "product-catalog"
+          }
+        }
+      },
+      "kubernetes_deployment_v1": {
+        "product-catalog": {
+          "metadata": {
+            "labels": {
+              "app": "product-catalog"
+            },
+            "name": "product-catalog"
+          },
+          "spec": {
+            "selector": {
+              "match_labels": {
+                "app": "product-catalog"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "product-catalog"
+                }
+              },
+              "spec": {
+                "container": [
+                  {
+                    "image": "ghcr.io/open-telemetry/demo:3.0.0-product-catalog",
+                    "name": "product-catalog",
+                    "env": [
+                      {
+                        "name": "OTEL_SERVICE_NAME",
+                        "value": "product-catalog"
+                      },
+                      {
+                        "name": "OTEL_RESOURCE_ATTRIBUTES",
+                        "value": "service.version=3.0.0"
+                      },
+                      {
+                        "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                        "value": "cumulative"
+                      },
+                      {
+                        "name": "PRODUCT_CATALOG_PORT",
+                        "value": "8080"
+                      },
+                      {
+                        "name": "GOMEMLIMIT",
+                        "value": "16MiB"
+                      },
+                      {
+                        "name": "OTEL_SEMCONV_STABILITY_OPT_IN",
+                        "value": "database"
+                      },
+                      {
+                        "name": "OTEL_CONFIG_FILE",
+                        "value": "/otel-config.yml"
+                      },
+                      {
+                        "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                        "value": "http://otel-collector:4317"
+                      },
+                      {
+                        "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                        "value": "grpc"
+                      },
+                      {
+                        "name": "OTEL_COLLECTOR_HOST",
+                        "value": "otel-collector"
+                      },
+                      {
+                        "name": "OTEL_COLLECTOR_PORT_GRPC",
+                        "value": "4317"
+                      },
+                      {
+                        "name": "OTEL_COLLECTOR_PORT_HTTP",
+                        "value": "4318"
+                      },
+                      {
+                        "name": "FLAGD_HOST",
+                        "value": "flagd"
+                      },
+                      {
+                        "name": "FLAGD_PORT",
+                        "value": "8013"
+                      },
+                      {
+                        "name": "DB_CONNECTION_STRING",
+                        "value": "postgres://astronomy_user:astronomy_password@astronomy-db/astronomy_db?sslmode=disable"
+                      }
+                    ],
+                    "port": [
+                      {
+                        "container_port": "8080"
+                      }
+                    ],
+                    "resources": {
+                      "limits": {
+                        "memory": "20Mi"
+                      }
+                    },
+                    "volume_mount": [
+                      {
+                        "mount_path": "/otel-config.yml",
+                        "name": "product-catalog",
+                        "read_only": true,
+                        "sub_path": "otel-config.yml"
+                      }
+                    ]
+                  }
+                ],
+                "volume": [
+                  {
+                    "name": "product-catalog",
+                    "config_map": {
+                      "name": "${kubernetes_config_map_v1.product-catalog.metadata[0].name}"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "kubernetes_service_v1": {
+        "product-catalog": {
+          "metadata": {
+            "labels": {
+              "app": "product-catalog"
+            },
+            "name": "product-catalog"
+          },
+          "spec": {
+            "selector": {
+              "app": "product-catalog"
+            },
+            "port": [
+              {
+                "port": "8080",
+                "target_port": "8080"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "data": {
+      "terraform_remote_state": {
+        "cluster": {
+          "backend": "gcs",
+          "config": {
+            "bucket": "home-run-it-tfstate",
+            "prefix": "gke-asia-southeast3/cluster"
+          }
+        }
+      },
+      "google_client_config": {
+        "gke_auth": {}
+      }
+    },
+    "provider": {
+      "google": [
+        {
+          "project": "home-run-it",
+          "region": "asia-southeast3"
+        }
+      ],
+      "kubernetes": [
+        {
+          "cluster_ca_certificate": "${base64decode(data.terraform_remote_state.cluster.outputs.ca_certificate)}",
+          "host": "https://${data.terraform_remote_state.cluster.outputs.endpoint}",
+          "token": "${data.google_client_config.gke_auth.access_token}"
+        }
+      ]
+    },
+    "terraform": {
+      "required_providers": {
+        "google": {
+          "source": "registry.terraform.io/hashicorp/google",
+          "version": "8.3.0"
+        },
+        "kubernetes": {
+          "source": "registry.terraform.io/hashicorp/kubernetes",
+          "version": "3.2.1"
+        }
+      },
+      "backend": {
+        "gcs": {
+          "bucket": "home-run-it-tfstate",
+          "prefix": "gke-asia-southeast3/product-catalog"
+        }
+      }
+    }
+  }
+}

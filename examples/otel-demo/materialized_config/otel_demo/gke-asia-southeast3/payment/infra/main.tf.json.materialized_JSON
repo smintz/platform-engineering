@@ -1,0 +1,172 @@
+{
+  "protoFile": "terraform/v1/terraform.proto",
+  "value": {
+    "@type": "type.googleapis.com/terraform.v1.Terraform",
+    "resource": {
+      "kubernetes_deployment_v1": {
+        "payment": {
+          "metadata": {
+            "labels": {
+              "app": "payment"
+            },
+            "name": "payment"
+          },
+          "spec": {
+            "selector": {
+              "match_labels": {
+                "app": "payment"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "payment"
+                }
+              },
+              "spec": {
+                "container": [
+                  {
+                    "image": "ghcr.io/open-telemetry/demo:3.0.0-payment",
+                    "name": "payment",
+                    "env": [
+                      {
+                        "name": "OTEL_SERVICE_NAME",
+                        "value": "payment"
+                      },
+                      {
+                        "name": "OTEL_RESOURCE_ATTRIBUTES",
+                        "value": "service.version=3.0.0"
+                      },
+                      {
+                        "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                        "value": "cumulative"
+                      },
+                      {
+                        "name": "PAYMENT_PORT",
+                        "value": "8080"
+                      },
+                      {
+                        "name": "IPV6_ENABLED",
+                        "value": "false"
+                      },
+                      {
+                        "name": "NODE_OPTIONS",
+                        "value": "--require @opentelemetry/auto-instrumentations-node/register"
+                      },
+                      {
+                        "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                        "value": "http://otel-collector:4317"
+                      },
+                      {
+                        "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                        "value": "grpc"
+                      },
+                      {
+                        "name": "OTEL_COLLECTOR_HOST",
+                        "value": "otel-collector"
+                      },
+                      {
+                        "name": "OTEL_COLLECTOR_PORT_GRPC",
+                        "value": "4317"
+                      },
+                      {
+                        "name": "OTEL_COLLECTOR_PORT_HTTP",
+                        "value": "4318"
+                      },
+                      {
+                        "name": "FLAGD_HOST",
+                        "value": "flagd"
+                      },
+                      {
+                        "name": "FLAGD_PORT",
+                        "value": "8013"
+                      }
+                    ],
+                    "port": [
+                      {
+                        "container_port": "8080"
+                      }
+                    ],
+                    "resources": {
+                      "limits": {
+                        "memory": "140Mi"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "kubernetes_service_v1": {
+        "payment": {
+          "metadata": {
+            "labels": {
+              "app": "payment"
+            },
+            "name": "payment"
+          },
+          "spec": {
+            "selector": {
+              "app": "payment"
+            },
+            "port": [
+              {
+                "port": "8080",
+                "target_port": "8080"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "data": {
+      "terraform_remote_state": {
+        "cluster": {
+          "backend": "gcs",
+          "config": {
+            "bucket": "home-run-it-tfstate",
+            "prefix": "gke-asia-southeast3/cluster"
+          }
+        }
+      },
+      "google_client_config": {
+        "gke_auth": {}
+      }
+    },
+    "provider": {
+      "google": [
+        {
+          "project": "home-run-it",
+          "region": "asia-southeast3"
+        }
+      ],
+      "kubernetes": [
+        {
+          "cluster_ca_certificate": "${base64decode(data.terraform_remote_state.cluster.outputs.ca_certificate)}",
+          "host": "https://${data.terraform_remote_state.cluster.outputs.endpoint}",
+          "token": "${data.google_client_config.gke_auth.access_token}"
+        }
+      ]
+    },
+    "terraform": {
+      "required_providers": {
+        "google": {
+          "source": "registry.terraform.io/hashicorp/google",
+          "version": "8.3.0"
+        },
+        "kubernetes": {
+          "source": "registry.terraform.io/hashicorp/kubernetes",
+          "version": "3.2.1"
+        }
+      },
+      "backend": {
+        "gcs": {
+          "bucket": "home-run-it-tfstate",
+          "prefix": "gke-asia-southeast3/payment"
+        }
+      }
+    }
+  }
+}

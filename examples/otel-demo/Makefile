@@ -1,13 +1,17 @@
 # The OpenTelemetry demo, declared as platform components and applied to a cluster.
 # Generated: edit src/otel_demo.mpconf, not outputs/.
 
-# Which cluster (CLUSTERS in src/components/defaults.pinc): colima, the one kubectl points
-# at, or gke, the one examples/gke provisions — `make apply DOMAIN=gke` after its
-# `make apply credentials`. kubectl below follows the same choice.
-DOMAIN = colima
+# Which domain (CLUSTERS in src/components/defaults.pinc): local, the cluster kubectl points
+# at, or gke-<region>, a GKE cluster this stack provisions itself — `make apply
+# DOMAIN=gke-asia-southeast3` creates the network and cluster and then deploys onto them.
+# Terraform authenticates to GKE out of the cluster's own state; kubectl needs the
+# kubeconfig `make credentials` writes, which is what the targets below use.
+DOMAIN = local
 STATES = outputs/otel_demo/$(DOMAIN)
-ifeq ($(DOMAIN),gke)
-export KUBECONFIG := $(HOME)/.kube/gke-platform
+ORDER = $(STATES)/apply-order.json
+CLUSTER = $(STATES)/cluster/infra/main.tf.json
+ifneq ($(DOMAIN),local)
+export KUBECONFIG := $(HOME)/.kube/otel-demo-$(DOMAIN)
 endif
 export TF_PLUGIN_CACHE_DIR := $(HOME)/.terraform.d/plugin-cache
 
@@ -19,13 +23,33 @@ compile:
 	protoconf mod tidy
 	protoconf compile .
 
-# One state per component, as the platform renders them. There is no apply order to honour:
-# nothing here reads another state, and a pod whose dependency is not up yet restarts until
-# it is. init runs one state at a time because parallel inits race on the plugin cache.
+# The states that other states read go first, in the order apply-order.json gives — on GKE
+# the network, then the cluster every other state authenticates against. The rest read
+# nothing and go in parallel; a pod whose dependency is not up yet restarts until it is.
+# init runs one state at a time because parallel inits race on the plugin cache.
 apply: compile
 	mkdir -p $(TF_PLUGIN_CACHE_DIR)
-	for d in $(STATES)/*/infra; do terraform -chdir=$$d init -input=false >/dev/null || exit 1; done
-	ls -d $(STATES)/*/infra | xargs -P 10 -I{} terraform -chdir={} apply -input=false -auto-approve -lock-timeout=60s
+	@first=$$(jq -r '.[]' $(ORDER)); \
+	for s in $$first; do \
+		terraform -chdir=$(STATES)/$$s/infra init -input=false >/dev/null && \
+		terraform -chdir=$(STATES)/$$s/infra apply -input=false -auto-approve -lock-timeout=60s || exit 1; \
+	done; \
+	rest=""; \
+	for d in $(STATES)/*/infra; do \
+		name=$$(basename $$(dirname $$d)); \
+		case " $$first " in *" $$name "*) ;; *) rest="$$rest $$d";; esac; \
+	done; \
+	for d in $$rest; do terraform -chdir=$$d init -input=false >/dev/null || exit 1; done; \
+	echo $$rest | tr ' ' '\n' | grep . | \
+		xargs -P 10 -I{} terraform -chdir={} apply -input=false -auto-approve -lock-timeout=60s
+
+# A kubeconfig for the cluster this domain provisioned, for kubectl alone: every Terraform
+# state reaches the API server through the credentials the cluster component hands it.
+credentials:
+	KUBECONFIG=$(KUBECONFIG) gcloud container clusters get-credentials \
+		$$(jq -r '.resource.google_container_cluster.cluster.name' $(CLUSTER)) \
+		--location $$(jq -r '.resource.google_container_cluster.cluster.location' $(CLUSTER)) \
+		--project $$(jq -r '.provider.google[0].project' $(CLUSTER))
 
 # The monitoring states talk to Grafana rather than to the cluster, so they wait for the
 # infra states that deploy it: dashboards and alert rules for every component that
@@ -45,7 +69,20 @@ monitoring:
 # -lock-timeout: the first parallel apply had two runs fail "Error acquiring the state lock"
 # on local state even though every state directory is distinct; the cause was not pinned
 # down, and waiting for the lock is correct whatever it is.
+#
+# The reverse of apply: what reads nothing goes first, then the states it read, so the
+# cluster outlives everything deployed onto it.
 destroy:
-	ls -d $(STATES)/*/infra | xargs -P 10 -I{} terraform -chdir={} destroy -input=false -auto-approve -lock-timeout=60s
+	@first=$$(jq -r '.[]' $(ORDER)); \
+	rest=""; \
+	for d in $(STATES)/*/infra; do \
+		name=$$(basename $$(dirname $$d)); \
+		case " $$first " in *" $$name "*) ;; *) rest="$$rest $$d";; esac; \
+	done; \
+	echo $$rest | tr ' ' '\n' | grep . | \
+		xargs -P 10 -I{} terraform -chdir={} destroy -input=false -auto-approve -lock-timeout=60s; \
+	for s in $$(echo $$first | tr ' ' '\n' | tail -r); do \
+		terraform -chdir=$(STATES)/$$s/infra destroy -input=false -auto-approve -lock-timeout=60s || exit 1; \
+	done
 
-.PHONY: compile apply monitoring destroy
+.PHONY: compile apply credentials monitoring destroy

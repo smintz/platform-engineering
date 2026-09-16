@@ -6,221 +6,35 @@ import "google/protobuf/struct.proto";
 
 import "terraform/builtin/datasources/v1/remote.proto";
 
-import "terraform/grafana/datasources/v4/cloud.proto";
+import "terraform/googlecloud/datasources/v8/client.proto";
 
-import "terraform/grafana/datasources/v4/connections.proto";
+import "terraform/googlecloud/provider/v8/googlecloud.proto";
 
-import "terraform/grafana/datasources/v4/dashboard.proto";
+import "terraform/googlecloud/resources/v8/compute.proto";
 
-import "terraform/grafana/datasources/v4/dashboards.proto";
+import "terraform/googlecloud/resources/v8/container.proto";
+
+import "terraform/googlecloud/resources/v8/project.proto";
+
+import "terraform/googlecloud/resources/v8/service.proto";
 
 import "terraform/grafana/datasources/v4/data.proto";
 
-import "terraform/grafana/datasources/v4/fleet.proto";
-
-import "terraform/grafana/datasources/v4/folder.proto";
-
-import "terraform/grafana/datasources/v4/folders.proto";
-
-import "terraform/grafana/datasources/v4/frontend.proto";
-
-import "terraform/grafana/datasources/v4/k6.proto";
-
-import "terraform/grafana/datasources/v4/library.proto";
-
-import "terraform/grafana/datasources/v4/oncall.proto";
-
-import "terraform/grafana/datasources/v4/organization.proto";
-
-import "terraform/grafana/datasources/v4/role.proto";
-
-import "terraform/grafana/datasources/v4/service.proto";
-
-import "terraform/grafana/datasources/v4/slos.proto";
-
-import "terraform/grafana/datasources/v4/synthetic.proto";
-
-import "terraform/grafana/datasources/v4/team.proto";
-
-import "terraform/grafana/datasources/v4/teams.proto";
-
-import "terraform/grafana/datasources/v4/user.proto";
-
-import "terraform/grafana/datasources/v4/users.proto";
-
 import "terraform/grafana/provider/v4/grafana.proto";
-
-import "terraform/grafana/resources/v4/agento11y.proto";
-
-import "terraform/grafana/resources/v4/annotation.proto";
-
-import "terraform/grafana/resources/v4/apps.proto";
-
-import "terraform/grafana/resources/v4/asserts.proto";
-
-import "terraform/grafana/resources/v4/assistant.proto";
-
-import "terraform/grafana/resources/v4/cloud.proto";
-
-import "terraform/grafana/resources/v4/connections.proto";
-
-import "terraform/grafana/resources/v4/contact.proto";
 
 import "terraform/grafana/resources/v4/dashboard.proto";
 
-import "terraform/grafana/resources/v4/data.proto";
-
-import "terraform/grafana/resources/v4/fleet.proto";
-
 import "terraform/grafana/resources/v4/folder.proto";
-
-import "terraform/grafana/resources/v4/frontend.proto";
-
-import "terraform/grafana/resources/v4/k6.proto";
-
-import "terraform/grafana/resources/v4/library.proto";
-
-import "terraform/grafana/resources/v4/machine.proto";
-
-import "terraform/grafana/resources/v4/message.proto";
-
-import "terraform/grafana/resources/v4/mute.proto";
-
-import "terraform/grafana/resources/v4/notification.proto";
-
-import "terraform/grafana/resources/v4/oncall.proto";
-
-import "terraform/grafana/resources/v4/organization.proto";
-
-import "terraform/grafana/resources/v4/playlist.proto";
-
-import "terraform/grafana/resources/v4/report.proto";
-
-import "terraform/grafana/resources/v4/role.proto";
 
 import "terraform/grafana/resources/v4/rule.proto";
 
-import "terraform/grafana/resources/v4/scim.proto";
-
-import "terraform/grafana/resources/v4/service.proto";
-
-import "terraform/grafana/resources/v4/slo.proto";
-
-import "terraform/grafana/resources/v4/sso.proto";
-
-import "terraform/grafana/resources/v4/synthetic.proto";
-
-import "terraform/grafana/resources/v4/team.proto";
-
-import "terraform/grafana/resources/v4/user.proto";
-
-import "terraform/kubernetes/datasources/v3/all.proto";
-
-import "terraform/kubernetes/datasources/v3/config.proto";
-
-import "terraform/kubernetes/datasources/v3/endpoint.proto";
-
-import "terraform/kubernetes/datasources/v3/endpoints.proto";
-
-import "terraform/kubernetes/datasources/v3/ingress.proto";
-
-import "terraform/kubernetes/datasources/v3/mutating.proto";
-
-import "terraform/kubernetes/datasources/v3/namespace.proto";
-
-import "terraform/kubernetes/datasources/v3/nodes.proto";
-
-import "terraform/kubernetes/datasources/v3/persistent.proto";
-
-import "terraform/kubernetes/datasources/v3/pod.proto";
-
-import "terraform/kubernetes/datasources/v3/resource.proto";
-
-import "terraform/kubernetes/datasources/v3/resources.proto";
-
-import "terraform/kubernetes/datasources/v3/secret.proto";
-
-import "terraform/kubernetes/datasources/v3/server.proto";
-
-import "terraform/kubernetes/datasources/v3/service.proto";
-
-import "terraform/kubernetes/datasources/v3/storage.proto";
-
 import "terraform/kubernetes/provider/v3/kubernetes.proto";
-
-import "terraform/kubernetes/resources/v3/annotations.proto";
-
-import "terraform/kubernetes/resources/v3/api.proto";
-
-import "terraform/kubernetes/resources/v3/certificate.proto";
-
-import "terraform/kubernetes/resources/v3/cluster.proto";
 
 import "terraform/kubernetes/resources/v3/config.proto";
 
-import "terraform/kubernetes/resources/v3/cron.proto";
-
-import "terraform/kubernetes/resources/v3/csi.proto";
-
-import "terraform/kubernetes/resources/v3/daemon.proto";
-
-import "terraform/kubernetes/resources/v3/daemonset.proto";
-
-import "terraform/kubernetes/resources/v3/default.proto";
-
 import "terraform/kubernetes/resources/v3/deployment.proto";
 
-import "terraform/kubernetes/resources/v3/endpoint.proto";
-
-import "terraform/kubernetes/resources/v3/endpoints.proto";
-
-import "terraform/kubernetes/resources/v3/env.proto";
-
-import "terraform/kubernetes/resources/v3/horizontal.proto";
-
-import "terraform/kubernetes/resources/v3/ingress.proto";
-
-import "terraform/kubernetes/resources/v3/job.proto";
-
-import "terraform/kubernetes/resources/v3/labels.proto";
-
-import "terraform/kubernetes/resources/v3/limit.proto";
-
-import "terraform/kubernetes/resources/v3/manifest.proto";
-
-import "terraform/kubernetes/resources/v3/mutating.proto";
-
-import "terraform/kubernetes/resources/v3/namespace.proto";
-
-import "terraform/kubernetes/resources/v3/network.proto";
-
-import "terraform/kubernetes/resources/v3/node.proto";
-
-import "terraform/kubernetes/resources/v3/persistent.proto";
-
-import "terraform/kubernetes/resources/v3/pod.proto";
-
-import "terraform/kubernetes/resources/v3/priority.proto";
-
-import "terraform/kubernetes/resources/v3/replication.proto";
-
-import "terraform/kubernetes/resources/v3/resource.proto";
-
-import "terraform/kubernetes/resources/v3/role.proto";
-
-import "terraform/kubernetes/resources/v3/runtime.proto";
-
-import "terraform/kubernetes/resources/v3/secret.proto";
-
 import "terraform/kubernetes/resources/v3/service.proto";
-
-import "terraform/kubernetes/resources/v3/stateful.proto";
-
-import "terraform/kubernetes/resources/v3/storage.proto";
-
-import "terraform/kubernetes/resources/v3/token.proto";
-
-import "terraform/kubernetes/resources/v3/validating.proto";
 
 message Terraform {
   Resources resource = 1;
@@ -240,685 +54,51 @@ message Terraform {
   TerraformSettings terraform = 8;
 
   message Resources {
-    map<string, terraform.grafana.resources.v4.GrafanaAgento11yCollection> grafana_agento11y_collection = 1 [json_name = "grafana_agento11y_collection"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAgento11yEvaluationRule> grafana_agento11y_evaluation_rule = 2 [json_name = "grafana_agento11y_evaluation_rule"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAgento11yEvaluator> grafana_agento11y_evaluator = 3 [json_name = "grafana_agento11y_evaluator"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAgento11yHookRule> grafana_agento11y_hook_rule = 4 [json_name = "grafana_agento11y_hook_rule"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAgento11yRuleAction> grafana_agento11y_rule_action = 5 [json_name = "grafana_agento11y_rule_action"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAnnotation> grafana_annotation = 6 [json_name = "grafana_annotation"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsAlertenrichmentAlertenrichmentV1beta1> grafana_apps_alertenrichment_alertenrichment_v1beta1 = 7 [
-      json_name = "grafana_apps_alertenrichment_alertenrichment_v1beta1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsDashboardDashboardV1beta1> grafana_apps_dashboard_dashboard_v1beta1 = 8 [
-      json_name = "grafana_apps_dashboard_dashboard_v1beta1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsDashboardDashboardV2> grafana_apps_dashboard_dashboard_v2 = 9 [json_name = "grafana_apps_dashboard_dashboard_v2"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsDashboardDashboardV2beta1> grafana_apps_dashboard_dashboard_v2beta1 = 10 [
-      json_name = "grafana_apps_dashboard_dashboard_v2beta1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsGenericResource> grafana_apps_generic_resource = 11 [json_name = "grafana_apps_generic_resource"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsNotificationsInhibitionruleV1beta1> grafana_apps_notifications_inhibitionrule_v1beta1 = 12 [
-      json_name = "grafana_apps_notifications_inhibitionrule_v1beta1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsNotificationsRoutingtreeV1beta1> grafana_apps_notifications_routingtree_v1beta1 = 13 [
-      json_name = "grafana_apps_notifications_routingtree_v1beta1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsPlaylistPlaylistV0alpha1> grafana_apps_playlist_playlist_v0alpha1 = 14 [
-      json_name = "grafana_apps_playlist_playlist_v0alpha1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsPlaylistPlaylistV1> grafana_apps_playlist_playlist_v1 = 15 [json_name = "grafana_apps_playlist_playlist_v1"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsProductactivationAppo11yconfigV1alpha1> grafana_apps_productactivation_appo11yconfig_v1alpha1 = 16 [
-      json_name = "grafana_apps_productactivation_appo11yconfig_v1alpha1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsProductactivationDbo11yconfigV1alpha1> grafana_apps_productactivation_dbo11yconfig_v1alpha1 = 17 [
-      json_name = "grafana_apps_productactivation_dbo11yconfig_v1alpha1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsProductactivationK8so11yconfigV1alpha1> grafana_apps_productactivation_k8so11yconfig_v1alpha1 = 18 [
-      json_name = "grafana_apps_productactivation_k8so11yconfig_v1alpha1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsProvisioningConnectionV0alpha1> grafana_apps_provisioning_connection_v0alpha1 = 19 [
-      json_name = "grafana_apps_provisioning_connection_v0alpha1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsProvisioningRepositoryV0alpha1> grafana_apps_provisioning_repository_v0alpha1 = 20 [
-      json_name = "grafana_apps_provisioning_repository_v0alpha1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsQueriesQueryV1> grafana_apps_queries_query_v1 = 21 [json_name = "grafana_apps_queries_query_v1"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsRulesAlertruleV0alpha1> grafana_apps_rules_alertrule_v0alpha1 = 22 [
-      json_name = "grafana_apps_rules_alertrule_v0alpha1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsRulesRecordingruleV0alpha1> grafana_apps_rules_recordingrule_v0alpha1 = 23 [
-      json_name = "grafana_apps_rules_recordingrule_v0alpha1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsRulesRulesequenceV0alpha1> grafana_apps_rules_rulesequence_v0alpha1 = 24 [
-      json_name = "grafana_apps_rules_rulesequence_v0alpha1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsSecretKeeperActivationV1beta1> grafana_apps_secret_keeper_activation_v1beta1 = 25 [
-      json_name = "grafana_apps_secret_keeper_activation_v1beta1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsSecretKeeperV1beta1> grafana_apps_secret_keeper_v1beta1 = 26 [json_name = "grafana_apps_secret_keeper_v1beta1"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsSecretSecurevalueV1beta1> grafana_apps_secret_securevalue_v1beta1 = 27 [
-      json_name = "grafana_apps_secret_securevalue_v1beta1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAppsServicemodelComponentV1alpha1> grafana_apps_servicemodel_component_v1alpha1 = 28 [
-      json_name = "grafana_apps_servicemodel_component_v1alpha1"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAssertsCustomModelRules> grafana_asserts_custom_model_rules = 29 [json_name = "grafana_asserts_custom_model_rules"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAssertsLogConfig> grafana_asserts_log_config = 30 [json_name = "grafana_asserts_log_config"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAssertsNotificationAlertsConfig> grafana_asserts_notification_alerts_config = 31 [
-      json_name = "grafana_asserts_notification_alerts_config"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAssertsProfileConfig> grafana_asserts_profile_config = 32 [json_name = "grafana_asserts_profile_config"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAssertsPromRuleFile> grafana_asserts_prom_rule_file = 33 [json_name = "grafana_asserts_prom_rule_file"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAssertsStack> grafana_asserts_stack = 34 [json_name = "grafana_asserts_stack"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAssertsSuppressedAssertionsConfig> grafana_asserts_suppressed_assertions_config = 35 [
-      json_name = "grafana_asserts_suppressed_assertions_config"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAssertsThresholds> grafana_asserts_thresholds = 36 [json_name = "grafana_asserts_thresholds"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAssertsTraceConfig> grafana_asserts_trace_config = 37 [json_name = "grafana_asserts_trace_config"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAssistantMcpServer> grafana_assistant_mcp_server = 38 [json_name = "grafana_assistant_mcp_server"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAssistantQuickstart> grafana_assistant_quickstart = 39 [json_name = "grafana_assistant_quickstart"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAssistantRule> grafana_assistant_rule = 40 [json_name = "grafana_assistant_rule"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAssistantSkill> grafana_assistant_skill = 41 [json_name = "grafana_assistant_skill"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaAssistantTermsAcceptance> grafana_assistant_terms_acceptance = 42 [json_name = "grafana_assistant_terms_acceptance"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudAccessPolicy> grafana_cloud_access_policy = 43 [json_name = "grafana_cloud_access_policy"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudAccessPolicyRotatingToken> grafana_cloud_access_policy_rotating_token = 44 [
-      json_name = "grafana_cloud_access_policy_rotating_token"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudAccessPolicyToken> grafana_cloud_access_policy_token = 45 [json_name = "grafana_cloud_access_policy_token"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudIntegration> grafana_cloud_integration = 46 [json_name = "grafana_cloud_integration"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudOrgMember> grafana_cloud_org_member = 47 [json_name = "grafana_cloud_org_member"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudPluginInstallation> grafana_cloud_plugin_installation = 48 [json_name = "grafana_cloud_plugin_installation"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudPrivateDataSourceConnectNetwork> grafana_cloud_private_data_source_connect_network = 49 [
-      json_name = "grafana_cloud_private_data_source_connect_network"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudPrivateDataSourceConnectNetworkToken> grafana_cloud_private_data_source_connect_network_token = 50 [
-      json_name = "grafana_cloud_private_data_source_connect_network_token"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudProviderAwsAccount> grafana_cloud_provider_aws_account = 51 [json_name = "grafana_cloud_provider_aws_account"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudProviderAwsCloudwatchScrapeJob> grafana_cloud_provider_aws_cloudwatch_scrape_job = 52 [
-      json_name = "grafana_cloud_provider_aws_cloudwatch_scrape_job"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudProviderAwsResourceMetadataScrapeJob> grafana_cloud_provider_aws_resource_metadata_scrape_job = 53 [
-      json_name = "grafana_cloud_provider_aws_resource_metadata_scrape_job"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudProviderAzureCredential> grafana_cloud_provider_azure_credential = 54 [
-      json_name = "grafana_cloud_provider_azure_credential"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudStack> grafana_cloud_stack = 55 [json_name = "grafana_cloud_stack"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudStackServiceAccount> grafana_cloud_stack_service_account = 56 [json_name = "grafana_cloud_stack_service_account"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudStackServiceAccountRotatingToken> grafana_cloud_stack_service_account_rotating_token = 57 [
-      json_name = "grafana_cloud_stack_service_account_rotating_token"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaCloudStackServiceAccountToken> grafana_cloud_stack_service_account_token = 58 [
-      json_name = "grafana_cloud_stack_service_account_token"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaConnectionsMetricsEndpointScrapeJob> grafana_connections_metrics_endpoint_scrape_job = 59 [
-      json_name = "grafana_connections_metrics_endpoint_scrape_job"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaContactPoint> grafana_contact_point = 60 [json_name = "grafana_contact_point"];
-
     map<string, terraform.grafana.resources.v4.GrafanaDashboard> grafana_dashboard = 61 [json_name = "grafana_dashboard"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaDashboardPermission> grafana_dashboard_permission = 62 [json_name = "grafana_dashboard_permission"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaDashboardPermissionItem> grafana_dashboard_permission_item = 63 [json_name = "grafana_dashboard_permission_item"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaDashboardPublic> grafana_dashboard_public = 64 [json_name = "grafana_dashboard_public"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaDataSource> grafana_data_source = 65 [json_name = "grafana_data_source"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaDataSourceCacheConfig> grafana_data_source_cache_config = 66 [json_name = "grafana_data_source_cache_config"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaDataSourceConfig> grafana_data_source_config = 67 [json_name = "grafana_data_source_config"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaDataSourceConfigLbacRules> grafana_data_source_config_lbac_rules = 68 [
-      json_name = "grafana_data_source_config_lbac_rules"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaDataSourcePermission> grafana_data_source_permission = 69 [json_name = "grafana_data_source_permission"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaDataSourcePermissionItem> grafana_data_source_permission_item = 70 [json_name = "grafana_data_source_permission_item"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaFleetManagementCollector> grafana_fleet_management_collector = 71 [json_name = "grafana_fleet_management_collector"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaFleetManagementPipeline> grafana_fleet_management_pipeline = 72 [json_name = "grafana_fleet_management_pipeline"];
 
     map<string, terraform.grafana.resources.v4.GrafanaFolder> grafana_folder = 73 [json_name = "grafana_folder"];
 
-    map<string, terraform.grafana.resources.v4.GrafanaFolderPermission> grafana_folder_permission = 74 [json_name = "grafana_folder_permission"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaFolderPermissionItem> grafana_folder_permission_item = 75 [json_name = "grafana_folder_permission_item"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaFrontendO11yApp> grafana_frontend_o11y_app = 76 [json_name = "grafana_frontend_o11y_app"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaK6Installation> grafana_k6_installation = 77 [json_name = "grafana_k6_installation"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaK6LoadTest> grafana_k6_load_test = 78 [json_name = "grafana_k6_load_test"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaK6Project> grafana_k6_project = 79 [json_name = "grafana_k6_project"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaK6ProjectAllowedLoadZones> grafana_k6_project_allowed_load_zones = 80 [
-      json_name = "grafana_k6_project_allowed_load_zones"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaK6ProjectLimits> grafana_k6_project_limits = 81 [json_name = "grafana_k6_project_limits"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaK6Schedule> grafana_k6_schedule = 82 [json_name = "grafana_k6_schedule"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaLibraryPanel> grafana_library_panel = 83 [json_name = "grafana_library_panel"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaMachineLearningAlert> grafana_machine_learning_alert = 84 [json_name = "grafana_machine_learning_alert"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaMachineLearningHoliday> grafana_machine_learning_holiday = 85 [json_name = "grafana_machine_learning_holiday"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaMachineLearningJob> grafana_machine_learning_job = 86 [json_name = "grafana_machine_learning_job"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaMachineLearningOutlierDetector> grafana_machine_learning_outlier_detector = 87 [
-      json_name = "grafana_machine_learning_outlier_detector"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaMessageTemplate> grafana_message_template = 88 [json_name = "grafana_message_template"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaMuteTiming> grafana_mute_timing = 89 [json_name = "grafana_mute_timing"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaNotificationPolicy> grafana_notification_policy = 90 [json_name = "grafana_notification_policy"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaOncallEscalation> grafana_oncall_escalation = 91 [json_name = "grafana_oncall_escalation"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaOncallEscalationChain> grafana_oncall_escalation_chain = 92 [json_name = "grafana_oncall_escalation_chain"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaOncallIntegration> grafana_oncall_integration = 93 [json_name = "grafana_oncall_integration"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaOncallOnCallShift> grafana_oncall_on_call_shift = 94 [json_name = "grafana_oncall_on_call_shift"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaOncallOutgoingWebhook> grafana_oncall_outgoing_webhook = 95 [json_name = "grafana_oncall_outgoing_webhook"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaOncallRoute> grafana_oncall_route = 96 [json_name = "grafana_oncall_route"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaOncallSchedule> grafana_oncall_schedule = 97 [json_name = "grafana_oncall_schedule"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaOncallUserNotificationRule> grafana_oncall_user_notification_rule = 98 [
-      json_name = "grafana_oncall_user_notification_rule"
-    ];
-
-    map<string, terraform.grafana.resources.v4.GrafanaOrganization> grafana_organization = 99 [json_name = "grafana_organization"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaOrganizationPreferences> grafana_organization_preferences = 100 [json_name = "grafana_organization_preferences"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaPlaylist> grafana_playlist = 101 [json_name = "grafana_playlist"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaReport> grafana_report = 102 [json_name = "grafana_report"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaRole> grafana_role = 103 [json_name = "grafana_role"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaRoleAssignment> grafana_role_assignment = 104 [json_name = "grafana_role_assignment"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaRoleAssignmentItem> grafana_role_assignment_item = 105 [json_name = "grafana_role_assignment_item"];
-
     map<string, terraform.grafana.resources.v4.GrafanaRuleGroup> grafana_rule_group = 106 [json_name = "grafana_rule_group"];
 
-    map<string, terraform.grafana.resources.v4.GrafanaScimConfig> grafana_scim_config = 107 [json_name = "grafana_scim_config"];
+    map<string, terraform.googlecloud.resources.v8.GoogleComputeNetwork> google_compute_network = 507 [json_name = "google_compute_network"];
 
-    map<string, terraform.grafana.resources.v4.GrafanaServiceAccount> grafana_service_account = 108 [json_name = "grafana_service_account"];
+    map<string, terraform.googlecloud.resources.v8.GoogleComputeRouter> google_compute_router = 579 [json_name = "google_compute_router"];
 
-    map<string, terraform.grafana.resources.v4.GrafanaServiceAccountPermission> grafana_service_account_permission = 109 [json_name = "grafana_service_account_permission"];
+    map<string, terraform.googlecloud.resources.v8.GoogleComputeRouterNat> google_compute_router_nat = 582 [json_name = "google_compute_router_nat"];
 
-    map<string, terraform.grafana.resources.v4.GrafanaServiceAccountPermissionItem> grafana_service_account_permission_item = 110 [
-      json_name = "grafana_service_account_permission_item"
-    ];
+    map<string, terraform.googlecloud.resources.v8.GoogleComputeSubnetwork> google_compute_subnetwork = 602 [json_name = "google_compute_subnetwork"];
 
-    map<string, terraform.grafana.resources.v4.GrafanaServiceAccountRotatingToken> grafana_service_account_rotating_token = 111 [
-      json_name = "grafana_service_account_rotating_token"
-    ];
+    map<string, terraform.googlecloud.resources.v8.GoogleContainerCluster> google_container_cluster = 638 [json_name = "google_container_cluster"];
 
-    map<string, terraform.grafana.resources.v4.GrafanaServiceAccountToken> grafana_service_account_token = 112 [json_name = "grafana_service_account_token"];
+    map<string, terraform.googlecloud.resources.v8.GoogleContainerNodePool> google_container_node_pool = 639 [json_name = "google_container_node_pool"];
 
-    map<string, terraform.grafana.resources.v4.GrafanaSlo> grafana_slo = 113 [json_name = "grafana_slo"];
+    map<string, terraform.googlecloud.resources.v8.GoogleProjectIamMember> google_project_iam_member = 1265 [json_name = "google_project_iam_member"];
 
-    map<string, terraform.grafana.resources.v4.GrafanaSsoSettings> grafana_sso_settings = 114 [json_name = "grafana_sso_settings"];
+    map<string, terraform.googlecloud.resources.v8.GoogleProjectService> google_project_service = 1269 [json_name = "google_project_service"];
 
-    map<string, terraform.grafana.resources.v4.GrafanaSyntheticMonitoringCheck> grafana_synthetic_monitoring_check = 115 [json_name = "grafana_synthetic_monitoring_check"];
+    map<string, terraform.googlecloud.resources.v8.GoogleServiceAccount> google_service_account = 1350 [json_name = "google_service_account"];
 
-    map<string, terraform.grafana.resources.v4.GrafanaSyntheticMonitoringCheckAlerts> grafana_synthetic_monitoring_check_alerts = 116 [
-      json_name = "grafana_synthetic_monitoring_check_alerts"
-    ];
+    map<string, terraform.kubernetes.resources.v3.KubernetesConfigMapV1> kubernetes_config_map_v1 = 1496 [json_name = "kubernetes_config_map_v1"];
 
-    map<string, terraform.grafana.resources.v4.GrafanaSyntheticMonitoringInstallation> grafana_synthetic_monitoring_installation = 117 [
-      json_name = "grafana_synthetic_monitoring_installation"
-    ];
+    map<string, terraform.kubernetes.resources.v3.KubernetesDeploymentV1> kubernetes_deployment_v1 = 1507 [json_name = "kubernetes_deployment_v1"];
 
-    map<string, terraform.grafana.resources.v4.GrafanaSyntheticMonitoringProbe> grafana_synthetic_monitoring_probe = 118 [json_name = "grafana_synthetic_monitoring_probe"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaTeam> grafana_team = 119 [json_name = "grafana_team"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaTeamExternalGroup> grafana_team_external_group = 120 [json_name = "grafana_team_external_group"];
-
-    map<string, terraform.grafana.resources.v4.GrafanaUser> grafana_user = 121 [json_name = "grafana_user"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesAnnotations> kubernetes_annotations = 122 [json_name = "kubernetes_annotations"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesApiService> kubernetes_api_service = 123 [json_name = "kubernetes_api_service"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesApiServiceV1> kubernetes_api_service_v1 = 124 [json_name = "kubernetes_api_service_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesCertificateSigningRequest> kubernetes_certificate_signing_request = 125 [
-      json_name = "kubernetes_certificate_signing_request"
-    ];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesCertificateSigningRequestV1> kubernetes_certificate_signing_request_v1 = 126 [
-      json_name = "kubernetes_certificate_signing_request_v1"
-    ];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesClusterRole> kubernetes_cluster_role = 127 [json_name = "kubernetes_cluster_role"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesClusterRoleBinding> kubernetes_cluster_role_binding = 128 [json_name = "kubernetes_cluster_role_binding"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesClusterRoleBindingV1> kubernetes_cluster_role_binding_v1 = 129 [json_name = "kubernetes_cluster_role_binding_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesClusterRoleV1> kubernetes_cluster_role_v1 = 130 [json_name = "kubernetes_cluster_role_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesConfigMap> kubernetes_config_map = 131 [json_name = "kubernetes_config_map"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesConfigMapV1> kubernetes_config_map_v1 = 132 [json_name = "kubernetes_config_map_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesConfigMapV1Data> kubernetes_config_map_v1_data = 133 [json_name = "kubernetes_config_map_v1_data"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesCronJob> kubernetes_cron_job = 134 [json_name = "kubernetes_cron_job"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesCronJobV1> kubernetes_cron_job_v1 = 135 [json_name = "kubernetes_cron_job_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesCsiDriver> kubernetes_csi_driver = 136 [json_name = "kubernetes_csi_driver"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesCsiDriverV1> kubernetes_csi_driver_v1 = 137 [json_name = "kubernetes_csi_driver_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesDaemonSetV1> kubernetes_daemon_set_v1 = 138 [json_name = "kubernetes_daemon_set_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesDaemonset> kubernetes_daemonset = 139 [json_name = "kubernetes_daemonset"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesDefaultServiceAccount> kubernetes_default_service_account = 140 [json_name = "kubernetes_default_service_account"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesDefaultServiceAccountV1> kubernetes_default_service_account_v1 = 141 [
-      json_name = "kubernetes_default_service_account_v1"
-    ];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesDeployment> kubernetes_deployment = 142 [json_name = "kubernetes_deployment"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesDeploymentV1> kubernetes_deployment_v1 = 143 [json_name = "kubernetes_deployment_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesEndpointSliceV1> kubernetes_endpoint_slice_v1 = 144 [json_name = "kubernetes_endpoint_slice_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesEndpoints> kubernetes_endpoints = 145 [json_name = "kubernetes_endpoints"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesEndpointsV1> kubernetes_endpoints_v1 = 146 [json_name = "kubernetes_endpoints_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesEnv> kubernetes_env = 147 [json_name = "kubernetes_env"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesHorizontalPodAutoscaler> kubernetes_horizontal_pod_autoscaler = 148 [json_name = "kubernetes_horizontal_pod_autoscaler"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesHorizontalPodAutoscalerV1> kubernetes_horizontal_pod_autoscaler_v1 = 149 [
-      json_name = "kubernetes_horizontal_pod_autoscaler_v1"
-    ];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesHorizontalPodAutoscalerV2> kubernetes_horizontal_pod_autoscaler_v2 = 150 [
-      json_name = "kubernetes_horizontal_pod_autoscaler_v2"
-    ];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesHorizontalPodAutoscalerV2beta2> kubernetes_horizontal_pod_autoscaler_v2beta2 = 151 [
-      json_name = "kubernetes_horizontal_pod_autoscaler_v2beta2"
-    ];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesIngress> kubernetes_ingress = 152 [json_name = "kubernetes_ingress"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesIngressClass> kubernetes_ingress_class = 153 [json_name = "kubernetes_ingress_class"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesIngressClassV1> kubernetes_ingress_class_v1 = 154 [json_name = "kubernetes_ingress_class_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesIngressV1> kubernetes_ingress_v1 = 155 [json_name = "kubernetes_ingress_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesJob> kubernetes_job = 156 [json_name = "kubernetes_job"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesJobV1> kubernetes_job_v1 = 157 [json_name = "kubernetes_job_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesLabels> kubernetes_labels = 158 [json_name = "kubernetes_labels"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesLimitRange> kubernetes_limit_range = 159 [json_name = "kubernetes_limit_range"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesLimitRangeV1> kubernetes_limit_range_v1 = 160 [json_name = "kubernetes_limit_range_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesManifest> kubernetes_manifest = 161 [json_name = "kubernetes_manifest"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesMutatingWebhookConfiguration> kubernetes_mutating_webhook_configuration = 162 [
-      json_name = "kubernetes_mutating_webhook_configuration"
-    ];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesMutatingWebhookConfigurationV1> kubernetes_mutating_webhook_configuration_v1 = 163 [
-      json_name = "kubernetes_mutating_webhook_configuration_v1"
-    ];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesNamespace> kubernetes_namespace = 164 [json_name = "kubernetes_namespace"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesNamespaceV1> kubernetes_namespace_v1 = 165 [json_name = "kubernetes_namespace_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesNetworkPolicy> kubernetes_network_policy = 166 [json_name = "kubernetes_network_policy"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesNetworkPolicyV1> kubernetes_network_policy_v1 = 167 [json_name = "kubernetes_network_policy_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesNodeTaint> kubernetes_node_taint = 168 [json_name = "kubernetes_node_taint"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesPersistentVolume> kubernetes_persistent_volume = 169 [json_name = "kubernetes_persistent_volume"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesPersistentVolumeClaim> kubernetes_persistent_volume_claim = 170 [json_name = "kubernetes_persistent_volume_claim"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesPersistentVolumeClaimV1> kubernetes_persistent_volume_claim_v1 = 171 [
-      json_name = "kubernetes_persistent_volume_claim_v1"
-    ];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesPersistentVolumeV1> kubernetes_persistent_volume_v1 = 172 [json_name = "kubernetes_persistent_volume_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesPod> kubernetes_pod = 173 [json_name = "kubernetes_pod"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesPodDisruptionBudget> kubernetes_pod_disruption_budget = 174 [json_name = "kubernetes_pod_disruption_budget"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesPodDisruptionBudgetV1> kubernetes_pod_disruption_budget_v1 = 175 [json_name = "kubernetes_pod_disruption_budget_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesPodV1> kubernetes_pod_v1 = 176 [json_name = "kubernetes_pod_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesPriorityClass> kubernetes_priority_class = 177 [json_name = "kubernetes_priority_class"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesPriorityClassV1> kubernetes_priority_class_v1 = 178 [json_name = "kubernetes_priority_class_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesReplicationController> kubernetes_replication_controller = 179 [json_name = "kubernetes_replication_controller"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesReplicationControllerV1> kubernetes_replication_controller_v1 = 180 [json_name = "kubernetes_replication_controller_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesResourceQuota> kubernetes_resource_quota = 181 [json_name = "kubernetes_resource_quota"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesResourceQuotaV1> kubernetes_resource_quota_v1 = 182 [json_name = "kubernetes_resource_quota_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesRole> kubernetes_role = 183 [json_name = "kubernetes_role"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesRoleBinding> kubernetes_role_binding = 184 [json_name = "kubernetes_role_binding"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesRoleBindingV1> kubernetes_role_binding_v1 = 185 [json_name = "kubernetes_role_binding_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesRoleV1> kubernetes_role_v1 = 186 [json_name = "kubernetes_role_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesRuntimeClassV1> kubernetes_runtime_class_v1 = 187 [json_name = "kubernetes_runtime_class_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesSecret> kubernetes_secret = 188 [json_name = "kubernetes_secret"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesSecretV1> kubernetes_secret_v1 = 189 [json_name = "kubernetes_secret_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesSecretV1Data> kubernetes_secret_v1_data = 190 [json_name = "kubernetes_secret_v1_data"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesService> kubernetes_service = 191 [json_name = "kubernetes_service"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesServiceAccount> kubernetes_service_account = 192 [json_name = "kubernetes_service_account"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesServiceAccountV1> kubernetes_service_account_v1 = 193 [json_name = "kubernetes_service_account_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesServiceV1> kubernetes_service_v1 = 194 [json_name = "kubernetes_service_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesStatefulSet> kubernetes_stateful_set = 195 [json_name = "kubernetes_stateful_set"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesStatefulSetV1> kubernetes_stateful_set_v1 = 196 [json_name = "kubernetes_stateful_set_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesStorageClass> kubernetes_storage_class = 197 [json_name = "kubernetes_storage_class"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesStorageClassV1> kubernetes_storage_class_v1 = 198 [json_name = "kubernetes_storage_class_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesTokenRequestV1> kubernetes_token_request_v1 = 199 [json_name = "kubernetes_token_request_v1"];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesValidatingAdmissionPolicyV1> kubernetes_validating_admission_policy_v1 = 200 [
-      json_name = "kubernetes_validating_admission_policy_v1"
-    ];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesValidatingWebhookConfiguration> kubernetes_validating_webhook_configuration = 201 [
-      json_name = "kubernetes_validating_webhook_configuration"
-    ];
-
-    map<string, terraform.kubernetes.resources.v3.KubernetesValidatingWebhookConfigurationV1> kubernetes_validating_webhook_configuration_v1 = 202 [
-      json_name = "kubernetes_validating_webhook_configuration_v1"
-    ];
+    map<string, terraform.kubernetes.resources.v3.KubernetesServiceV1> kubernetes_service_v1 = 1558 [json_name = "kubernetes_service_v1"];
   }
 
   message Datasources {
     map<string, terraform.builtin.datasources.v1.TerraformRemoteState> terraform_remote_state = 1 [json_name = "terraform_remote_state"];
 
-    map<string, terraform.grafana.datasources.v4.GrafanaCloudAccessPolicies> grafana_cloud_access_policies = 2 [json_name = "grafana_cloud_access_policies"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaCloudIps> grafana_cloud_ips = 3 [json_name = "grafana_cloud_ips"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaCloudOrganization> grafana_cloud_organization = 4 [json_name = "grafana_cloud_organization"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaCloudPrivateDataSourceConnectNetworks> grafana_cloud_private_data_source_connect_networks = 5 [
-      json_name = "grafana_cloud_private_data_source_connect_networks"
-    ];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaCloudProviderAwsAccount> grafana_cloud_provider_aws_account = 6 [json_name = "grafana_cloud_provider_aws_account"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaCloudProviderAwsCloudwatchScrapeJob> grafana_cloud_provider_aws_cloudwatch_scrape_job = 7 [
-      json_name = "grafana_cloud_provider_aws_cloudwatch_scrape_job"
-    ];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaCloudProviderAwsCloudwatchScrapeJobs> grafana_cloud_provider_aws_cloudwatch_scrape_jobs = 8 [
-      json_name = "grafana_cloud_provider_aws_cloudwatch_scrape_jobs"
-    ];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaCloudProviderAzureCredential> grafana_cloud_provider_azure_credential = 9 [
-      json_name = "grafana_cloud_provider_azure_credential"
-    ];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaCloudStack> grafana_cloud_stack = 10 [json_name = "grafana_cloud_stack"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaConnectionsMetricsEndpointScrapeJob> grafana_connections_metrics_endpoint_scrape_job = 11 [
-      json_name = "grafana_connections_metrics_endpoint_scrape_job"
-    ];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaDashboard> grafana_dashboard = 12 [json_name = "grafana_dashboard"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaDashboards> grafana_dashboards = 13 [json_name = "grafana_dashboards"];
-
     map<string, terraform.grafana.datasources.v4.GrafanaDataSource> grafana_data_source = 14 [json_name = "grafana_data_source"];
 
-    map<string, terraform.grafana.datasources.v4.GrafanaFleetManagementCollector> grafana_fleet_management_collector = 15 [json_name = "grafana_fleet_management_collector"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaFleetManagementCollectors> grafana_fleet_management_collectors = 16 [json_name = "grafana_fleet_management_collectors"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaFolder> grafana_folder = 17 [json_name = "grafana_folder"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaFolders> grafana_folders = 18 [json_name = "grafana_folders"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaFrontendO11yApp> grafana_frontend_o11y_app = 19 [json_name = "grafana_frontend_o11y_app"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaK6LoadTest> grafana_k6_load_test = 20 [json_name = "grafana_k6_load_test"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaK6LoadTests> grafana_k6_load_tests = 21 [json_name = "grafana_k6_load_tests"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaK6Project> grafana_k6_project = 22 [json_name = "grafana_k6_project"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaK6ProjectAllowedLoadZones> grafana_k6_project_allowed_load_zones = 23 [
-      json_name = "grafana_k6_project_allowed_load_zones"
-    ];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaK6ProjectLimits> grafana_k6_project_limits = 24 [json_name = "grafana_k6_project_limits"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaK6Projects> grafana_k6_projects = 25 [json_name = "grafana_k6_projects"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaK6Schedule> grafana_k6_schedule = 26 [json_name = "grafana_k6_schedule"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaK6Schedules> grafana_k6_schedules = 27 [json_name = "grafana_k6_schedules"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaLibraryPanel> grafana_library_panel = 28 [json_name = "grafana_library_panel"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaLibraryPanels> grafana_library_panels = 29 [json_name = "grafana_library_panels"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaOncallEscalationChain> grafana_oncall_escalation_chain = 30 [json_name = "grafana_oncall_escalation_chain"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaOncallIntegration> grafana_oncall_integration = 31 [json_name = "grafana_oncall_integration"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaOncallLabel> grafana_oncall_label = 32 [json_name = "grafana_oncall_label"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaOncallOutgoingWebhook> grafana_oncall_outgoing_webhook = 33 [json_name = "grafana_oncall_outgoing_webhook"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaOncallSchedule> grafana_oncall_schedule = 34 [json_name = "grafana_oncall_schedule"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaOncallSlackChannel> grafana_oncall_slack_channel = 35 [json_name = "grafana_oncall_slack_channel"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaOncallTeam> grafana_oncall_team = 36 [json_name = "grafana_oncall_team"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaOncallUser> grafana_oncall_user = 37 [json_name = "grafana_oncall_user"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaOncallUserGroup> grafana_oncall_user_group = 38 [json_name = "grafana_oncall_user_group"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaOncallUsers> grafana_oncall_users = 39 [json_name = "grafana_oncall_users"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaOrganization> grafana_organization = 40 [json_name = "grafana_organization"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaOrganizationPreferences> grafana_organization_preferences = 41 [json_name = "grafana_organization_preferences"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaOrganizationUser> grafana_organization_user = 42 [json_name = "grafana_organization_user"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaRole> grafana_role = 43 [json_name = "grafana_role"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaServiceAccount> grafana_service_account = 44 [json_name = "grafana_service_account"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaSlos> grafana_slos = 45 [json_name = "grafana_slos"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaSyntheticMonitoringProbe> grafana_synthetic_monitoring_probe = 46 [json_name = "grafana_synthetic_monitoring_probe"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaSyntheticMonitoringProbes> grafana_synthetic_monitoring_probes = 47 [json_name = "grafana_synthetic_monitoring_probes"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaTeam> grafana_team = 48 [json_name = "grafana_team"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaTeams> grafana_teams = 49 [json_name = "grafana_teams"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaUser> grafana_user = 50 [json_name = "grafana_user"];
-
-    map<string, terraform.grafana.datasources.v4.GrafanaUsers> grafana_users = 51 [json_name = "grafana_users"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesAllNamespaces> kubernetes_all_namespaces = 52 [json_name = "kubernetes_all_namespaces"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesConfigMap> kubernetes_config_map = 53 [json_name = "kubernetes_config_map"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesConfigMapV1> kubernetes_config_map_v1 = 54 [json_name = "kubernetes_config_map_v1"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesEndpointSliceV1> kubernetes_endpoint_slice_v1 = 55 [json_name = "kubernetes_endpoint_slice_v1"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesEndpointsV1> kubernetes_endpoints_v1 = 56 [json_name = "kubernetes_endpoints_v1"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesIngress> kubernetes_ingress = 57 [json_name = "kubernetes_ingress"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesIngressV1> kubernetes_ingress_v1 = 58 [json_name = "kubernetes_ingress_v1"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesMutatingWebhookConfigurationV1> kubernetes_mutating_webhook_configuration_v1 = 59 [
-      json_name = "kubernetes_mutating_webhook_configuration_v1"
-    ];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesNamespace> kubernetes_namespace = 60 [json_name = "kubernetes_namespace"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesNamespaceV1> kubernetes_namespace_v1 = 61 [json_name = "kubernetes_namespace_v1"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesNodes> kubernetes_nodes = 62 [json_name = "kubernetes_nodes"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesPersistentVolumeClaim> kubernetes_persistent_volume_claim = 63 [json_name = "kubernetes_persistent_volume_claim"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesPersistentVolumeClaimV1> kubernetes_persistent_volume_claim_v1 = 64 [
-      json_name = "kubernetes_persistent_volume_claim_v1"
-    ];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesPersistentVolumeV1> kubernetes_persistent_volume_v1 = 65 [json_name = "kubernetes_persistent_volume_v1"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesPod> kubernetes_pod = 66 [json_name = "kubernetes_pod"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesPodV1> kubernetes_pod_v1 = 67 [json_name = "kubernetes_pod_v1"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesResource> kubernetes_resource = 68 [json_name = "kubernetes_resource"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesResources> kubernetes_resources = 69 [json_name = "kubernetes_resources"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesSecret> kubernetes_secret = 70 [json_name = "kubernetes_secret"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesSecretV1> kubernetes_secret_v1 = 71 [json_name = "kubernetes_secret_v1"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesServerVersion> kubernetes_server_version = 72 [json_name = "kubernetes_server_version"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesService> kubernetes_service = 73 [json_name = "kubernetes_service"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesServiceAccount> kubernetes_service_account = 74 [json_name = "kubernetes_service_account"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesServiceAccountV1> kubernetes_service_account_v1 = 75 [json_name = "kubernetes_service_account_v1"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesServiceV1> kubernetes_service_v1 = 76 [json_name = "kubernetes_service_v1"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesStorageClass> kubernetes_storage_class = 77 [json_name = "kubernetes_storage_class"];
-
-    map<string, terraform.kubernetes.datasources.v3.KubernetesStorageClassV1> kubernetes_storage_class_v1 = 78 [json_name = "kubernetes_storage_class_v1"];
+    map<string, terraform.googlecloud.datasources.v8.GoogleClientConfig> google_client_config = 132 [json_name = "google_client_config"];
   }
 
   message Providers {
     repeated terraform.grafana.provider.v4.Grafana grafana = 1;
 
-    repeated terraform.kubernetes.provider.v3.Kubernetes kubernetes = 2;
+    repeated terraform.googlecloud.provider.v8.Google google = 2;
+
+    repeated terraform.kubernetes.provider.v3.Kubernetes kubernetes = 3;
   }
 
   message Variable {
@@ -974,23 +154,17 @@ message Terraform {
       }
 
       message BackendRemote {
-        // (Optional) The remote backend hostname to connect to. Defaults to app.terraform.io.
         string hostname = 1;
 
-        // (Required) The name of the organization containing the targeted workspace(s).
         string organization = 2;
 
-        // (Optional) The token used to authenticate with the remote backend. We recommend omitting the token from the configuration, and instead using `terraform login` or manually configuring `credentials` in the CLI config file.
         string token = 3;
 
-        // (Required) A block specifying which remote workspace(s) to use. The workspaces block supports the following keys
         Workspace workspaces = 4;
 
         message Workspace {
-          // (Optional) The full name of one remote workspace. When configured, only the default workspace can be used. This option conflicts with prefix.
           string name = 1;
 
-          // (Optional) A prefix used in the names of one or more remote workspaces, all of which can be used with this configuration. The full workspace names are used in Terraform Cloud, and the short names (minus the prefix) are used on the command line for Terraform CLI workspaces. If omitted, only the default workspace can be used. This option conflicts with name.
           string prefix = 2;
         }
       }
@@ -1060,265 +234,182 @@ message Terraform {
       }
 
       message BackendConsul {
-        // (Required) Path in the Consul KV store.
         string path = 1;
 
-        // (Optional) Consul Access Token.
         string access_token = 2 [json_name = "access_token"];
 
-        // (Optional) DNS name and port of your Consul endpoint specified in the format dnsname:port.
         string address = 3;
 
-        // (Optional) Specifies what protocol to use when talking to the given address — either http or https. SSL support can also be triggered by setting the environment variable CONSUL_HTTP_SSL to true.
         string scheme = 4;
 
-        // (Optional) The datacenter to use. Defaults to that of the agent.
         string datacenter = 5;
 
-        // (Optional) HTTP Basic Authentication credentials to be used when communicating with Consul, in the format of either user or user:pass.
         string http_auth = 6 [json_name = "http_auth"];
 
-        // (Optional) true to compress the state data using gzip, or false (the default) to leave it uncompressed.
         string gzip = 7;
 
-        // (Optional) false to disable locking. Defaults to true.
         string lock = 8;
 
-        // (Optional) A path to a PEM-encoded certificate authority used to verify the remote agent's certificate.
         string ca_file = 9 [json_name = "ca_file"];
 
-        // (Optional) A path to a PEM-encoded certificate provided to the remote agent; requires use of key_file.
         string cert_file = 10 [json_name = "cert_file"];
 
-        // (Optional) A path to a PEM-encoded private key, required if cert_file is specified.
         string key_file = 11 [json_name = "key_file"];
       }
 
       message BackendAzurerm {
-        // (Required) The Name of the Storage Account.
         string storage_account_name = 1 [json_name = "storage_account_name"];
 
-        // (Required) The Name of the Storage Container within the Storage Account.
         string container_name = 2 [json_name = "container_name"];
 
-        // (Required) The name of the Blob used to retrieve/store Terraform's State file inside the Storage Container.
         string key = 3;
 
-        // (Optional) The Azure Environment which should be used. Possible values are public, china, german, stack and usgovernment. Defaults to public.
         string environment = 4;
 
-        // (Optional) The Custom Endpoint for Azure Resource Manager.
         string endpoint = 5;
 
-        // (Optional) The Hostname of the Azure Metadata Service.
         string metadata_host = 6 [json_name = "metadata_host"];
 
-        // (Optional) Should the Blob used to store the Terraform Statefile be snapshotted before use? Defaults to false.
         string snapshot = 7;
 
-        // (Required for AzureAD/MSI auth) The Name of the Resource Group in which the Storage Account exists.
         string resource_group_name = 8 [json_name = "resource_group_name"];
 
-        // (Optional) The path to a custom Managed Service Identity endpoint.
         string msi_endpoint = 9 [json_name = "msi_endpoint"];
 
-        // (Optional) The Subscription ID in which the Storage Account exists.
         string subscription_id = 10 [json_name = "subscription_id"];
 
-        // (Optional) The Tenant ID in which the Subscription exists.
         string tenant_id = 11 [json_name = "tenant_id"];
 
-        // (Optional) The Client ID of the Service Principal.
         string client_id = 12 [json_name = "client_id"];
 
-        // (Optional) The Client Secret of the Service Principal.
         string client_secret = 13 [json_name = "client_secret"];
 
-        // (Optional) The password associated with the Client Certificate specified in client_certificate_path.
         string client_certificate_password = 14 [json_name = "client_certificate_password"];
 
-        // (Optional) The path to the PFX file used as the Client Certificate when authenticating as a Service Principal.
         string client_certificate_path = 15 [json_name = "client_certificate_path"];
 
-        // (Optional) The SAS Token used to access the Blob Storage Account.
         string sas_token = 16 [json_name = "sas_token"];
 
-        // (Optional) The Access Key used to access the Blob Storage Account.
         string access_key = 17 [json_name = "access_key"];
 
-        // (Optional) Should Managed Service Identity authentication be used?
         string use_msi = 18 [json_name = "use_msi"];
 
-        // (Optional) Should Terraform use AzureAD authentication to access the Blob?
         string use_azuread_auth = 19 [json_name = "use_azuread_auth"];
 
-        // (Optional) Should OIDC authentication be used?
         string use_oidc = 20 [json_name = "use_oidc"];
 
-        // (Optional) The bearer token for the request to the OIDC provider.
         string oidc_request_token = 21 [json_name = "oidc_request_token"];
 
-        // (Optional) The URL for the OIDC provider from which to request an ID token.
         string oidc_request_url = 22 [json_name = "oidc_request_url"];
 
-        // (Optional) The OIDC ID token for use when authenticating using OIDC.
         string oidc_token = 23 [json_name = "oidc_token"];
 
-        // (Optional) The path to a file containing an OIDC ID token for use when authenticating using OIDC.
         string oidc_token_file_path = 24 [json_name = "oidc_token_file_path"];
       }
 
       message BackendGCS {
-        // (Required) The name of the GCS bucket. This bucket must exist before Terraform can be configured to use it.
         string bucket = 1;
 
-        // (Optional) Local path to Google Cloud Platform account credentials in JSON format. If unset, the path to your default credentials will be used (set via gcloud auth application-default login or GOOGLE_APPLICATION_CREDENTIALS).
         string credentials = 2;
 
-        // (Optional) The service account to impersonate for accessing the State Bucket.
         string impersonate_service_account = 3 [json_name = "impersonate_service_account"];
 
-        // (Optional) The delegation chain for impersonating a service account.
         string impersonate_service_account_delegates = 4 [
           json_name = "impersonate_service_account_delegates"
         ];
 
-        // (Optional) A temporary OAuth 2.0 access token obtained from the Google Authorization server.
         string access_token = 5 [json_name = "access_token"];
 
-        // (Optional) GCS prefix inside the bucket. Named states for workspaces are stored in an object called <prefix>/<name>.tfstate.
         string prefix = 6;
 
-        // (Optional) A 32 byte base64 encoded customer supplied encryption key (CSEK) used to encrypt all state.
         string encryption_key = 7 [json_name = "encryption_key"];
 
-        // (Optional) A Cloud KMS key (KMS_KEY) name used for encryption — projects/{project}/locations/{location}/keyRings/{keyring}/cryptoKeys/{name}.
         string kms_encryption_key = 8 [json_name = "kms_encryption_key"];
 
-        // (Optional) A URL containing the protocol, the DNS name pointing to a Private Service Connect endpoint, and the path for the Cloud Storage API (typically /storage/v1/b).
         string storage_custom_endpoint = 9 [json_name = "storage_custom_endpoint"];
       }
 
       message BackendHTTP {
-        // (Required) The address of the REST endpoint.
         string address = 1;
 
-        // (Optional) HTTP method to use when updating state. Defaults to POST.
         string update_method = 2 [json_name = "update_method"];
 
-        // (Optional) The address of the lock REST endpoint. Defaults to disabled.
         string lock_address = 3 [json_name = "lock_address"];
 
-        // (Optional) The HTTP method to use when locking. Defaults to LOCK.
         string lock_method = 4 [json_name = "lock_method"];
 
-        // (Optional) The address of the unlock REST endpoint. Defaults to disabled.
         string unlock_address = 5 [json_name = "unlock_address"];
 
-        // (Optional) The HTTP method to use when unlocking. Defaults to UNLOCK.
         string unlock_method = 6 [json_name = "unlock_method"];
 
-        // (Optional) The username for HTTP basic authentication.
         string username = 7;
 
-        // (Optional) The password for HTTP basic authentication.
         string password = 8;
 
-        // (Optional) Whether to skip TLS verification. Defaults to false.
         string skip_cert_verification = 9 [json_name = "skip_cert_verification"];
 
-        // (Optional) The number of HTTP request retries. Defaults to 2.
         string retry_max = 10 [json_name = "retry_max"];
 
-        // (Optional) The minimum time in seconds to wait between HTTP request attempts. Defaults to 1.
         string retry_wait_min = 11 [json_name = "retry_wait_min"];
 
-        // (Optional) The maximum time in seconds to wait between HTTP request attempts. Defaults to 30.
         string retry_wait_max = 12 [json_name = "retry_wait_max"];
 
-        // (Optional) A PEM-encoded CA certificate chain used by the client to verify server certificates during TLS authentication.
         string client_ca_certificate_pem = 13 [json_name = "client_ca_certificate_pem"];
 
-        // (Optional) A PEM-encoded certificate used by the server to verify the client during mutual TLS (mTLS) authentication.
         string client_certificate_pem = 14 [json_name = "client_certificate_pem"];
 
-        // (Optional) A PEM-encoded private key, required if client_certificate_pem is specified.
         string client_private_key_pem = 15 [json_name = "client_private_key_pem"];
       }
 
       message BackendKubernetes {
-        // (Required) Suffix used when creating the secret. The secret will be named in the format: tfstate-{workspace}-{secret_suffix}.
         string secret_suffix = 1 [json_name = "secret_suffix"];
 
-        // (Optional) Map of additional labels to be applied to the secret and config map.
         string labels = 2;
 
-        // (Optional) Namespace to store the secret in.
         string namespace = 3;
 
-        // (Optional) Used to authenticate to the cluster from inside a pod.
         string in_cluster_config = 4 [json_name = "in_cluster_config"];
 
-        // (Optional) Load local kubeconfig.
         string load_config_file = 5 [json_name = "load_config_file"];
 
-        // (Optional) The hostname (in form of URI) of the Kubernetes API.
         string host = 6;
 
-        // (Optional) The username to use for HTTP basic authentication when accessing the Kubernetes API.
         string username = 7;
 
-        // (Optional) The password to use for HTTP basic authentication when accessing the Kubernetes API.
         string password = 8;
 
-        // (Optional) Whether server should be accessed without verifying the TLS certificate.
         string insecure = 9;
 
-        // (Optional) PEM-encoded client certificate for TLS authentication.
         string client_certificate = 10 [json_name = "client_certificate"];
 
-        // (Optional) PEM-encoded client certificate key for TLS authentication.
         string client_key = 11 [json_name = "client_key"];
 
-        // (Optional) PEM-encoded root certificates bundle for TLS authentication.
         string cluster_ca_certificate = 12 [json_name = "cluster_ca_certificate"];
 
-        // (Optional) A list of paths to kubeconfig files.
         string config_paths = 13 [json_name = "config_paths"];
 
-        // (Optional) Path to the kubeconfig file. Can be sourced from KUBE_CONFIG_PATH.
         string config_path = 14 [json_name = "config_path"];
 
-        // (Optional) Context to choose from the config file. Can be sourced from KUBE_CTX.
         string config_context = 15 [json_name = "config_context"];
 
-        // (Optional) Authentication info context of the kube config (--user flag in kubectl).
         string config_context_auth_info = 16 [json_name = "config_context_auth_info"];
 
-        // (Optional) Cluster context of the kube config (--cluster flag in kubectl).
         string config_context_cluster = 17 [json_name = "config_context_cluster"];
 
-        // (Optional) Token of your service account.
         string token = 18;
 
-        // (Optional) Configuration block to use an exec-based credential plugin.
         string exec = 19;
       }
 
       message BackendPg {
-        // (Required) Postgres connection string; a postgres:// URL.
         string conn_str = 1 [json_name = "conn_str"];
 
-        // (Optional) Name of the automatically-managed Postgres schema to store state. Defaults to terraform_remote_state.
         string schema_name = 2 [json_name = "schema_name"];
 
-        // (Optional) If set to true, the Postgres schema must already exist. Defaults to false.
         string skip_schema_creation = 3 [json_name = "skip_schema_creation"];
 
-        // (Optional) If set to true, the Postgres table must already exist.
         string skip_table_creation = 4 [json_name = "skip_table_creation"];
 
-        // (Optional) If set to true, the Postgres index must already exist.
         string skip_index_creation = 5 [json_name = "skip_index_creation"];
       }
     }

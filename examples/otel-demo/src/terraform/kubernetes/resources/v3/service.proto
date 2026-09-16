@@ -9,13 +9,13 @@ import "terraform/v1/meta.proto";
 
 // KubernetesService version is 1
 message KubernetesService {
-  string id = 1;
+  optional string id = 1;
 
   repeated Status status = 2;
 
   // Terraform will wait for the load balancer to have at least 1 endpoint before
   // considering the resource created.
-  bool wait_for_load_balancer = 3 [json_name = "wait_for_load_balancer"];
+  optional bool wait_for_load_balancer = 3 [json_name = "wait_for_load_balancer"];
 
   Metadata metadata = 4;
 
@@ -27,9 +27,9 @@ message KubernetesService {
 
   repeated string depends_on = 8 [json_name = "depends_on"];
 
-  int32 count = 9;
+  optional int32 count = 9;
 
-  string provider = 10;
+  optional string provider = 10;
 
   terraform.v1.Lifecycle lifecycle = 11;
 
@@ -43,13 +43,13 @@ message KubernetesService {
 
       message Ingress {
         // hostname: string
-        string hostname = 1;
+        optional string hostname = 1;
 
         // ip: string
-        string ip = 2;
+        optional string ip = 2;
 
         // ip_mode: string
-        string ip_mode = 3 [json_name = "ip_mode"];
+        optional string ip_mode = 3 [json_name = "ip_mode"];
       }
     }
   }
@@ -64,10 +64,10 @@ message KubernetesService {
     // has not been provided. This value will also be combined with a unique suffix.
     // More info:
     // ty/blob/master/contributors/devel/sig-architecture/api-conventions.md#idempotency
-    string generate_name = 2 [json_name = "generate_name"];
+    optional string generate_name = 2 [json_name = "generate_name"];
 
     // A sequence number representing a specific generation of the desired state.
-    int64 generation = 3;
+    optional int64 generation = 3;
 
     // Map of string keys and values that can be used to organize and categorize (scope
     // and select) the service. May match selectors of replication controllers and
@@ -77,19 +77,19 @@ message KubernetesService {
 
     // Name of the service, must be unique. Cannot be updated. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-    string name = 5;
+    optional string name = 5;
 
     // Namespace defines the space within which name of the service must be unique.
-    string namespace = 6;
+    optional string namespace = 6;
 
     // An opaque value that represents the internal version of this service that can be
     // used by clients to determine when service has changed. More info:
     // ors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-    string resource_version = 7 [json_name = "resource_version"];
+    optional string resource_version = 7 [json_name = "resource_version"];
 
     // The unique in time and space value for this service. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
-    string uid = 8;
+    optional string uid = 8;
   }
 
   message Spec {
@@ -100,7 +100,7 @@ message KubernetesService {
     // may only be set for services with type `LoadBalancer`. Default is `true`. More
     // info:
     // s.io/docs/concepts/services-networking/service/#load-balancer-nodeport-allocation
-    bool allocate_load_balancer_node_ports = 1 [json_name = "allocate_load_balancer_node_ports"];
+    optional bool allocate_load_balancer_node_ports = 1 [json_name = "allocate_load_balancer_node_ports"];
 
     // The IP address of the service. It is usually assigned randomly by the master. If
     // an address is specified manually and is not in use by others, it will be
@@ -108,7 +108,7 @@ message KubernetesService {
     // can be specified for headless services when proxying is not required. Ignored if
     // type is `ExternalName`. More info:
     // tes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
-    string cluster_ip = 2 [json_name = "cluster_ip"];
+    optional string cluster_ip = 2 [json_name = "cluster_ip"];
 
     // List of IP addresses assigned to this service, and are usually assigned randomly.
     // If an address is specified manually and is not in use by others, it will be
@@ -128,7 +128,7 @@ message KubernetesService {
     // The external reference that kubedns or equivalent will return as a CNAME record
     // for this service. No proxying will be involved. Must be a valid DNS name and
     // requires `type` to be `ExternalName`.
-    string external_name = 5 [json_name = "external_name"];
+    optional string external_name = 5 [json_name = "external_name"];
 
     // Denotes if this Service desires to route external traffic to node-local or
     // cluster-wide endpoints. `Local` preserves the client source IP and avoids a
@@ -136,17 +136,17 @@ message KubernetesService {
     // imbalanced traffic spreading. `Cluster` obscures the client source IP and may
     // cause a second hop to another node, but should have good overall load-spreading.
     // More info: https://kubernetes.io/docs/tutorials/services/source-ip/
-    string external_traffic_policy = 6 [json_name = "external_traffic_policy"];
+    optional string external_traffic_policy = 6 [json_name = "external_traffic_policy"];
 
     // Specifies the Healthcheck NodePort for the service. Only effects when type is set
     // to `LoadBalancer` and external_traffic_policy is set to `Local`.
-    int64 health_check_node_port = 7 [json_name = "health_check_node_port"];
+    optional int64 health_check_node_port = 7 [json_name = "health_check_node_port"];
 
     // Specifies if the cluster internal traffic should be routed to all endpoints or
     // node-local endpoints only. `Cluster` routes internal traffic to a Service to all
     // endpoints. `Local` routes traffic to node-local endpoints only, traffic is
     // dropped if no node-local endpoints are ready. The default value is `Cluster`.
-    string internal_traffic_policy = 8 [json_name = "internal_traffic_policy"];
+    optional string internal_traffic_policy = 8 [json_name = "internal_traffic_policy"];
 
     // IPFamilies is a list of IP families (e.g. IPv4, IPv6) assigned to this service.
     // This field is usually assigned automatically based on cluster configuration and
@@ -164,7 +164,7 @@ message KubernetesService {
     // IP family on single-stack clusters), or 'RequireDualStack' (two IP families on
     // dual-stack configured clusters, otherwise fail). The ipFamilies and clusterIPs
     // fields depend on the value of this field.
-    string ip_family_policy = 10 [json_name = "ip_family_policy"];
+    optional string ip_family_policy = 10 [json_name = "ip_family_policy"];
 
     // The class of the load balancer implementation this Service belongs to. If
     // specified, the value of this field must be a label-style identifier, with an
@@ -173,13 +173,13 @@ message KubernetesService {
     // This field can only be set when creating or updating a Service to type
     // `LoadBalancer`. More info:
     // ps://kubernetes.io/docs/concepts/services-networking/service/#load-balancer-class
-    string load_balancer_class = 11 [json_name = "load_balancer_class"];
+    optional string load_balancer_class = 11 [json_name = "load_balancer_class"];
 
     // Only applies to `type = LoadBalancer`. LoadBalancer will get created with the IP
     // specified in this field. This feature depends on whether the underlying
     // cloud-provider supports specifying this field when a load balancer is created.
     // This field will be ignored if the cloud-provider does not support the feature.
-    string load_balancer_ip = 12 [json_name = "load_balancer_ip"];
+    optional string load_balancer_ip = 12 [json_name = "load_balancer_ip"];
 
     // If specified and supported by the platform, this will restrict traffic through
     // the cloud-provider load-balancer will be restricted to the specified client IPs.
@@ -192,7 +192,7 @@ message KubernetesService {
     // default value is `false`. The primary use case for setting this field is to use a
     // StatefulSet's Headless Service to propagate `SRV` records for its Pods without
     // respect to their readiness for purpose of peer discovery.
-    bool publish_not_ready_addresses = 14 [json_name = "publish_not_ready_addresses"];
+    optional bool publish_not_ready_addresses = 14 [json_name = "publish_not_ready_addresses"];
 
     // Route service traffic to pods with label keys and values matching this selector.
     // Only applies to types `ClusterIP`, `NodePort`, and `LoadBalancer`. More info:
@@ -202,13 +202,13 @@ message KubernetesService {
     // Used to maintain session affinity. Supports `ClientIP` and `None`. Defaults to
     // `None`. More info:
     // tes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
-    string session_affinity = 16 [json_name = "session_affinity"];
+    optional string session_affinity = 16 [json_name = "session_affinity"];
 
     // Determines how the service is exposed. Defaults to `ClusterIP`. Valid options are
     // `ExternalName`, `ClusterIP`, `NodePort`, and `LoadBalancer`. `ExternalName` maps
     // to the specified `external_name`. More info:
     // s.io/docs/concepts/services-networking/service/#publishing-services-service-types
-    string type = 17;
+    optional string type = 17;
 
     repeated Port port = 18;
 
@@ -219,11 +219,11 @@ message KubernetesService {
       // label syntax. Un-prefixed names are reserved for IANA standard service names (as
       // per RFC-6335 and http://www.iana.org/assignments/service-names). Non-standard
       // protocols should use prefixed names such as mycompany.com/my-custom-protocol.
-      string app_protocol = 1 [json_name = "app_protocol"];
+      optional string app_protocol = 1 [json_name = "app_protocol"];
 
       // The name of this port within the service. All ports within the service must have
       // unique names. Optional if only one ServicePort is defined on this service.
-      string name = 2;
+      optional string name = 2;
 
       // The port on each node on which this service is exposed when `type` is `NodePort`
       // or `LoadBalancer`. Usually assigned by the system. If specified, it will be
@@ -231,19 +231,19 @@ message KubernetesService {
       // Default is to auto-allocate a port if the `type` of this service requires one.
       // More info:
       // https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
-      int64 node_port = 3 [json_name = "node_port"];
+      optional int64 node_port = 3 [json_name = "node_port"];
 
       // The port that will be exposed by this service.
-      int64 port = 4;
+      optional int64 port = 4;
 
       // The IP protocol for this port. Supports `TCP` and `UDP`. Default is `TCP`.
-      string protocol = 5;
+      optional string protocol = 5;
 
       // Number or name of the port to access on the pods targeted by the service. Number
       // must be in the range 1 to 65535. This field is ignored for services with
       // `cluster_ip = "None"`. More info:
       // tps://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
-      string target_port = 6 [json_name = "target_port"];
+      optional string target_port = 6 [json_name = "target_port"];
     }
 
     message SessionAffinityConfig {
@@ -252,24 +252,24 @@ message KubernetesService {
       message ClientIp {
         // Specifies the seconds of `ClientIP` type session sticky time. The value must be >
         // 0 and <= 86400(for 1 day) if `ServiceAffinity` == `ClientIP`.
-        int64 timeout_seconds = 1 [json_name = "timeout_seconds"];
+        optional int64 timeout_seconds = 1 [json_name = "timeout_seconds"];
       }
     }
   }
 
   message Timeouts {
-    string create = 1;
+    optional string create = 1;
   }
 }
 
 // KubernetesServiceAccount version is 0
 message KubernetesServiceAccount {
   // Enable automatic mounting of the service account token
-  bool automount_service_account_token = 1 [json_name = "automount_service_account_token"];
+  optional bool automount_service_account_token = 1 [json_name = "automount_service_account_token"];
 
-  string default_secret_name = 2 [json_name = "default_secret_name"];
+  optional string default_secret_name = 2 [json_name = "default_secret_name"];
 
-  string id = 3;
+  optional string id = 3;
 
   repeated ImagePullSecret image_pull_secret = 4 [json_name = "image_pull_secret"];
 
@@ -283,16 +283,16 @@ message KubernetesServiceAccount {
 
   repeated string depends_on = 9 [json_name = "depends_on"];
 
-  int32 count = 10;
+  optional int32 count = 10;
 
-  string provider = 11;
+  optional string provider = 11;
 
   terraform.v1.Lifecycle lifecycle = 12;
 
   message ImagePullSecret {
     // Name of the referent. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-    string name = 1;
+    optional string name = 1;
   }
 
   message Metadata {
@@ -305,10 +305,10 @@ message KubernetesServiceAccount {
     // has not been provided. This value will also be combined with a unique suffix.
     // More info:
     // ty/blob/master/contributors/devel/sig-architecture/api-conventions.md#idempotency
-    string generate_name = 2 [json_name = "generate_name"];
+    optional string generate_name = 2 [json_name = "generate_name"];
 
     // A sequence number representing a specific generation of the desired state.
-    int64 generation = 3;
+    optional int64 generation = 3;
 
     // Map of string keys and values that can be used to organize and categorize (scope
     // and select) the service account. May match selectors of replication controllers
@@ -318,41 +318,41 @@ message KubernetesServiceAccount {
 
     // Name of the service account, must be unique. Cannot be updated. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-    string name = 5;
+    optional string name = 5;
 
     // Namespace defines the space within which name of the service account must be
     // unique.
-    string namespace = 6;
+    optional string namespace = 6;
 
     // An opaque value that represents the internal version of this service account that
     // can be used by clients to determine when service account has changed. More info:
     // ors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-    string resource_version = 7 [json_name = "resource_version"];
+    optional string resource_version = 7 [json_name = "resource_version"];
 
     // The unique in time and space value for this service account. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
-    string uid = 8;
+    optional string uid = 8;
   }
 
   message Secret {
     // Name of the referent. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-    string name = 1;
+    optional string name = 1;
   }
 
   message Timeouts {
-    string create = 1;
+    optional string create = 1;
   }
 }
 
 // KubernetesServiceAccountV1 version is 0
 message KubernetesServiceAccountV1 {
   // Enable automatic mounting of the service account token
-  bool automount_service_account_token = 1 [json_name = "automount_service_account_token"];
+  optional bool automount_service_account_token = 1 [json_name = "automount_service_account_token"];
 
-  string default_secret_name = 2 [json_name = "default_secret_name"];
+  optional string default_secret_name = 2 [json_name = "default_secret_name"];
 
-  string id = 3;
+  optional string id = 3;
 
   repeated ImagePullSecret image_pull_secret = 4 [json_name = "image_pull_secret"];
 
@@ -366,16 +366,16 @@ message KubernetesServiceAccountV1 {
 
   repeated string depends_on = 9 [json_name = "depends_on"];
 
-  int32 count = 10;
+  optional int32 count = 10;
 
-  string provider = 11;
+  optional string provider = 11;
 
   terraform.v1.Lifecycle lifecycle = 12;
 
   message ImagePullSecret {
     // Name of the referent. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-    string name = 1;
+    optional string name = 1;
   }
 
   message Metadata {
@@ -388,10 +388,10 @@ message KubernetesServiceAccountV1 {
     // has not been provided. This value will also be combined with a unique suffix.
     // More info:
     // ty/blob/master/contributors/devel/sig-architecture/api-conventions.md#idempotency
-    string generate_name = 2 [json_name = "generate_name"];
+    optional string generate_name = 2 [json_name = "generate_name"];
 
     // A sequence number representing a specific generation of the desired state.
-    int64 generation = 3;
+    optional int64 generation = 3;
 
     // Map of string keys and values that can be used to organize and categorize (scope
     // and select) the service account. May match selectors of replication controllers
@@ -401,42 +401,42 @@ message KubernetesServiceAccountV1 {
 
     // Name of the service account, must be unique. Cannot be updated. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-    string name = 5;
+    optional string name = 5;
 
     // Namespace defines the space within which name of the service account must be
     // unique.
-    string namespace = 6;
+    optional string namespace = 6;
 
     // An opaque value that represents the internal version of this service account that
     // can be used by clients to determine when service account has changed. More info:
     // ors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-    string resource_version = 7 [json_name = "resource_version"];
+    optional string resource_version = 7 [json_name = "resource_version"];
 
     // The unique in time and space value for this service account. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
-    string uid = 8;
+    optional string uid = 8;
   }
 
   message Secret {
     // Name of the referent. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-    string name = 1;
+    optional string name = 1;
   }
 
   message Timeouts {
-    string create = 1;
+    optional string create = 1;
   }
 }
 
 // KubernetesServiceV1 version is 1
 message KubernetesServiceV1 {
-  string id = 1;
+  optional string id = 1;
 
   repeated Status status = 2;
 
   // Terraform will wait for the load balancer to have at least 1 endpoint before
   // considering the resource created.
-  bool wait_for_load_balancer = 3 [json_name = "wait_for_load_balancer"];
+  optional bool wait_for_load_balancer = 3 [json_name = "wait_for_load_balancer"];
 
   Metadata metadata = 4;
 
@@ -448,9 +448,9 @@ message KubernetesServiceV1 {
 
   repeated string depends_on = 8 [json_name = "depends_on"];
 
-  int32 count = 9;
+  optional int32 count = 9;
 
-  string provider = 10;
+  optional string provider = 10;
 
   terraform.v1.Lifecycle lifecycle = 11;
 
@@ -464,13 +464,13 @@ message KubernetesServiceV1 {
 
       message Ingress {
         // hostname: string
-        string hostname = 1;
+        optional string hostname = 1;
 
         // ip: string
-        string ip = 2;
+        optional string ip = 2;
 
         // ip_mode: string
-        string ip_mode = 3 [json_name = "ip_mode"];
+        optional string ip_mode = 3 [json_name = "ip_mode"];
       }
     }
   }
@@ -485,10 +485,10 @@ message KubernetesServiceV1 {
     // has not been provided. This value will also be combined with a unique suffix.
     // More info:
     // ty/blob/master/contributors/devel/sig-architecture/api-conventions.md#idempotency
-    string generate_name = 2 [json_name = "generate_name"];
+    optional string generate_name = 2 [json_name = "generate_name"];
 
     // A sequence number representing a specific generation of the desired state.
-    int64 generation = 3;
+    optional int64 generation = 3;
 
     // Map of string keys and values that can be used to organize and categorize (scope
     // and select) the service. May match selectors of replication controllers and
@@ -498,19 +498,19 @@ message KubernetesServiceV1 {
 
     // Name of the service, must be unique. Cannot be updated. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-    string name = 5;
+    optional string name = 5;
 
     // Namespace defines the space within which name of the service must be unique.
-    string namespace = 6;
+    optional string namespace = 6;
 
     // An opaque value that represents the internal version of this service that can be
     // used by clients to determine when service has changed. More info:
     // ors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-    string resource_version = 7 [json_name = "resource_version"];
+    optional string resource_version = 7 [json_name = "resource_version"];
 
     // The unique in time and space value for this service. More info:
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
-    string uid = 8;
+    optional string uid = 8;
   }
 
   message Spec {
@@ -521,7 +521,7 @@ message KubernetesServiceV1 {
     // may only be set for services with type `LoadBalancer`. Default is `true`. More
     // info:
     // s.io/docs/concepts/services-networking/service/#load-balancer-nodeport-allocation
-    bool allocate_load_balancer_node_ports = 1 [json_name = "allocate_load_balancer_node_ports"];
+    optional bool allocate_load_balancer_node_ports = 1 [json_name = "allocate_load_balancer_node_ports"];
 
     // The IP address of the service. It is usually assigned randomly by the master. If
     // an address is specified manually and is not in use by others, it will be
@@ -529,7 +529,7 @@ message KubernetesServiceV1 {
     // can be specified for headless services when proxying is not required. Ignored if
     // type is `ExternalName`. More info:
     // tes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
-    string cluster_ip = 2 [json_name = "cluster_ip"];
+    optional string cluster_ip = 2 [json_name = "cluster_ip"];
 
     // List of IP addresses assigned to this service, and are usually assigned randomly.
     // If an address is specified manually and is not in use by others, it will be
@@ -549,7 +549,7 @@ message KubernetesServiceV1 {
     // The external reference that kubedns or equivalent will return as a CNAME record
     // for this service. No proxying will be involved. Must be a valid DNS name and
     // requires `type` to be `ExternalName`.
-    string external_name = 5 [json_name = "external_name"];
+    optional string external_name = 5 [json_name = "external_name"];
 
     // Denotes if this Service desires to route external traffic to node-local or
     // cluster-wide endpoints. `Local` preserves the client source IP and avoids a
@@ -557,17 +557,17 @@ message KubernetesServiceV1 {
     // imbalanced traffic spreading. `Cluster` obscures the client source IP and may
     // cause a second hop to another node, but should have good overall load-spreading.
     // More info: https://kubernetes.io/docs/tutorials/services/source-ip/
-    string external_traffic_policy = 6 [json_name = "external_traffic_policy"];
+    optional string external_traffic_policy = 6 [json_name = "external_traffic_policy"];
 
     // Specifies the Healthcheck NodePort for the service. Only effects when type is set
     // to `LoadBalancer` and external_traffic_policy is set to `Local`.
-    int64 health_check_node_port = 7 [json_name = "health_check_node_port"];
+    optional int64 health_check_node_port = 7 [json_name = "health_check_node_port"];
 
     // Specifies if the cluster internal traffic should be routed to all endpoints or
     // node-local endpoints only. `Cluster` routes internal traffic to a Service to all
     // endpoints. `Local` routes traffic to node-local endpoints only, traffic is
     // dropped if no node-local endpoints are ready. The default value is `Cluster`.
-    string internal_traffic_policy = 8 [json_name = "internal_traffic_policy"];
+    optional string internal_traffic_policy = 8 [json_name = "internal_traffic_policy"];
 
     // IPFamilies is a list of IP families (e.g. IPv4, IPv6) assigned to this service.
     // This field is usually assigned automatically based on cluster configuration and
@@ -585,7 +585,7 @@ message KubernetesServiceV1 {
     // IP family on single-stack clusters), or 'RequireDualStack' (two IP families on
     // dual-stack configured clusters, otherwise fail). The ipFamilies and clusterIPs
     // fields depend on the value of this field.
-    string ip_family_policy = 10 [json_name = "ip_family_policy"];
+    optional string ip_family_policy = 10 [json_name = "ip_family_policy"];
 
     // The class of the load balancer implementation this Service belongs to. If
     // specified, the value of this field must be a label-style identifier, with an
@@ -594,13 +594,13 @@ message KubernetesServiceV1 {
     // This field can only be set when creating or updating a Service to type
     // `LoadBalancer`. More info:
     // ps://kubernetes.io/docs/concepts/services-networking/service/#load-balancer-class
-    string load_balancer_class = 11 [json_name = "load_balancer_class"];
+    optional string load_balancer_class = 11 [json_name = "load_balancer_class"];
 
     // Only applies to `type = LoadBalancer`. LoadBalancer will get created with the IP
     // specified in this field. This feature depends on whether the underlying
     // cloud-provider supports specifying this field when a load balancer is created.
     // This field will be ignored if the cloud-provider does not support the feature.
-    string load_balancer_ip = 12 [json_name = "load_balancer_ip"];
+    optional string load_balancer_ip = 12 [json_name = "load_balancer_ip"];
 
     // If specified and supported by the platform, this will restrict traffic through
     // the cloud-provider load-balancer will be restricted to the specified client IPs.
@@ -613,7 +613,7 @@ message KubernetesServiceV1 {
     // default value is `false`. The primary use case for setting this field is to use a
     // StatefulSet's Headless Service to propagate `SRV` records for its Pods without
     // respect to their readiness for purpose of peer discovery.
-    bool publish_not_ready_addresses = 14 [json_name = "publish_not_ready_addresses"];
+    optional bool publish_not_ready_addresses = 14 [json_name = "publish_not_ready_addresses"];
 
     // Route service traffic to pods with label keys and values matching this selector.
     // Only applies to types `ClusterIP`, `NodePort`, and `LoadBalancer`. More info:
@@ -623,13 +623,13 @@ message KubernetesServiceV1 {
     // Used to maintain session affinity. Supports `ClientIP` and `None`. Defaults to
     // `None`. More info:
     // tes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
-    string session_affinity = 16 [json_name = "session_affinity"];
+    optional string session_affinity = 16 [json_name = "session_affinity"];
 
     // Determines how the service is exposed. Defaults to `ClusterIP`. Valid options are
     // `ExternalName`, `ClusterIP`, `NodePort`, and `LoadBalancer`. `ExternalName` maps
     // to the specified `external_name`. More info:
     // s.io/docs/concepts/services-networking/service/#publishing-services-service-types
-    string type = 17;
+    optional string type = 17;
 
     repeated Port port = 18;
 
@@ -640,11 +640,11 @@ message KubernetesServiceV1 {
       // label syntax. Un-prefixed names are reserved for IANA standard service names (as
       // per RFC-6335 and http://www.iana.org/assignments/service-names). Non-standard
       // protocols should use prefixed names such as mycompany.com/my-custom-protocol.
-      string app_protocol = 1 [json_name = "app_protocol"];
+      optional string app_protocol = 1 [json_name = "app_protocol"];
 
       // The name of this port within the service. All ports within the service must have
       // unique names. Optional if only one ServicePort is defined on this service.
-      string name = 2;
+      optional string name = 2;
 
       // The port on each node on which this service is exposed when `type` is `NodePort`
       // or `LoadBalancer`. Usually assigned by the system. If specified, it will be
@@ -652,19 +652,19 @@ message KubernetesServiceV1 {
       // Default is to auto-allocate a port if the `type` of this service requires one.
       // More info:
       // https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
-      int64 node_port = 3 [json_name = "node_port"];
+      optional int64 node_port = 3 [json_name = "node_port"];
 
       // The port that will be exposed by this service.
-      int64 port = 4;
+      optional int64 port = 4;
 
       // The IP protocol for this port. Supports `TCP` and `UDP`. Default is `TCP`.
-      string protocol = 5;
+      optional string protocol = 5;
 
       // Number or name of the port to access on the pods targeted by the service. Number
       // must be in the range 1 to 65535. This field is ignored for services with
       // `cluster_ip = "None"`. More info:
       // tps://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
-      string target_port = 6 [json_name = "target_port"];
+      optional string target_port = 6 [json_name = "target_port"];
     }
 
     message SessionAffinityConfig {
@@ -673,12 +673,12 @@ message KubernetesServiceV1 {
       message ClientIp {
         // Specifies the seconds of `ClientIP` type session sticky time. The value must be >
         // 0 and <= 86400(for 1 day) if `ServiceAffinity` == `ClientIP`.
-        int64 timeout_seconds = 1 [json_name = "timeout_seconds"];
+        optional int64 timeout_seconds = 1 [json_name = "timeout_seconds"];
       }
     }
   }
 
   message Timeouts {
-    string create = 1;
+    optional string create = 1;
   }
 }

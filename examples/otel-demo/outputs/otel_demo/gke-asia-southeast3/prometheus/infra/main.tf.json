@@ -1,0 +1,164 @@
+{
+  "resource": {
+    "kubernetes_config_map_v1": {
+      "prometheus": {
+        "data": {
+          "prometheus-config.yaml": "${file(\"${path.module}/prometheus-config.yaml\")}"
+        },
+        "metadata": {
+          "name": "prometheus"
+        }
+      }
+    },
+    "kubernetes_deployment_v1": {
+      "prometheus": {
+        "metadata": {
+          "labels": {
+            "app": "prometheus"
+          },
+          "name": "prometheus"
+        },
+        "spec": {
+          "selector": {
+            "match_labels": {
+              "app": "prometheus"
+            }
+          },
+          "template": {
+            "metadata": {
+              "labels": {
+                "app": "prometheus"
+              }
+            },
+            "spec": {
+              "container": [
+                {
+                  "command": [
+                    "/bin/prometheus",
+                    "--config.file=/etc/prometheus/prometheus-config.yaml",
+                    "--storage.tsdb.path=/prometheus",
+                    "--storage.tsdb.retention.time=7d",
+                    "--web.enable-otlp-receiver",
+                    "--web.enable-lifecycle"
+                  ],
+                  "image": "prom/prometheus:v3.14.0",
+                  "name": "prometheus",
+                  "env": [
+                    {
+                      "name": "OTEL_SERVICE_NAME",
+                      "value": "prometheus"
+                    },
+                    {
+                      "name": "OTEL_RESOURCE_ATTRIBUTES",
+                      "value": "service.version=3.0.0"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                      "value": "cumulative"
+                    }
+                  ],
+                  "port": [
+                    {
+                      "container_port": "9090"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "memory": "512Mi"
+                    }
+                  },
+                  "volume_mount": [
+                    {
+                      "mount_path": "/etc/prometheus/prometheus-config.yaml",
+                      "name": "prometheus",
+                      "read_only": true,
+                      "sub_path": "prometheus-config.yaml"
+                    }
+                  ]
+                }
+              ],
+              "volume": [
+                {
+                  "name": "prometheus",
+                  "config_map": {
+                    "name": "${kubernetes_config_map_v1.prometheus.metadata[0].name}"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "kubernetes_service_v1": {
+      "prometheus": {
+        "metadata": {
+          "labels": {
+            "app": "prometheus"
+          },
+          "name": "prometheus"
+        },
+        "spec": {
+          "selector": {
+            "app": "prometheus"
+          },
+          "port": [
+            {
+              "port": "9090",
+              "target_port": "9090"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "data": {
+    "terraform_remote_state": {
+      "cluster": {
+        "backend": "gcs",
+        "config": {
+              "bucket": "home-run-it-tfstate",
+              "prefix": "gke-asia-southeast3/cluster"
+            }
+      }
+    },
+    "google_client_config": {
+      "gke_auth": {
+        
+      }
+    }
+  },
+  "provider": {
+    "google": [
+      {
+        "project": "home-run-it",
+        "region": "asia-southeast3"
+      }
+    ],
+    "kubernetes": [
+      {
+        "cluster_ca_certificate": "${base64decode(data.terraform_remote_state.cluster.outputs.ca_certificate)}",
+        "host": "https://${data.terraform_remote_state.cluster.outputs.endpoint}",
+        "token": "${data.google_client_config.gke_auth.access_token}"
+      }
+    ]
+  },
+  "terraform": {
+    "required_providers": {
+      "google": {
+        "source": "registry.terraform.io/hashicorp/google",
+        "version": "8.3.0"
+      },
+      "kubernetes": {
+        "source": "registry.terraform.io/hashicorp/kubernetes",
+        "version": "3.2.1"
+      }
+    },
+    "backend": {
+      "gcs": {
+        "bucket": "home-run-it-tfstate",
+        "prefix": "gke-asia-southeast3/prometheus"
+      }
+    }
+  }
+}

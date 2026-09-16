@@ -1,0 +1,7 @@
+{
+  "protoFile": "google/protobuf/struct.proto",
+  "value": {
+    "@type": "type.googleapis.com/google.protobuf.ListValue",
+    "value": []
+  }
+}

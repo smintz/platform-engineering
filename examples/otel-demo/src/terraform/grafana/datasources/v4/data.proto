@@ -10,62 +10,62 @@ import "terraform/v1/meta.proto";
 // GrafanaDataSource version is 0
 message GrafanaDataSource {
   // The method by which Grafana will access the data source: `proxy` or `direct`.
-  string access_mode = 1 [json_name = "access_mode"];
+  optional string access_mode = 1 [json_name = "access_mode"];
 
   // Whether to enable basic auth for the data source.
-  bool basic_auth_enabled = 2 [json_name = "basic_auth_enabled"];
+  optional bool basic_auth_enabled = 2 [json_name = "basic_auth_enabled"];
 
   // Basic auth username.
-  string basic_auth_username = 3 [json_name = "basic_auth_username"];
+  optional string basic_auth_username = 3 [json_name = "basic_auth_username"];
 
   // (Required by some data source types) The name of the database to use on the
   // selected data source server.
-  string database_name = 4 [json_name = "database_name"];
+  optional string database_name = 4 [json_name = "database_name"];
 
-  string id = 5;
+  optional string id = 5;
 
   // Whether to set the data source as default. This should only be `true` to a single
   // data source.
-  bool is_default = 6 [json_name = "is_default"];
+  optional bool is_default = 6 [json_name = "is_default"];
 
   // Serialized JSON string containing the json data. This attribute can be used to
   // pass configuration options to the data source. To figure out what options a
   // datasource has available, see its docs or inspect the network data when saving it
   // from the Grafana UI. Note that keys in this map are usually camelCased.
-  string json_data_encoded = 7 [json_name = "json_data_encoded"];
+  optional string json_data_encoded = 7 [json_name = "json_data_encoded"];
 
-  string name = 8;
+  optional string name = 8;
 
   // The Organization ID. If not set, the Org ID defined in the provider block will be
   // used.
-  string org_id = 9 [json_name = "org_id"];
+  optional string org_id = 9 [json_name = "org_id"];
 
   // (Can only be used with data sources in Grafana Cloud) The ID of the Private Data
   // source Connect network to use with this data source.
-  string private_data_source_connect_network_id = 10 [
+  optional string private_data_source_connect_network_id = 10 [
     json_name = "private_data_source_connect_network_id"
   ];
 
   // The data source type. Must be one of the supported data source keywords.
-  string type = 11;
+  optional string type = 11;
 
-  string uid = 12;
+  optional string uid = 12;
 
   // The URL for the data source. The type of URL required varies depending on the
   // chosen data source type.
-  string url = 13;
+  optional string url = 13;
 
   // (Required by some data source types) The username to use to authenticate to the
   // data source.
-  string username = 14;
+  optional string username = 14;
 
   google.protobuf.Value for_each = 15 [json_name = "for_each"];
 
   repeated string depends_on = 16 [json_name = "depends_on"];
 
-  int32 count = 17;
+  optional int32 count = 17;
 
-  string provider = 18;
+  optional string provider = 18;
 
   terraform.v1.Lifecycle lifecycle = 19;
 }

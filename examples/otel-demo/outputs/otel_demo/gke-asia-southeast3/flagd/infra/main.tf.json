@@ -1,0 +1,200 @@
+{
+  "resource": {
+    "kubernetes_config_map_v1": {
+      "flagd": {
+        "data": {
+          "demo.flagd.json": "${file(\"${path.module}/demo.flagd.json\")}"
+        },
+        "metadata": {
+          "name": "flagd"
+        }
+      }
+    },
+    "kubernetes_deployment_v1": {
+      "flagd": {
+        "metadata": {
+          "labels": {
+            "app": "flagd"
+          },
+          "name": "flagd"
+        },
+        "spec": {
+          "selector": {
+            "match_labels": {
+              "app": "flagd"
+            }
+          },
+          "template": {
+            "metadata": {
+              "labels": {
+                "app": "flagd"
+              }
+            },
+            "spec": {
+              "container": [
+                {
+                  "command": [
+                    "/flagd-build",
+                    "start",
+                    "--port",
+                    "8013",
+                    "--ofrep-port",
+                    "8016",
+                    "--uri",
+                    "file:./etc/flagd/demo.flagd.json"
+                  ],
+                  "image": "ghcr.io/open-feature/flagd:v0.16.0",
+                  "name": "flagd",
+                  "env": [
+                    {
+                      "name": "OTEL_SERVICE_NAME",
+                      "value": "flagd"
+                    },
+                    {
+                      "name": "OTEL_RESOURCE_ATTRIBUTES",
+                      "value": "service.version=3.0.0"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                      "value": "cumulative"
+                    },
+                    {
+                      "name": "GOMEMLIMIT",
+                      "value": "60MiB"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                      "value": "http://otel-collector:4318"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                      "value": "http/protobuf"
+                    },
+                    {
+                      "name": "OTEL_COLLECTOR_HOST",
+                      "value": "otel-collector"
+                    },
+                    {
+                      "name": "OTEL_COLLECTOR_PORT_GRPC",
+                      "value": "4317"
+                    },
+                    {
+                      "name": "OTEL_COLLECTOR_PORT_HTTP",
+                      "value": "4318"
+                    }
+                  ],
+                  "port": [
+                    {
+                      "container_port": "8013"
+                    },
+                    {
+                      "container_port": "8016",
+                      "name": "ofrep"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "memory": "75Mi"
+                    }
+                  },
+                  "volume_mount": [
+                    {
+                      "mount_path": "/etc/flagd",
+                      "name": "flagd",
+                      "read_only": true,
+                      "sub_path": ""
+                    }
+                  ]
+                }
+              ],
+              "volume": [
+                {
+                  "name": "flagd",
+                  "config_map": {
+                    "name": "${kubernetes_config_map_v1.flagd.metadata[0].name}"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "kubernetes_service_v1": {
+      "flagd": {
+        "metadata": {
+          "labels": {
+            "app": "flagd"
+          },
+          "name": "flagd"
+        },
+        "spec": {
+          "selector": {
+            "app": "flagd"
+          },
+          "port": [
+            {
+              "name": "port-8013",
+              "port": "8013",
+              "target_port": "8013"
+            },
+            {
+              "name": "ofrep",
+              "port": "8016",
+              "target_port": "8016"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "data": {
+    "terraform_remote_state": {
+      "cluster": {
+        "backend": "gcs",
+        "config": {
+              "bucket": "home-run-it-tfstate",
+              "prefix": "gke-asia-southeast3/cluster"
+            }
+      }
+    },
+    "google_client_config": {
+      "gke_auth": {
+        
+      }
+    }
+  },
+  "provider": {
+    "google": [
+      {
+        "project": "home-run-it",
+        "region": "asia-southeast3"
+      }
+    ],
+    "kubernetes": [
+      {
+        "cluster_ca_certificate": "${base64decode(data.terraform_remote_state.cluster.outputs.ca_certificate)}",
+        "host": "https://${data.terraform_remote_state.cluster.outputs.endpoint}",
+        "token": "${data.google_client_config.gke_auth.access_token}"
+      }
+    ]
+  },
+  "terraform": {
+    "required_providers": {
+      "google": {
+        "source": "registry.terraform.io/hashicorp/google",
+        "version": "8.3.0"
+      },
+      "kubernetes": {
+        "source": "registry.terraform.io/hashicorp/kubernetes",
+        "version": "3.2.1"
+      }
+    },
+    "backend": {
+      "gcs": {
+        "bucket": "home-run-it-tfstate",
+        "prefix": "gke-asia-southeast3/flagd"
+      }
+    }
+  }
+}

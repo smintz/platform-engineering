@@ -1,0 +1,190 @@
+{
+  "resource": {
+    "kubernetes_deployment_v1": {
+      "checkout": {
+        "metadata": {
+          "labels": {
+            "app": "checkout"
+          },
+          "name": "checkout"
+        },
+        "spec": {
+          "selector": {
+            "match_labels": {
+              "app": "checkout"
+            }
+          },
+          "template": {
+            "metadata": {
+              "labels": {
+                "app": "checkout"
+              }
+            },
+            "spec": {
+              "container": [
+                {
+                  "image": "ghcr.io/open-telemetry/demo:3.0.0-checkout",
+                  "name": "checkout",
+                  "env": [
+                    {
+                      "name": "OTEL_SERVICE_NAME",
+                      "value": "checkout"
+                    },
+                    {
+                      "name": "OTEL_RESOURCE_ATTRIBUTES",
+                      "value": "service.version=3.0.0"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                      "value": "cumulative"
+                    },
+                    {
+                      "name": "CHECKOUT_PORT",
+                      "value": "8080"
+                    },
+                    {
+                      "name": "GOMEMLIMIT",
+                      "value": "16MiB"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                      "value": "http://otel-collector:4318"
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                      "value": "http/protobuf"
+                    },
+                    {
+                      "name": "OTEL_COLLECTOR_HOST",
+                      "value": "otel-collector"
+                    },
+                    {
+                      "name": "OTEL_COLLECTOR_PORT_GRPC",
+                      "value": "4317"
+                    },
+                    {
+                      "name": "OTEL_COLLECTOR_PORT_HTTP",
+                      "value": "4318"
+                    },
+                    {
+                      "name": "FLAGD_HOST",
+                      "value": "flagd"
+                    },
+                    {
+                      "name": "FLAGD_PORT",
+                      "value": "8013"
+                    },
+                    {
+                      "name": "CART_ADDR",
+                      "value": "cart:8080"
+                    },
+                    {
+                      "name": "CURRENCY_ADDR",
+                      "value": "currency:8080"
+                    },
+                    {
+                      "name": "EMAIL_ADDR",
+                      "value": "http://email:8080"
+                    },
+                    {
+                      "name": "PAYMENT_ADDR",
+                      "value": "payment:8080"
+                    },
+                    {
+                      "name": "PRODUCT_CATALOG_ADDR",
+                      "value": "product-catalog:8080"
+                    },
+                    {
+                      "name": "SHIPPING_ADDR",
+                      "value": "http://shipping:8080"
+                    }
+                  ],
+                  "port": [
+                    {
+                      "container_port": "8080"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "memory": "20Mi"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "kubernetes_service_v1": {
+      "checkout": {
+        "metadata": {
+          "labels": {
+            "app": "checkout"
+          },
+          "name": "checkout"
+        },
+        "spec": {
+          "selector": {
+            "app": "checkout"
+          },
+          "port": [
+            {
+              "port": "8080",
+              "target_port": "8080"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "data": {
+    "terraform_remote_state": {
+      "cluster": {
+        "backend": "gcs",
+        "config": {
+              "bucket": "home-run-it-tfstate",
+              "prefix": "gke-asia-southeast3/cluster"
+            }
+      }
+    },
+    "google_client_config": {
+      "gke_auth": {
+        
+      }
+    }
+  },
+  "provider": {
+    "google": [
+      {
+        "project": "home-run-it",
+        "region": "asia-southeast3"
+      }
+    ],
+    "kubernetes": [
+      {
+        "cluster_ca_certificate": "${base64decode(data.terraform_remote_state.cluster.outputs.ca_certificate)}",
+        "host": "https://${data.terraform_remote_state.cluster.outputs.endpoint}",
+        "token": "${data.google_client_config.gke_auth.access_token}"
+      }
+    ]
+  },
+  "terraform": {
+    "required_providers": {
+      "google": {
+        "source": "registry.terraform.io/hashicorp/google",
+        "version": "8.3.0"
+      },
+      "kubernetes": {
+        "source": "registry.terraform.io/hashicorp/kubernetes",
+        "version": "3.2.1"
+      }
+    },
+    "backend": {
+      "gcs": {
+        "bucket": "home-run-it-tfstate",
+        "prefix": "gke-asia-southeast3/checkout"
+      }
+    }
+  }
+}

@@ -158,5 +158,5 @@ message Grafana {
 
   optional string provider_fqdn = 36 [default = "registry.terraform.io/grafana/grafana"];
 
-  optional string provider_version = 37 [default = "4.45.2"];
+  optional string provider_version = 37 [default = "4.46.0"];
 }
