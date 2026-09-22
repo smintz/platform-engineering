@@ -124,7 +124,8 @@ def main():
         # Grafana's token is minted per job and only on the jobs whose config declares the
         # provider, so the monitoring states get one and the Kubernetes states never do.
         actions.GrafanaServiceAccountToken(
-            actions.OidcCredentials("us-east-1"),
+            # no credentials: CI has no role to assume for this test stack
+            lambda phase, config: [],
             workspace = "${{ vars.GRAFANA_WORKSPACE_ID }}",
             plan_account = "protoconf-plan",
             apply_account = "protoconf-apply",
