@@ -2682,19 +2682,47 @@ jobs:
           // all about any state. Everything below is spent staying under that.
           const BUDGET = 60000;
 
+          // Every plan is uploaded as an artifact; its id is what a link to it needs, and only the
+          // API knows it. A run can upload more than a page of them, so page through.
+          const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
+            ...context.repo, run_id: runId, per_page: 100 });
+          const artifactUrl = Object.fromEntries(artifacts.map(a => [a.name,
+            `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}/artifacts/${a.id}`]));
+
+          // The line a reader wants from a plan is its last one: "Plan: 2 to add, 0 to change, 0 to
+          // destroy." (with "N to import" first when there are imports). It is always complete,
+          // however large the plan, which is what the table needs — the plans themselves are
+          // truncated below to fit the comment, and this line is how a reader knows what was cut.
+          // A plan that only changes outputs has no such line; its "Changes to Outputs:" heading is
+          // the tell.
+          function summary(text) {
+            const plan = text.match(/^Plan: .*$/m);
+            if (plan) return plan[0];
+            if (/^Changes to Outputs:/m.test(text)) return 'Outputs only';
+            return 'changes';
+          }
+
           const rows = [];
           const changed = [];
           for (const p of plans) {
             const job = needs[p.job] || {};
             const result = job.result || 'skipped';
             const changes = (job.outputs || {}).changes;
-            rows.push(`| \`${p.label}\` | ${result === 'success' ? (changes === 'true' ? 'changes' : 'no changes') : result} |`);
-            if (result !== 'success' || changes !== 'true') continue;
+            const artifact = `tfplan-${p.slug}-${runId}`;
+            if (result !== 'success' || changes !== 'true') {
+              rows.push(`| \`${p.label}\` | ${result === 'success' ? 'No changes.' : result} |`);
+              continue;
+            }
+            let text = null;
             try {
-              changed.push({ label: p.label, text: fs.readFileSync(`plans/tfplan-${p.slug}-${runId}/plan.txt`, 'utf8') });
+              text = fs.readFileSync(`plans/${artifact}/plan.txt`, 'utf8');
             } catch (e) {
               core.warning(`no plan artifact for ${p.label}`);
             }
+            const line = text === null ? 'changes' : summary(text);
+            const url = artifactUrl[artifact];
+            rows.push(`| \`${p.label}\` | ${url ? `[${line}](${url})` : line} |`);
+            if (text !== null) changed.push({ label: p.label, text, url });
           }
 
           const header = `${tag}
@@ -2709,12 +2737,13 @@ jobs:
           // budget equally, so one enormous plan cannot crowd every other state out of the comment.
           const share = changed.length ? Math.floor((BUDGET - header.length) / changed.length) - 200 : 0;
           const details = changed.map(c => {
-            const text = c.text.length > share ? c.text.slice(0, Math.max(share, 0)) + '\n... truncated, see the artifact' : c.text;
+            const text = c.text.length > share ? c.text.slice(0, Math.max(share, 0)) + '\n... truncated' : c.text;
+            const more = c.text.length > share && c.url ? `\n\nTruncated to fit the comment — [the whole plan](${c.url}).` : '';
             return `<details><summary><code>${c.label}</code></summary>
 
           \`\`\`hcl
           ${text}
-          \`\`\`
+          \`\`\`${more}
 
           </details>`;
           }).join('\n');
@@ -2740,6 +2769,7 @@ name: otel-demo-gke
   - cron: 0 3 * * *
   workflow_dispatch: {}
 permissions:
+  actions: read
   contents: read
   id-token: write
   pull-requests: write

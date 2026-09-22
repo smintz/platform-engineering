@@ -6,7 +6,7 @@
       "url": "../../drivers/cluster/gke",
       "branch": "main",
       "sourcePath": "src",
-      "getterUrl": "file:///Users/smintz/git/platform-engineering/drivers/cluster/gke?ref=main",
+      "getterUrl": "file:///tmp/claude-1000/-workspaces-leap-infra/a40222d2-23d2-43c7-8008-79eb76d535b8/scratchpad/platform-engineering/drivers/cluster/gke?ref=main",
       "fileDescriptorSetSum": "175efcd4efc85c703041c54e3fd5b484"
     },
     "platform": {
@@ -14,7 +14,7 @@
       "url": "../..",
       "branch": "main",
       "sourcePath": "src",
-      "getterUrl": "file:///Users/smintz/git/platform-engineering?ref=main",
+      "getterUrl": "file:///tmp/claude-1000/-workspaces-leap-infra/a40222d2-23d2-43c7-8008-79eb76d535b8/scratchpad/platform-engineering?ref=main",
       "fileDescriptorSetSum": "b1294967e96fdad58f1751bcf03ba663"
     },
     "terraform_state": {
@@ -22,7 +22,7 @@
       "url": "../../drivers/state/terraform",
       "branch": "main",
       "sourcePath": "src",
-      "getterUrl": "file:///Users/smintz/git/platform-engineering/drivers/state/terraform?ref=main",
+      "getterUrl": "file:///tmp/claude-1000/-workspaces-leap-infra/a40222d2-23d2-43c7-8008-79eb76d535b8/scratchpad/platform-engineering/drivers/state/terraform?ref=main",
       "fileDescriptorSetSum": "175efcd4efc85c703041c54e3fd5b484"
     }
   }
