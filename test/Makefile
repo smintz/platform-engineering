@@ -1,14 +1,10 @@
 test:
 	protoconf mod tidy
 	protoconf compile .
-	$(MAKE) workflows
 	$(MAKE) gates
 
-# GitHub only reads .github/workflows at the repository root, so the workflow the compiler
-# writes under outputs/ is installed there. Generated: edit core_test.mpconf, not the yaml.
-workflows:
-	mkdir -p ../.github/workflows
-	cp outputs/core_test/.github/workflows/*.yaml ../.github/workflows/
+# The fixture's pipeline stays under outputs/ and is never installed at the repository root:
+# its S3 backend is a placeholder no runner can reach, so it is drift-checked, not run.
 
 # The two compile gates in the CI driver are the only thing standing between a component and
 # a Terraform state CI throws away on every apply. Nothing above this target defends them:
