@@ -18,11 +18,6 @@ jobs:
     steps:
     - id: checkout
       uses: actions/checkout@v4
-    - id: aws-credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-region: us-east-1
-        role-to-assume: ${{ vars.TF_APPLY_ROLE }}
     - id: setup-terraform
       uses: hashicorp/setup-terraform@v3
       with:
@@ -59,11 +54,6 @@ jobs:
     steps:
     - id: checkout
       uses: actions/checkout@v4
-    - id: aws-credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-region: us-east-1
-        role-to-assume: ${{ vars.TF_APPLY_ROLE }}
     - id: grafana-token
       run: |
         set -euo pipefail
@@ -134,11 +124,6 @@ jobs:
     steps:
     - id: checkout
       uses: actions/checkout@v4
-    - id: aws-credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-region: us-east-1
-        role-to-assume: ${{ vars.TF_APPLY_ROLE }}
     - id: setup-terraform
       uses: hashicorp/setup-terraform@v3
       with:
@@ -175,11 +160,6 @@ jobs:
     steps:
     - id: checkout
       uses: actions/checkout@v4
-    - id: aws-credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-region: us-east-1
-        role-to-assume: ${{ vars.TF_APPLY_ROLE }}
     - id: grafana-token
       run: |
         set -euo pipefail
@@ -249,11 +229,6 @@ jobs:
     steps:
     - id: checkout
       uses: actions/checkout@v4
-    - id: aws-credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-region: us-east-1
-        role-to-assume: ${{ vars.TF_PLAN_ROLE }}
     - id: setup-terraform
       uses: hashicorp/setup-terraform@v3
       with:
@@ -309,11 +284,6 @@ jobs:
     steps:
     - id: checkout
       uses: actions/checkout@v4
-    - id: aws-credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-region: us-east-1
-        role-to-assume: ${{ vars.TF_PLAN_ROLE }}
     - id: grafana-token
       run: |
         set -euo pipefail
@@ -403,11 +373,6 @@ jobs:
     steps:
     - id: checkout
       uses: actions/checkout@v4
-    - id: aws-credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-region: us-east-1
-        role-to-assume: ${{ vars.TF_PLAN_ROLE }}
     - id: setup-terraform
       uses: hashicorp/setup-terraform@v3
       with:
@@ -463,11 +428,6 @@ jobs:
     steps:
     - id: checkout
       uses: actions/checkout@v4
-    - id: aws-credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-region: us-east-1
-        role-to-assume: ${{ vars.TF_PLAN_ROLE }}
     - id: grafana-token
       run: |
         set -euo pipefail

@@ -57,14 +57,6 @@
             "uses": "actions/checkout@v4"
           },
           {
-            "id": "aws-credentials",
-            "uses": "aws-actions/configure-aws-credentials@v4",
-            "with": {
-              "aws-region": "us-east-1",
-              "role-to-assume": "${{ vars.TF_APPLY_ROLE }}"
-            }
-          },
-          {
             "id": "setup-terraform",
             "uses": "hashicorp/setup-terraform@v3",
             "with": {
@@ -119,14 +111,6 @@
           {
             "id": "checkout",
             "uses": "actions/checkout@v4"
-          },
-          {
-            "id": "aws-credentials",
-            "uses": "aws-actions/configure-aws-credentials@v4",
-            "with": {
-              "aws-region": "us-east-1",
-              "role-to-assume": "${{ vars.TF_APPLY_ROLE }}"
-            }
           },
           {
             "id": "grafana-token",
@@ -189,14 +173,6 @@
             "uses": "actions/checkout@v4"
           },
           {
-            "id": "aws-credentials",
-            "uses": "aws-actions/configure-aws-credentials@v4",
-            "with": {
-              "aws-region": "us-east-1",
-              "role-to-assume": "${{ vars.TF_APPLY_ROLE }}"
-            }
-          },
-          {
             "id": "setup-terraform",
             "uses": "hashicorp/setup-terraform@v3",
             "with": {
@@ -251,14 +227,6 @@
           {
             "id": "checkout",
             "uses": "actions/checkout@v4"
-          },
-          {
-            "id": "aws-credentials",
-            "uses": "aws-actions/configure-aws-credentials@v4",
-            "with": {
-              "aws-region": "us-east-1",
-              "role-to-assume": "${{ vars.TF_APPLY_ROLE }}"
-            }
           },
           {
             "id": "grafana-token",
@@ -316,14 +284,6 @@
           {
             "id": "checkout",
             "uses": "actions/checkout@v4"
-          },
-          {
-            "id": "aws-credentials",
-            "uses": "aws-actions/configure-aws-credentials@v4",
-            "with": {
-              "aws-region": "us-east-1",
-              "role-to-assume": "${{ vars.TF_PLAN_ROLE }}"
-            }
           },
           {
             "id": "setup-terraform",
@@ -390,14 +350,6 @@
           {
             "id": "checkout",
             "uses": "actions/checkout@v4"
-          },
-          {
-            "id": "aws-credentials",
-            "uses": "aws-actions/configure-aws-credentials@v4",
-            "with": {
-              "aws-region": "us-east-1",
-              "role-to-assume": "${{ vars.TF_PLAN_ROLE }}"
-            }
           },
           {
             "id": "grafana-token",
@@ -470,14 +422,6 @@
             "uses": "actions/checkout@v4"
           },
           {
-            "id": "aws-credentials",
-            "uses": "aws-actions/configure-aws-credentials@v4",
-            "with": {
-              "aws-region": "us-east-1",
-              "role-to-assume": "${{ vars.TF_PLAN_ROLE }}"
-            }
-          },
-          {
             "id": "setup-terraform",
             "uses": "hashicorp/setup-terraform@v3",
             "with": {
@@ -542,14 +486,6 @@
           {
             "id": "checkout",
             "uses": "actions/checkout@v4"
-          },
-          {
-            "id": "aws-credentials",
-            "uses": "aws-actions/configure-aws-credentials@v4",
-            "with": {
-              "aws-region": "us-east-1",
-              "role-to-assume": "${{ vars.TF_PLAN_ROLE }}"
-            }
           },
           {
             "id": "grafana-token",
