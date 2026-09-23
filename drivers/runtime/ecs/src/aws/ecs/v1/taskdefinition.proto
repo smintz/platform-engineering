@@ -15,7 +15,7 @@ message ContainerDefinition {
   repeated string extra_hosts = 10; // Hostname:IP mappings to add to /etc/hosts
   bool essential = 11; // If true, all other containers that are part of the task must stop if this container fails
   repeated FirelensConfiguration firelens_configuration = 12; // FireLens configuration
-  repeated HealthCheck health_check = 13; // Container health check command and parameters
+  HealthCheck health_check = 13; // Container health check command and parameters
   string hostname = 14; // Hostname to use for the container
   string image = 15; // The image used to start a container
   bool interactive = 16; // When enabled, you can deploy containerized applications that require stdin or tty
@@ -49,7 +49,7 @@ message ContainerDefinition {
   }
 
   message HealthCheck {
-    string command = 1; // The command to run to determine if a container is healthy
+    repeated string command = 1; // The command to run to determine if a container is healthy
     int32 interval = 2; // The time period in seconds between each health check
     int32 timeout = 3; // The time period in seconds to wait for a health check to succeed
     int32 retries = 4; // The number of times to retry a failed health check
