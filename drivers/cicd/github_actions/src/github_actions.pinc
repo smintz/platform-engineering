@@ -454,8 +454,9 @@ for (const p of plans) {
   const result = job.result || 'skipped';
   const changes = (job.outputs || {}).changes;
   const artifact = `tfplan-${p.slug}-${runId}`;
+  const name = '`' + p.label + '`' + (p.frozen ? ` (frozen: ${p.frozen})` : '');
   if (result !== 'success' || changes !== 'true') {
-    rows.push(`| \\`${p.label}\\` | ${result === 'success' ? 'No changes.' : result} |`);
+    rows.push(`| ${name} | ${result === 'success' ? 'No changes.' : result} |`);
     continue;
   }
   let text = null;
@@ -466,7 +467,7 @@ for (const p of plans) {
   }
   const line = text === null ? 'changes' : summary(text);
   const url = artifactUrl[artifact];
-  rows.push(`| \\`${p.label}\\` | ${url ? `[${line}](${url})` : line} |`);
+  rows.push(`| ${name} | ${url ? `[${line}](${url})` : line} |`);
   if (text !== null) changed.push({ label: p.label, text, url });
 }
 
@@ -572,7 +573,8 @@ def _plan_job(
         credentials,
         terraform_version,
         config,
-        private_runner):
+        private_runner,
+        frozen):
     id = _plan_id(key)
     label = _dir(key)
     artifact = "tfplan-%s-${{ github.run_id }}" % _slug(_dir(key))
@@ -598,15 +600,22 @@ def _plan_job(
                 }
             ),
         ),
-        # a nightly plan that still has changes means somebody changed this state by hand
-        lib.Step(
-            "drift",
-            lib.If(
-                "github.event_name == 'schedule' && steps.plan.outputs.changes == 'true'",
-            ),
-            lib.Cmd('echo "::error::drift detected in %s"\nexit 1' % label),
-        ),
     ]
+
+    # a nightly plan that still has changes means somebody changed this state by hand — which
+    # is exactly what a freeze is usually declared for, so a frozen state gets no drift check.
+    # Keeping it would guarantee a red nightly build for as long as the freeze lasts, and an
+    # alarm that is known to be firing for a known reason is one people stop reading.
+    if not frozen:
+        steps.append(
+            lib.Step(
+                "drift",
+                lib.If(
+                    "github.event_name == 'schedule' && steps.plan.outputs.changes == 'true'",
+                ),
+                lib.Cmd('echo "::error::drift detected in %s"\nexit 1' % label),
+            ),
+        )
 
     return lib.Job(
         id,
@@ -628,7 +637,8 @@ def _apply_job(
         terraform_version,
         environment,
         config,
-        private_runner):
+        private_runner,
+        frozen):
     id = _apply_id(key)
     plan = _plan_id(key)
     label = _dir(key)
@@ -649,19 +659,27 @@ def _apply_job(
         ),
     ]
 
+    # A frozen state is planned like any other and applied by nobody, until the freeze is
+    # lifted. `if: false` rather than leaving the job out: downstream plan jobs `needs` this
+    # id, so an absent apply is not a smaller workflow but an invalid one — and a job that is
+    # present and skipped is a box in the run that says, with its reason in its name, that
+    # this state was held back rather than applied. A run that silently omitted it would look
+    # exactly like a run with nothing to do.
+    if frozen:
+        condition = "false"
+    else:
+        # The status check has to be spelled out here. Without one GitHub adds an implicit
+        # `success()`, and that looks at every job upstream, not only `needs`: an upstream
+        # apply skipped for having nothing to do — or for being frozen — would skip this
+        # apply with it, however much its own plan found.
+        condition = "!cancelled() && !failure() && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.%s.outputs.changes == 'true'" % plan
+
     hooks = [
-        lib.Name("apply %s" % label),
+        lib.Name("apply %s%s" % (label, " (frozen: %s)" % frozen if frozen else "")),
         # `needs` is only the matching plan: that plan already waited for the upstream
         # applies, so ordering between states is inherited rather than restated.
         lib.Needs(plan),
-        # The status check has to be spelled out here too. Without one GitHub adds an
-        # implicit `success()`, and that looks at every job upstream, not only `needs`: an
-        # upstream apply skipped for having nothing to do would skip this apply with it,
-        # however much its own plan found.
-        lib.If(
-            "!cancelled() && !failure() && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.%s.outputs.changes == 'true'" %
-            plan,
-        ),
+        lib.If(condition),
         lib.Defaults(working_directory = directory),
     ] + _runs_on(config, private_runner)
     if environment:
@@ -671,11 +689,19 @@ def _apply_job(
 
 # _comment_job is the only job that writes to the pull request. It waits for every plan,
 # collects the plans they uploaded and says in one comment what the whole run found.
-def _comment_job(keys):
-    manifest = [
-        {"job": _plan_id(key), "slug": _slug(_dir(key)), "label": _dir(key)}
-        for key in keys
-    ]
+def _comment_job(keys, frozen):
+    manifest = []
+    for key in keys:
+        entry = {"job": _plan_id(key), "slug": _slug(_dir(key)), "label": _dir(key)}
+
+        # The comment is where a reviewer reads what merging will do, so a plan whose apply
+        # will not run has to say so here too and not only in the run's job list — otherwise
+        # the review sees a plan full of changes, approves it, and nothing happens.
+        # Set only when there is a freeze, so a pipeline that freezes nothing keeps the
+        # manifest it had.
+        if frozen.get(key):
+            entry["frozen"] = frozen[key]
+        manifest.append(entry)
 
     return lib.Job(
         COMMENT_JOB_ID,
@@ -703,6 +729,43 @@ def _comment_job(keys):
         ),
     )
 
+# _frozen_configs turns {"<domain>/<name>": reason} — what platform.FrozenComponents returns
+# — into {"<config key>": reason}, because a component is what somebody freezes and a config
+# is what this driver has jobs for. A component's configs are the keys under its prefix; the
+# prefix itself is never a key, since every config carries a name after it.
+#
+# Nothing here expands the freeze to anything else: FrozenComponents already walked the
+# component graph, and the closure it produced covers more than this driver's own ordering
+# could. Two components can depend on each other without exchanging any Terraform state —
+# a cache reached over the network, a queue — and that dependency is invisible in the
+# terraform_remote_state edges this file derives its job order from. Re-deriving the reach
+# here would quietly narrow it.
+def _frozen_configs(configs, frozen):
+    reason = {}
+    for component in sorted(frozen.keys()):
+        for key in sorted(configs.keys()):
+            if key.startswith(component + "/"):
+                reason[key] = frozen[component]
+
+    # A single frozen component matching no config here is ordinary and quiet: a component
+    # that provisions nothing of its own renders no config to freeze, and its dependencies —
+    # which do — are in this map under their own names.
+    #
+    # The whole set matching nothing is a different thing, and it is silent in the worst way:
+    # every state this pipeline knows about goes on applying while somebody believes a freeze
+    # is in force. It is what a freeze handed to the wrong pipeline looks like — this driver
+    # is called once per domain in a multi-domain stack — and what a hand-written map keyed
+    # on something other than "<domain>/<name>" looks like.
+    if frozen and not reason:
+        fail(
+            ("TerraformPipeline: %s frozen, and no Terraform config in this pipeline " +
+             "belongs to any of them, so this pipeline would apply every state it has. A " +
+             "freeze is keyed by component as \"<domain>/<name>\" — the prefix its config " +
+             "keys carry — so check this is the pipeline, and the domain, that was meant.") %
+            ", ".join(sorted(frozen.keys())),
+        )
+    return reason
+
 # TerraformPipeline writes one workflow for every Terraform config in `configs` — the
 # map GetConfigs returns — rooted at `output_root`, the directory the compiler wrote those
 # configs to. Each config gets a plan job and an apply job, and the plan jobs are ordered
@@ -711,6 +774,10 @@ def _comment_job(keys):
 # `configs` is keyed by "<domain>/<name>/<config>.tf.json", which is exactly the path under
 # `output_root` the compiler wrote, so a config's working directory needs no extra
 # bookkeeping — it is the key's directory.
+#
+# `frozen` is what platform.FrozenComponents(root) returns: the components nobody may apply
+# for now, and why. Their states are still planned — a freeze is not a reason to stop looking
+# — and their applies are emitted skipped.
 def TerraformPipeline(
         configs,
         output_root,
@@ -720,7 +787,8 @@ def TerraformPipeline(
         environment = "",
         drift_cron = "0 3 * * *",
         paths = None,
-        private_runner = ""):
+        private_runner = "",
+        frozen = {}):
     # GetConfigs also returns the plain config files a component renders beside its state
     # (a Struct under the same directory). Terraform applies the directory and those ride
     # along; only the Terraform configs are states, so only they become jobs.
@@ -754,6 +822,8 @@ def TerraformPipeline(
             fail("%s and %s produce the same job id %s" % (owner[id], key, id))
         owner[id] = key
 
+    frozen = _frozen_configs(configs, frozen)
+
     jobs = []
     for key in sorted(configs.keys()):
         directory = "%s/%s" % (output_root, _dir(key))
@@ -766,6 +836,7 @@ def TerraformPipeline(
                 terraform_version,
                 configs[key],
                 private_runner,
+                frozen.get(key, ""),
             ),
         )
         jobs.append(
@@ -777,9 +848,10 @@ def TerraformPipeline(
                 environment,
                 configs[key],
                 private_runner,
+                frozen.get(key, ""),
             ),
         )
-    jobs.append(_comment_job(sorted(configs.keys())))
+    jobs.append(_comment_job(sorted(configs.keys()), frozen))
 
     triggers = [
         lib.OnPullRequest(paths = paths),

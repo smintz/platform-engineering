@@ -1,0 +1,147 @@
+load("@github_actions//github_actions.pinc", "actions")
+load("@kubernetes//kubernetes.pinc", "Workload")
+load("@platform//platform/platform.pinc", "platform")
+load("@terraform_state//terraform.pinc", "S3Backend", "WithState")
+
+# What the golden files cannot see, part three. A freeze is a hook that makes a job NOT run,
+# and nothing under outputs/ or materialized_config/ can tell "the freeze reached this apply"
+# from "the freeze has never been asked to reach anything": this repo's reference stacks
+# freeze nothing, so every apply in them is unfrozen whether the feature works or not. This
+# file asks the question, in the build that already runs.
+#
+# The property under test is the reach. Freezing a component holds its own applies AND the
+# applies of everything it depends on, because a component whose dependencies keep applying
+# is not frozen — the ground it stands on is still moving. The graph below is built so that
+# reach cannot be faked: `api` declares a dependency on `db` and the two exchange no
+# Terraform state at all, so the freeze has to travel along the COMPONENT graph. A version
+# that expanded the freeze along the driver's own apply-ordering edges — which are derived
+# from terraform_remote_state, and of which there are none here — would leave `db` applying
+# under a frozen `api` and would pass every other check in this file.
+#
+# main() returns an empty dict on purpose: an .mpconf with no keys writes no output file, so
+# this costs zero golden-file surface while still compiling on every `make test`.
+
+# Where these states would live if anything ever applied them. Nothing does; the bucket is
+# named as a fixture so it cannot be read as a second live stack.
+BACKEND = S3Backend(
+    "freeze-test-fixture",
+    "us-east-1",
+    lambda domain, name: "%s/%s.tfstate" % (domain, name),
+)
+
+DOMAIN = "freeze"
+
+# The reason carried by the freeze. Asserted on rather than ignored, because the reason is
+# what an operator reads off a skipped job to decide whether the freeze may come off, and a
+# freeze that loses it on the way through is a freeze nobody can lift.
+REASON = "migrating by hand"
+
+# Never written to: TerraformPipeline needs a root to resolve working directories against.
+OUTPUT_ROOT = "test/outputs/freeze_test"
+
+def DbComponent(*hooks):
+    return platform.Component(
+        "db",
+        WithState(lambda component: Workload("db", "postgres:16", 5432), BACKEND),
+        *hooks
+    )
+
+# api is the component the freeze is declared on, and it depends on db without reading a
+# single value out of db's state — see the header. The freeze sits in the component
+# definition because that is where a real one goes: the team that owns the component adds
+# the hook when it needs holding still and deletes the line when it does not.
+def ApiComponent(*hooks):
+    return platform.Component(
+        "api",
+        WithState(lambda component: Workload("api", "ghcr.io/example/api:latest", 8080), BACKEND),
+        platform.WithDeps(DbComponent),
+        platform.WithFreeze(REASON),
+        *hooks
+    )
+
+# The control. It is in the same pipeline and under the same root, and nothing freezes it: a
+# freeze that reached it would be one that froze the whole workflow, which passes an
+# assertion that only ever looks at the states it expected to be frozen.
+def WorkerComponent(*hooks):
+    return platform.Component(
+        "worker",
+        WithState(lambda component: Workload("worker", "ghcr.io/example/worker:latest", 8080), BACKEND),
+        *hooks
+    )
+
+def TopComponent(*hooks):
+    return platform.Component(
+        "top",
+        WithState(lambda component: Workload("top", "ghcr.io/example/top:latest", 8080), BACKEND),
+        platform.WithDeps(ApiComponent, WorkerComponent),
+        *hooks
+    )
+
+def main():
+    root = TopComponent(platform.WithFailureDomain(DOMAIN)).msg
+
+    frozen = platform.FrozenComponents(root)
+    expected = {
+        "%s/api" % DOMAIN: REASON,
+        "%s/db" % DOMAIN: REASON,
+    }
+    if frozen != expected:
+        fail(
+            ("freeze_test: expected the freeze on api to reach api and the db it depends " +
+             "on, %s, but got %s. A missing db means the freeze stops at the component it " +
+             "was declared on, which leaves a frozen component's dependencies applying " +
+             "underneath it; an entry for top or worker means it travelled downstream to " +
+             "components nobody froze.") % (expected, frozen),
+        )
+
+    workflow = actions.TerraformPipeline(
+        platform.GetConfigs(root),
+        OUTPUT_ROOT,
+        # no credentials: nothing here is ever applied
+        lambda phase, config: [],
+        frozen = frozen,
+    )
+
+    # Composed rather than hardcoded: the job id layout is the driver's business, and a
+    # literal here would keep passing against ids the driver no longer emits.
+    def apply_id(name):
+        return "apply_%s_%s_infra" % (DOMAIN, name)
+
+    def plan_id(name):
+        return "plan_%s_%s_infra" % (DOMAIN, name)
+
+    for name in ("api", "db"):
+        job = workflow.jobs.get(apply_id(name))
+        if not job:
+            fail("freeze_test: no apply job %s in the workflow — the fixture's job ids no longer match the driver's" % apply_id(name))
+
+        # `if: false` and not an absent job: downstream plan jobs `needs` this id, and the
+        # skipped job is what tells an operator the state was held back rather than applied.
+        if job.if_condition != "false":
+            fail(
+                ("freeze_test: %s is frozen but its apply job would still run — expected " +
+                 "if: false, got %r. Anything else here is a condition that can evaluate " +
+                 "true, which is an apply of a state somebody froze.") %
+                (name, job.if_condition),
+            )
+        if REASON not in job.name:
+            fail(
+                ("freeze_test: the apply job for %s does not carry the freeze reason in " +
+                 "its name (%r), so the run shows a skipped job and no way to tell why") %
+                (name, job.name),
+            )
+
+        # The plan still runs. A freeze stops applies, not looking: the plan is the only
+        # thing that keeps saying what the frozen state would do if it were released.
+        if workflow.jobs[plan_id(name)].if_condition == "false":
+            fail("freeze_test: %s is frozen and its PLAN job was disabled too — a freeze hides nothing, it only stops applies" % name)
+
+    # The control, and the reason this file cannot pass by freezing everything.
+    for name in ("top", "worker"):
+        job = workflow.jobs[apply_id(name)]
+        if job.if_condition == "false":
+            fail("freeze_test: %s was frozen and nothing froze it — the freeze reached past the component it was declared on and the components that one depends on" % name)
+        if REASON in job.name:
+            fail("freeze_test: %s is not frozen but its apply job is named as though it were: %r" % (name, job.name))
+
+    return {}
