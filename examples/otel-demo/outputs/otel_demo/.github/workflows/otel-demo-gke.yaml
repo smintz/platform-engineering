@@ -18,21 +18,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_ad_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/ad/infra/.terraform.lock.hcl')
@@ -42,7 +42,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_ad_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/ad/infra
@@ -61,21 +61,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_astronomy_db_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/astronomy-db/infra/.terraform.lock.hcl')
@@ -85,7 +85,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_astronomy_db_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/astronomy-db/infra
@@ -104,21 +104,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_cart_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cart/infra/.terraform.lock.hcl')
@@ -128,7 +128,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_cart_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cart/infra
@@ -147,21 +147,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_checkout_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/checkout/infra/.terraform.lock.hcl')
@@ -171,7 +171,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_checkout_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/checkout/infra
@@ -190,21 +190,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_cluster_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cluster/infra/.terraform.lock.hcl')
@@ -214,7 +214,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_cluster_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cluster/infra
@@ -233,21 +233,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_currency_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/currency/infra/.terraform.lock.hcl')
@@ -257,7 +257,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_currency_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/currency/infra
@@ -276,21 +276,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_email_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/email/infra/.terraform.lock.hcl')
@@ -300,7 +300,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_email_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/email/infra
@@ -319,21 +319,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_flagd_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd/infra/.terraform.lock.hcl')
@@ -343,7 +343,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_flagd_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd/infra
@@ -362,21 +362,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_flagd_ui_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd-ui/infra/.terraform.lock.hcl')
@@ -386,7 +386,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_flagd_ui_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd-ui/infra
@@ -405,21 +405,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_frontend_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend/infra/.terraform.lock.hcl')
@@ -429,7 +429,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_frontend_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend/infra
@@ -448,21 +448,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_frontend_proxy_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend-proxy/infra/.terraform.lock.hcl')
@@ -472,7 +472,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_frontend_proxy_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend-proxy/infra
@@ -491,21 +491,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_grafana_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/grafana/infra/.terraform.lock.hcl')
@@ -515,7 +515,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_grafana_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/grafana/infra
@@ -534,21 +534,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_image_provider_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/image-provider/infra/.terraform.lock.hcl')
@@ -558,7 +558,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_image_provider_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/image-provider/infra
@@ -577,21 +577,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_jaeger_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/jaeger/infra/.terraform.lock.hcl')
@@ -601,7 +601,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_jaeger_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/jaeger/infra
@@ -620,21 +620,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_load_generator_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/load-generator/infra/.terraform.lock.hcl')
@@ -644,7 +644,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_load_generator_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/load-generator/infra
@@ -663,21 +663,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_network_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/network/infra/.terraform.lock.hcl')
@@ -687,7 +687,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_network_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/network/infra
@@ -706,21 +706,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_otel_collector_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/otel-collector/infra/.terraform.lock.hcl')
@@ -730,7 +730,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_otel_collector_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/otel-collector/infra
@@ -749,21 +749,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_payment_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/payment/infra/.terraform.lock.hcl')
@@ -773,7 +773,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_payment_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/payment/infra
@@ -792,21 +792,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_product_catalog_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/product-catalog/infra/.terraform.lock.hcl')
@@ -816,7 +816,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_product_catalog_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/product-catalog/infra
@@ -835,21 +835,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_prometheus_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/prometheus/infra/.terraform.lock.hcl')
@@ -859,7 +859,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_prometheus_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/prometheus/infra
@@ -878,21 +878,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_quote_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/quote/infra/.terraform.lock.hcl')
@@ -902,7 +902,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_quote_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/quote/infra
@@ -921,21 +921,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_recommendation_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/recommendation/infra/.terraform.lock.hcl')
@@ -945,7 +945,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_recommendation_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/recommendation/infra
@@ -964,21 +964,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_shipping_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/shipping/infra/.terraform.lock.hcl')
@@ -988,7 +988,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_shipping_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/shipping/infra
@@ -1007,21 +1007,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_telemetry_docs_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/telemetry-docs/infra/.terraform.lock.hcl')
@@ -1031,7 +1031,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_telemetry_docs_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/telemetry-docs/infra
@@ -1050,21 +1050,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_APPLY_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_valkey_cart_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/valkey-cart/infra/.terraform.lock.hcl')
@@ -1074,7 +1074,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-gke_asia_southeast3_valkey_cart_infra-${{ github.run_id }}
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/valkey-cart/infra
@@ -1093,21 +1093,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_ad_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/ad/infra/.terraform.lock.hcl')
@@ -1131,7 +1131,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_ad_infra-${{ github.run_id }}
         path: |
@@ -1156,21 +1156,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_astronomy_db_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/astronomy-db/infra/.terraform.lock.hcl')
@@ -1194,7 +1194,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_astronomy_db_infra-${{ github.run_id }}
         path: |
@@ -1219,21 +1219,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_cart_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cart/infra/.terraform.lock.hcl')
@@ -1257,7 +1257,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_cart_infra-${{ github.run_id }}
         path: |
@@ -1282,21 +1282,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_checkout_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/checkout/infra/.terraform.lock.hcl')
@@ -1320,7 +1320,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_checkout_infra-${{ github.run_id }}
         path: |
@@ -1345,21 +1345,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_cluster_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cluster/infra/.terraform.lock.hcl')
@@ -1383,7 +1383,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_cluster_infra-${{ github.run_id }}
         path: |
@@ -1408,21 +1408,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_currency_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/currency/infra/.terraform.lock.hcl')
@@ -1446,7 +1446,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_currency_infra-${{ github.run_id }}
         path: |
@@ -1471,21 +1471,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_email_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/email/infra/.terraform.lock.hcl')
@@ -1509,7 +1509,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_email_infra-${{ github.run_id }}
         path: |
@@ -1534,21 +1534,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_flagd_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd/infra/.terraform.lock.hcl')
@@ -1572,7 +1572,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_flagd_infra-${{ github.run_id }}
         path: |
@@ -1597,21 +1597,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_flagd_ui_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd-ui/infra/.terraform.lock.hcl')
@@ -1635,7 +1635,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_flagd_ui_infra-${{ github.run_id }}
         path: |
@@ -1660,21 +1660,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_frontend_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend/infra/.terraform.lock.hcl')
@@ -1698,7 +1698,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_frontend_infra-${{ github.run_id }}
         path: |
@@ -1723,21 +1723,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_frontend_proxy_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend-proxy/infra/.terraform.lock.hcl')
@@ -1761,7 +1761,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_frontend_proxy_infra-${{ github.run_id }}
         path: |
@@ -1786,21 +1786,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_grafana_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/grafana/infra/.terraform.lock.hcl')
@@ -1824,7 +1824,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_grafana_infra-${{ github.run_id }}
         path: |
@@ -1849,21 +1849,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_image_provider_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/image-provider/infra/.terraform.lock.hcl')
@@ -1887,7 +1887,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_image_provider_infra-${{ github.run_id }}
         path: |
@@ -1912,21 +1912,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_jaeger_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/jaeger/infra/.terraform.lock.hcl')
@@ -1950,7 +1950,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_jaeger_infra-${{ github.run_id }}
         path: |
@@ -1975,21 +1975,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_load_generator_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/load-generator/infra/.terraform.lock.hcl')
@@ -2013,7 +2013,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_load_generator_infra-${{ github.run_id }}
         path: |
@@ -2036,21 +2036,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_network_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/network/infra/.terraform.lock.hcl')
@@ -2074,7 +2074,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_network_infra-${{ github.run_id }}
         path: |
@@ -2099,21 +2099,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_otel_collector_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/otel-collector/infra/.terraform.lock.hcl')
@@ -2137,7 +2137,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_otel_collector_infra-${{ github.run_id }}
         path: |
@@ -2162,21 +2162,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_payment_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/payment/infra/.terraform.lock.hcl')
@@ -2200,7 +2200,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_payment_infra-${{ github.run_id }}
         path: |
@@ -2225,21 +2225,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_product_catalog_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/product-catalog/infra/.terraform.lock.hcl')
@@ -2263,7 +2263,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_product_catalog_infra-${{ github.run_id }}
         path: |
@@ -2288,21 +2288,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_prometheus_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/prometheus/infra/.terraform.lock.hcl')
@@ -2326,7 +2326,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_prometheus_infra-${{ github.run_id }}
         path: |
@@ -2351,21 +2351,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_quote_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/quote/infra/.terraform.lock.hcl')
@@ -2389,7 +2389,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_quote_infra-${{ github.run_id }}
         path: |
@@ -2414,21 +2414,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_recommendation_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/recommendation/infra/.terraform.lock.hcl')
@@ -2452,7 +2452,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_recommendation_infra-${{ github.run_id }}
         path: |
@@ -2477,21 +2477,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_shipping_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/shipping/infra/.terraform.lock.hcl')
@@ -2515,7 +2515,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_shipping_infra-${{ github.run_id }}
         path: |
@@ -2540,21 +2540,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_telemetry_docs_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/telemetry-docs/infra/.terraform.lock.hcl')
@@ -2578,7 +2578,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_telemetry_docs_infra-${{ github.run_id }}
         path: |
@@ -2603,21 +2603,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: google-credentials
-      uses: google-github-actions/auth@v2
+      uses: google-github-actions/auth@v3
       with:
         service_account: ${{ vars.TF_PLAN_SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_valkey_cart_infra-${{
           hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/valkey-cart/infra/.terraform.lock.hcl')
@@ -2641,7 +2641,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-gke_asia_southeast3_valkey_cart_infra-${{ github.run_id }}
         path: |
@@ -2686,7 +2686,7 @@ jobs:
     steps:
     - continue-on-error: true
       id: download-plans
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         path: plans
         pattern: tfplan-*-${{ github.run_id }}
@@ -2694,7 +2694,7 @@ jobs:
         NEEDS: ${{ toJSON(needs) }}
         PLANS: '[{"job":"plan_gke_asia_southeast3_ad_infra","label":"gke-asia-southeast3/ad/infra","slug":"gke_asia_southeast3_ad_infra"},{"job":"plan_gke_asia_southeast3_astronomy_db_infra","label":"gke-asia-southeast3/astronomy-db/infra","slug":"gke_asia_southeast3_astronomy_db_infra"},{"job":"plan_gke_asia_southeast3_cart_infra","label":"gke-asia-southeast3/cart/infra","slug":"gke_asia_southeast3_cart_infra"},{"job":"plan_gke_asia_southeast3_checkout_infra","label":"gke-asia-southeast3/checkout/infra","slug":"gke_asia_southeast3_checkout_infra"},{"job":"plan_gke_asia_southeast3_cluster_infra","label":"gke-asia-southeast3/cluster/infra","slug":"gke_asia_southeast3_cluster_infra"},{"job":"plan_gke_asia_southeast3_currency_infra","label":"gke-asia-southeast3/currency/infra","slug":"gke_asia_southeast3_currency_infra"},{"job":"plan_gke_asia_southeast3_email_infra","label":"gke-asia-southeast3/email/infra","slug":"gke_asia_southeast3_email_infra"},{"job":"plan_gke_asia_southeast3_flagd_ui_infra","label":"gke-asia-southeast3/flagd-ui/infra","slug":"gke_asia_southeast3_flagd_ui_infra"},{"job":"plan_gke_asia_southeast3_flagd_infra","label":"gke-asia-southeast3/flagd/infra","slug":"gke_asia_southeast3_flagd_infra"},{"job":"plan_gke_asia_southeast3_frontend_proxy_infra","label":"gke-asia-southeast3/frontend-proxy/infra","slug":"gke_asia_southeast3_frontend_proxy_infra"},{"job":"plan_gke_asia_southeast3_frontend_infra","label":"gke-asia-southeast3/frontend/infra","slug":"gke_asia_southeast3_frontend_infra"},{"job":"plan_gke_asia_southeast3_grafana_infra","label":"gke-asia-southeast3/grafana/infra","slug":"gke_asia_southeast3_grafana_infra"},{"job":"plan_gke_asia_southeast3_image_provider_infra","label":"gke-asia-southeast3/image-provider/infra","slug":"gke_asia_southeast3_image_provider_infra"},{"job":"plan_gke_asia_southeast3_jaeger_infra","label":"gke-asia-southeast3/jaeger/infra","slug":"gke_asia_southeast3_jaeger_infra"},{"job":"plan_gke_asia_southeast3_load_generator_infra","label":"gke-asia-southeast3/load-generator/infra","slug":"gke_asia_southeast3_load_generator_infra"},{"job":"plan_gke_asia_southeast3_network_infra","label":"gke-asia-southeast3/network/infra","slug":"gke_asia_southeast3_network_infra"},{"job":"plan_gke_asia_southeast3_otel_collector_infra","label":"gke-asia-southeast3/otel-collector/infra","slug":"gke_asia_southeast3_otel_collector_infra"},{"job":"plan_gke_asia_southeast3_payment_infra","label":"gke-asia-southeast3/payment/infra","slug":"gke_asia_southeast3_payment_infra"},{"job":"plan_gke_asia_southeast3_product_catalog_infra","label":"gke-asia-southeast3/product-catalog/infra","slug":"gke_asia_southeast3_product_catalog_infra"},{"job":"plan_gke_asia_southeast3_prometheus_infra","label":"gke-asia-southeast3/prometheus/infra","slug":"gke_asia_southeast3_prometheus_infra"},{"job":"plan_gke_asia_southeast3_quote_infra","label":"gke-asia-southeast3/quote/infra","slug":"gke_asia_southeast3_quote_infra"},{"job":"plan_gke_asia_southeast3_recommendation_infra","label":"gke-asia-southeast3/recommendation/infra","slug":"gke_asia_southeast3_recommendation_infra"},{"job":"plan_gke_asia_southeast3_shipping_infra","label":"gke-asia-southeast3/shipping/infra","slug":"gke_asia_southeast3_shipping_infra"},{"job":"plan_gke_asia_southeast3_telemetry_docs_infra","label":"gke-asia-southeast3/telemetry-docs/infra","slug":"gke_asia_southeast3_telemetry_docs_infra"},{"job":"plan_gke_asia_southeast3_valkey_cart_infra","label":"gke-asia-southeast3/valkey-cart/infra","slug":"gke_asia_southeast3_valkey_cart_infra"}]'
       id: comment
-      uses: actions/github-script@v7
+      uses: actions/github-script@v9
       with:
         script: |
           const fs = require('fs');

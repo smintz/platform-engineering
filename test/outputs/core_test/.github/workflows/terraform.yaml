@@ -18,16 +18,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-test_outputs_core_test_us_east_1_api_task_infra-${{ hashFiles('test/outputs/core_test/us-east-1/api-task/infra/.terraform.lock.hcl')
           }}
@@ -36,7 +36,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-us_east_1_api_task_infra-${{ github.run_id }}
         path: test/outputs/core_test/us-east-1/api-task/infra
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: grafana-token
       run: |
         set -euo pipefail
@@ -91,14 +91,14 @@ jobs:
             --query 'workspace.endpoint' --output text)"
         } >> "$GITHUB_ENV"
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-test_outputs_core_test_us_east_1_api_task_monitoring-${{ hashFiles('test/outputs/core_test/us-east-1/api-task/monitoring/.terraform.lock.hcl')
           }}
@@ -107,7 +107,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-us_east_1_api_task_monitoring-${{ github.run_id }}
         path: test/outputs/core_test/us-east-1/api-task/monitoring
@@ -126,16 +126,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-test_outputs_core_test_us_east_1_redis_infra-${{ hashFiles('test/outputs/core_test/us-east-1/redis/infra/.terraform.lock.hcl')
           }}
@@ -144,7 +144,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-us_east_1_redis_infra-${{ github.run_id }}
         path: test/outputs/core_test/us-east-1/redis/infra
@@ -163,7 +163,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: grafana-token
       run: |
         set -euo pipefail
@@ -199,14 +199,14 @@ jobs:
             --query 'workspace.endpoint' --output text)"
         } >> "$GITHUB_ENV"
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-test_outputs_core_test_us_east_1_redis_monitoring-${{ hashFiles('test/outputs/core_test/us-east-1/redis/monitoring/.terraform.lock.hcl')
           }}
@@ -215,7 +215,7 @@ jobs:
     - id: init
       run: terraform init -lock-timeout=5m
     - id: download-plan
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: tfplan-us_east_1_redis_monitoring-${{ github.run_id }}
         path: test/outputs/core_test/us-east-1/redis/monitoring
@@ -232,16 +232,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-test_outputs_core_test_us_east_1_api_task_infra-${{ hashFiles('test/outputs/core_test/us-east-1/api-task/infra/.terraform.lock.hcl')
           }}
@@ -264,7 +264,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-us_east_1_api_task_infra-${{ github.run_id }}
         path: |
@@ -287,7 +287,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: grafana-token
       run: |
         set -euo pipefail
@@ -323,14 +323,14 @@ jobs:
             --query 'workspace.endpoint' --output text)"
         } >> "$GITHUB_ENV"
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-test_outputs_core_test_us_east_1_api_task_monitoring-${{ hashFiles('test/outputs/core_test/us-east-1/api-task/monitoring/.terraform.lock.hcl')
           }}
@@ -353,7 +353,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-us_east_1_api_task_monitoring-${{ github.run_id }}
         path: |
@@ -376,16 +376,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-test_outputs_core_test_us_east_1_redis_infra-${{ hashFiles('test/outputs/core_test/us-east-1/redis/infra/.terraform.lock.hcl')
           }}
@@ -408,7 +408,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-us_east_1_redis_infra-${{ github.run_id }}
         path: |
@@ -431,7 +431,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - id: grafana-token
       run: |
         set -euo pipefail
@@ -467,14 +467,14 @@ jobs:
             --query 'workspace.endpoint' --output text)"
         } >> "$GITHUB_ENV"
     - id: setup-terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: 1.9.8
         terraform_wrapper: false
     - id: plugin-cache-dir
       run: mkdir -p /home/runner/.terraform.d/plugin-cache
     - id: plugin-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         key: tf-plugins-test_outputs_core_test_us_east_1_redis_monitoring-${{ hashFiles('test/outputs/core_test/us-east-1/redis/monitoring/.terraform.lock.hcl')
           }}
@@ -497,7 +497,7 @@ jobs:
         esac
         terraform show -no-color tfplan > plan.txt
     - id: upload-plan
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tfplan-us_east_1_redis_monitoring-${{ github.run_id }}
         path: |
@@ -521,7 +521,7 @@ jobs:
     steps:
     - continue-on-error: true
       id: download-plans
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         path: plans
         pattern: tfplan-*-${{ github.run_id }}
@@ -529,7 +529,7 @@ jobs:
         NEEDS: ${{ toJSON(needs) }}
         PLANS: '[{"job":"plan_us_east_1_api_task_infra","label":"us-east-1/api-task/infra","slug":"us_east_1_api_task_infra"},{"job":"plan_us_east_1_api_task_monitoring","label":"us-east-1/api-task/monitoring","slug":"us_east_1_api_task_monitoring"},{"job":"plan_us_east_1_redis_infra","label":"us-east-1/redis/infra","slug":"us_east_1_redis_infra"},{"job":"plan_us_east_1_redis_monitoring","label":"us-east-1/redis/monitoring","slug":"us_east_1_redis_monitoring"}]'
       id: comment
-      uses: actions/github-script@v7
+      uses: actions/github-script@v9
       with:
         script: |
           const fs = require('fs');

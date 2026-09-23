@@ -54,11 +54,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -66,7 +66,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -78,7 +78,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_ad_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/ad/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -91,7 +91,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_ad_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/ad/infra"
@@ -118,11 +118,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -130,7 +130,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -142,7 +142,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_astronomy_db_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/astronomy-db/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -155,7 +155,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_astronomy_db_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/astronomy-db/infra"
@@ -182,11 +182,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -194,7 +194,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -206,7 +206,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_cart_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cart/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -219,7 +219,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_cart_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cart/infra"
@@ -246,11 +246,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -258,7 +258,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -270,7 +270,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_checkout_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/checkout/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -283,7 +283,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_checkout_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/checkout/infra"
@@ -310,11 +310,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -322,7 +322,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -334,7 +334,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_cluster_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cluster/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -347,7 +347,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_cluster_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cluster/infra"
@@ -374,11 +374,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -386,7 +386,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -398,7 +398,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_currency_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/currency/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -411,7 +411,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_currency_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/currency/infra"
@@ -438,11 +438,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -450,7 +450,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -462,7 +462,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_email_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/email/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -475,7 +475,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_email_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/email/infra"
@@ -502,11 +502,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -514,7 +514,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -526,7 +526,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_flagd_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -539,7 +539,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_flagd_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd/infra"
@@ -566,11 +566,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -578,7 +578,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -590,7 +590,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_flagd_ui_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd-ui/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -603,7 +603,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_flagd_ui_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd-ui/infra"
@@ -630,11 +630,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -642,7 +642,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -654,7 +654,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_frontend_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -667,7 +667,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_frontend_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend/infra"
@@ -694,11 +694,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -706,7 +706,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -718,7 +718,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_frontend_proxy_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend-proxy/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -731,7 +731,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_frontend_proxy_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend-proxy/infra"
@@ -758,11 +758,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -770,7 +770,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -782,7 +782,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_grafana_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/grafana/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -795,7 +795,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_grafana_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/grafana/infra"
@@ -822,11 +822,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -834,7 +834,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -846,7 +846,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_image_provider_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/image-provider/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -859,7 +859,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_image_provider_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/image-provider/infra"
@@ -886,11 +886,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -898,7 +898,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -910,7 +910,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_jaeger_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/jaeger/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -923,7 +923,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_jaeger_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/jaeger/infra"
@@ -950,11 +950,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -962,7 +962,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -974,7 +974,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_load_generator_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/load-generator/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -987,7 +987,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_load_generator_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/load-generator/infra"
@@ -1014,11 +1014,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -1026,7 +1026,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -1038,7 +1038,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_network_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/network/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -1051,7 +1051,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_network_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/network/infra"
@@ -1078,11 +1078,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -1090,7 +1090,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -1102,7 +1102,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_otel_collector_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/otel-collector/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -1115,7 +1115,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_otel_collector_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/otel-collector/infra"
@@ -1142,11 +1142,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -1154,7 +1154,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -1166,7 +1166,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_payment_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/payment/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -1179,7 +1179,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_payment_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/payment/infra"
@@ -1206,11 +1206,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -1218,7 +1218,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -1230,7 +1230,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_product_catalog_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/product-catalog/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -1243,7 +1243,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_product_catalog_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/product-catalog/infra"
@@ -1270,11 +1270,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -1282,7 +1282,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -1294,7 +1294,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_prometheus_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/prometheus/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -1307,7 +1307,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_prometheus_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/prometheus/infra"
@@ -1334,11 +1334,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -1346,7 +1346,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -1358,7 +1358,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_quote_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/quote/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -1371,7 +1371,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_quote_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/quote/infra"
@@ -1398,11 +1398,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -1410,7 +1410,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -1422,7 +1422,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_recommendation_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/recommendation/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -1435,7 +1435,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_recommendation_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/recommendation/infra"
@@ -1462,11 +1462,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -1474,7 +1474,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -1486,7 +1486,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_shipping_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/shipping/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -1499,7 +1499,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_shipping_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/shipping/infra"
@@ -1526,11 +1526,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -1538,7 +1538,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -1550,7 +1550,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_telemetry_docs_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/telemetry-docs/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -1563,7 +1563,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_telemetry_docs_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/telemetry-docs/infra"
@@ -1590,11 +1590,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_APPLY_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -1602,7 +1602,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -1614,7 +1614,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_valkey_cart_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/valkey-cart/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -1627,7 +1627,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-gke_asia_southeast3_valkey_cart_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/valkey-cart/infra"
@@ -1654,11 +1654,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -1666,7 +1666,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -1678,7 +1678,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_ad_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/ad/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -1699,7 +1699,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_ad_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/ad/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/ad/infra/plan.txt\n",
@@ -1731,11 +1731,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -1743,7 +1743,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -1755,7 +1755,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_astronomy_db_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/astronomy-db/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -1776,7 +1776,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_astronomy_db_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/astronomy-db/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/astronomy-db/infra/plan.txt\n",
@@ -1808,11 +1808,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -1820,7 +1820,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -1832,7 +1832,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_cart_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cart/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -1853,7 +1853,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_cart_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cart/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cart/infra/plan.txt\n",
@@ -1885,11 +1885,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -1897,7 +1897,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -1909,7 +1909,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_checkout_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/checkout/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -1930,7 +1930,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_checkout_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/checkout/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/checkout/infra/plan.txt\n",
@@ -1962,11 +1962,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -1974,7 +1974,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -1986,7 +1986,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_cluster_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cluster/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -2007,7 +2007,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_cluster_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cluster/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cluster/infra/plan.txt\n",
@@ -2039,11 +2039,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -2051,7 +2051,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -2063,7 +2063,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_currency_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/currency/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -2084,7 +2084,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_currency_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/currency/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/currency/infra/plan.txt\n",
@@ -2116,11 +2116,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -2128,7 +2128,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -2140,7 +2140,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_email_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/email/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -2161,7 +2161,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_email_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/email/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/email/infra/plan.txt\n",
@@ -2193,11 +2193,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -2205,7 +2205,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -2217,7 +2217,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_flagd_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -2238,7 +2238,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_flagd_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd/infra/plan.txt\n",
@@ -2270,11 +2270,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -2282,7 +2282,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -2294,7 +2294,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_flagd_ui_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd-ui/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -2315,7 +2315,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_flagd_ui_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd-ui/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd-ui/infra/plan.txt\n",
@@ -2347,11 +2347,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -2359,7 +2359,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -2371,7 +2371,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_frontend_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -2392,7 +2392,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_frontend_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend/infra/plan.txt\n",
@@ -2424,11 +2424,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -2436,7 +2436,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -2448,7 +2448,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_frontend_proxy_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend-proxy/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -2469,7 +2469,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_frontend_proxy_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend-proxy/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend-proxy/infra/plan.txt\n",
@@ -2501,11 +2501,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -2513,7 +2513,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -2525,7 +2525,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_grafana_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/grafana/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -2546,7 +2546,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_grafana_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/grafana/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/grafana/infra/plan.txt\n",
@@ -2578,11 +2578,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -2590,7 +2590,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -2602,7 +2602,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_image_provider_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/image-provider/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -2623,7 +2623,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_image_provider_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/image-provider/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/image-provider/infra/plan.txt\n",
@@ -2655,11 +2655,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -2667,7 +2667,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -2679,7 +2679,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_jaeger_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/jaeger/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -2700,7 +2700,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_jaeger_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/jaeger/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/jaeger/infra/plan.txt\n",
@@ -2732,11 +2732,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -2744,7 +2744,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -2756,7 +2756,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_load_generator_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/load-generator/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -2777,7 +2777,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_load_generator_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/load-generator/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/load-generator/infra/plan.txt\n",
@@ -2806,11 +2806,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -2818,7 +2818,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -2830,7 +2830,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_network_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/network/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -2851,7 +2851,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_network_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/network/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/network/infra/plan.txt\n",
@@ -2883,11 +2883,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -2895,7 +2895,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -2907,7 +2907,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_otel_collector_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/otel-collector/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -2928,7 +2928,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_otel_collector_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/otel-collector/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/otel-collector/infra/plan.txt\n",
@@ -2960,11 +2960,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -2972,7 +2972,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -2984,7 +2984,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_payment_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/payment/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -3005,7 +3005,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_payment_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/payment/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/payment/infra/plan.txt\n",
@@ -3037,11 +3037,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -3049,7 +3049,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -3061,7 +3061,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_product_catalog_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/product-catalog/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -3082,7 +3082,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_product_catalog_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/product-catalog/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/product-catalog/infra/plan.txt\n",
@@ -3114,11 +3114,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -3126,7 +3126,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -3138,7 +3138,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_prometheus_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/prometheus/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -3159,7 +3159,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_prometheus_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/prometheus/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/prometheus/infra/plan.txt\n",
@@ -3191,11 +3191,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -3203,7 +3203,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -3215,7 +3215,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_quote_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/quote/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -3236,7 +3236,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_quote_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/quote/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/quote/infra/plan.txt\n",
@@ -3268,11 +3268,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -3280,7 +3280,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -3292,7 +3292,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_recommendation_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/recommendation/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -3313,7 +3313,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_recommendation_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/recommendation/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/recommendation/infra/plan.txt\n",
@@ -3345,11 +3345,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -3357,7 +3357,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -3369,7 +3369,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_shipping_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/shipping/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -3390,7 +3390,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_shipping_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/shipping/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/shipping/infra/plan.txt\n",
@@ -3422,11 +3422,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -3434,7 +3434,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -3446,7 +3446,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_telemetry_docs_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/telemetry-docs/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -3467,7 +3467,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_telemetry_docs_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/telemetry-docs/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/telemetry-docs/infra/plan.txt\n",
@@ -3499,11 +3499,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "google-credentials",
-            "uses": "google-github-actions/auth@v2",
+            "uses": "google-github-actions/auth@v3",
             "with": {
               "service_account": "${{ vars.TF_PLAN_SERVICE_ACCOUNT }}",
               "workload_identity_provider": "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -3511,7 +3511,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -3523,7 +3523,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-examples_otel_demo_outputs_otel_demo_gke_asia_southeast3_valkey_cart_infra-${{ hashFiles('examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/valkey-cart/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -3544,7 +3544,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-gke_asia_southeast3_valkey_cart_infra-${{ github.run_id }}",
               "path": "examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/valkey-cart/infra/tfplan\nexamples/otel-demo/outputs/otel_demo/gke-asia-southeast3/valkey-cart/infra/plan.txt\n",
@@ -3595,7 +3595,7 @@
         "steps": [
           {
             "id": "download-plans",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "continue-on-error": true,
             "with": {
               "path": "plans",
@@ -3604,7 +3604,7 @@
           },
           {
             "id": "comment",
-            "uses": "actions/github-script@v7",
+            "uses": "actions/github-script@v9",
             "env": {
               "NEEDS": "${{ toJSON(needs) }}",
               "PLANS": "[{\"job\":\"plan_gke_asia_southeast3_ad_infra\",\"label\":\"gke-asia-southeast3/ad/infra\",\"slug\":\"gke_asia_southeast3_ad_infra\"},{\"job\":\"plan_gke_asia_southeast3_astronomy_db_infra\",\"label\":\"gke-asia-southeast3/astronomy-db/infra\",\"slug\":\"gke_asia_southeast3_astronomy_db_infra\"},{\"job\":\"plan_gke_asia_southeast3_cart_infra\",\"label\":\"gke-asia-southeast3/cart/infra\",\"slug\":\"gke_asia_southeast3_cart_infra\"},{\"job\":\"plan_gke_asia_southeast3_checkout_infra\",\"label\":\"gke-asia-southeast3/checkout/infra\",\"slug\":\"gke_asia_southeast3_checkout_infra\"},{\"job\":\"plan_gke_asia_southeast3_cluster_infra\",\"label\":\"gke-asia-southeast3/cluster/infra\",\"slug\":\"gke_asia_southeast3_cluster_infra\"},{\"job\":\"plan_gke_asia_southeast3_currency_infra\",\"label\":\"gke-asia-southeast3/currency/infra\",\"slug\":\"gke_asia_southeast3_currency_infra\"},{\"job\":\"plan_gke_asia_southeast3_email_infra\",\"label\":\"gke-asia-southeast3/email/infra\",\"slug\":\"gke_asia_southeast3_email_infra\"},{\"job\":\"plan_gke_asia_southeast3_flagd_ui_infra\",\"label\":\"gke-asia-southeast3/flagd-ui/infra\",\"slug\":\"gke_asia_southeast3_flagd_ui_infra\"},{\"job\":\"plan_gke_asia_southeast3_flagd_infra\",\"label\":\"gke-asia-southeast3/flagd/infra\",\"slug\":\"gke_asia_southeast3_flagd_infra\"},{\"job\":\"plan_gke_asia_southeast3_frontend_proxy_infra\",\"label\":\"gke-asia-southeast3/frontend-proxy/infra\",\"slug\":\"gke_asia_southeast3_frontend_proxy_infra\"},{\"job\":\"plan_gke_asia_southeast3_frontend_infra\",\"label\":\"gke-asia-southeast3/frontend/infra\",\"slug\":\"gke_asia_southeast3_frontend_infra\"},{\"job\":\"plan_gke_asia_southeast3_grafana_infra\",\"label\":\"gke-asia-southeast3/grafana/infra\",\"slug\":\"gke_asia_southeast3_grafana_infra\"},{\"job\":\"plan_gke_asia_southeast3_image_provider_infra\",\"label\":\"gke-asia-southeast3/image-provider/infra\",\"slug\":\"gke_asia_southeast3_image_provider_infra\"},{\"job\":\"plan_gke_asia_southeast3_jaeger_infra\",\"label\":\"gke-asia-southeast3/jaeger/infra\",\"slug\":\"gke_asia_southeast3_jaeger_infra\"},{\"job\":\"plan_gke_asia_southeast3_load_generator_infra\",\"label\":\"gke-asia-southeast3/load-generator/infra\",\"slug\":\"gke_asia_southeast3_load_generator_infra\"},{\"job\":\"plan_gke_asia_southeast3_network_infra\",\"label\":\"gke-asia-southeast3/network/infra\",\"slug\":\"gke_asia_southeast3_network_infra\"},{\"job\":\"plan_gke_asia_southeast3_otel_collector_infra\",\"label\":\"gke-asia-southeast3/otel-collector/infra\",\"slug\":\"gke_asia_southeast3_otel_collector_infra\"},{\"job\":\"plan_gke_asia_southeast3_payment_infra\",\"label\":\"gke-asia-southeast3/payment/infra\",\"slug\":\"gke_asia_southeast3_payment_infra\"},{\"job\":\"plan_gke_asia_southeast3_product_catalog_infra\",\"label\":\"gke-asia-southeast3/product-catalog/infra\",\"slug\":\"gke_asia_southeast3_product_catalog_infra\"},{\"job\":\"plan_gke_asia_southeast3_prometheus_infra\",\"label\":\"gke-asia-southeast3/prometheus/infra\",\"slug\":\"gke_asia_southeast3_prometheus_infra\"},{\"job\":\"plan_gke_asia_southeast3_quote_infra\",\"label\":\"gke-asia-southeast3/quote/infra\",\"slug\":\"gke_asia_southeast3_quote_infra\"},{\"job\":\"plan_gke_asia_southeast3_recommendation_infra\",\"label\":\"gke-asia-southeast3/recommendation/infra\",\"slug\":\"gke_asia_southeast3_recommendation_infra\"},{\"job\":\"plan_gke_asia_southeast3_shipping_infra\",\"label\":\"gke-asia-southeast3/shipping/infra\",\"slug\":\"gke_asia_southeast3_shipping_infra\"},{\"job\":\"plan_gke_asia_southeast3_telemetry_docs_infra\",\"label\":\"gke-asia-southeast3/telemetry-docs/infra\",\"slug\":\"gke_asia_southeast3_telemetry_docs_infra\"},{\"job\":\"plan_gke_asia_southeast3_valkey_cart_infra\",\"label\":\"gke-asia-southeast3/valkey-cart/infra\",\"slug\":\"gke_asia_southeast3_valkey_cart_infra\"}]"

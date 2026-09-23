@@ -259,7 +259,7 @@ def OidcCredentials(
         return [
             lib.Step(
                 "aws-credentials",
-                lib.Uses("aws-actions/configure-aws-credentials@v4"),
+                lib.Uses("aws-actions/configure-aws-credentials@v6"),
                 lib.With(
                     **{
                         "role-to-assume": plan_role if phase == "plan" else apply_role,
@@ -292,7 +292,7 @@ def GoogleOidcCredentials(
         return [
             lib.Step(
                 "google-credentials",
-                lib.Uses("google-github-actions/auth@v2"),
+                lib.Uses("google-github-actions/auth@v3"),
                 lib.With(
                     **{
                         "workload_identity_provider": workload_identity_provider,
@@ -312,7 +312,7 @@ def AccessKeyCredentials(
         return [
             lib.Step(
                 "aws-credentials",
-                lib.Uses("aws-actions/configure-aws-credentials@v4"),
+                lib.Uses("aws-actions/configure-aws-credentials@v6"),
                 lib.With(
                     **{
                         "aws-access-key-id": access_key_id,
@@ -521,12 +521,12 @@ terraform show -no-color tfplan > plan.txt
 # set of providers and one shared key would thrash between them.
 def _setup(directory, credentials, phase, terraform_version, config):
     return (
-        [lib.Step("checkout", lib.Uses("actions/checkout@v4"))] +
+        [lib.Step("checkout", lib.Uses("actions/checkout@v7"))] +
         credentials(phase, config) +
         [
             lib.Step(
                 "setup-terraform",
-                lib.Uses("hashicorp/setup-terraform@v3"),
+                lib.Uses("hashicorp/setup-terraform@v4"),
                 lib.With(
                     terraform_version = terraform_version,
                     terraform_wrapper = False,
@@ -537,7 +537,7 @@ def _setup(directory, credentials, phase, terraform_version, config):
             lib.Step("plugin-cache-dir", lib.Cmd("mkdir -p %s" % PLUGIN_CACHE_DIR)),
             lib.Step(
                 "plugin-cache",
-                lib.Uses("actions/cache@v4"),
+                lib.Uses("actions/cache@v6"),
                 lib.With(
                     **{
                         "path": PLUGIN_CACHE_DIR,
@@ -591,7 +591,7 @@ def _plan_job(
         # the plan file holds resolved values, some of them secret — keep it short-lived
         lib.Step(
             "upload-plan",
-            lib.Uses("actions/upload-artifact@v4"),
+            lib.Uses("actions/upload-artifact@v7"),
             lib.With(
                 **{
                     "name": artifact,
@@ -647,7 +647,7 @@ def _apply_job(
     steps = _setup(directory, credentials, "apply", terraform_version, config) + [
         lib.Step(
             "download-plan",
-            lib.Uses("actions/download-artifact@v4"),
+            lib.Uses("actions/download-artifact@v8"),
             lib.With(name = artifact, path = directory),
         ),
         # the saved plan, not a fresh one: what a reviewer approved is what gets applied
@@ -712,7 +712,7 @@ def _comment_job(keys, frozen):
         lib.Needs(*[_plan_id(key) for key in keys]),
         lib.Step(
             "download-plans",
-            lib.Uses("actions/download-artifact@v4"),
+            lib.Uses("actions/download-artifact@v8"),
             lib.With(**{"pattern": "tfplan-*-${{ github.run_id }}", "path": "plans"}),
             # a run where every plan failed before uploading has no artifacts at all, and
             # that run is precisely the one whose comment matters
@@ -720,7 +720,7 @@ def _comment_job(keys, frozen):
         ),
         lib.Step(
             "comment",
-            lib.Uses("actions/github-script@v7"),
+            lib.Uses("actions/github-script@v9"),
             lib.SetEnv(
                 PLANS = json.encode(manifest),
                 NEEDS = "${{ toJSON(needs) }}",

@@ -54,11 +54,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -70,7 +70,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-test_outputs_core_test_us_east_1_api_task_infra-${{ hashFiles('test/outputs/core_test/us-east-1/api-task/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -83,7 +83,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-us_east_1_api_task_infra-${{ github.run_id }}",
               "path": "test/outputs/core_test/us-east-1/api-task/infra"
@@ -110,7 +110,7 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "grafana-token",
@@ -118,7 +118,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -130,7 +130,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-test_outputs_core_test_us_east_1_api_task_monitoring-${{ hashFiles('test/outputs/core_test/us-east-1/api-task/monitoring/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -143,7 +143,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-us_east_1_api_task_monitoring-${{ github.run_id }}",
               "path": "test/outputs/core_test/us-east-1/api-task/monitoring"
@@ -170,11 +170,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -186,7 +186,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-test_outputs_core_test_us_east_1_redis_infra-${{ hashFiles('test/outputs/core_test/us-east-1/redis/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -199,7 +199,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-us_east_1_redis_infra-${{ github.run_id }}",
               "path": "test/outputs/core_test/us-east-1/redis/infra"
@@ -226,7 +226,7 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "grafana-token",
@@ -234,7 +234,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -246,7 +246,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-test_outputs_core_test_us_east_1_redis_monitoring-${{ hashFiles('test/outputs/core_test/us-east-1/redis/monitoring/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -259,7 +259,7 @@
           },
           {
             "id": "download-plan",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "with": {
               "name": "tfplan-us_east_1_redis_monitoring-${{ github.run_id }}",
               "path": "test/outputs/core_test/us-east-1/redis/monitoring"
@@ -283,11 +283,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -299,7 +299,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-test_outputs_core_test_us_east_1_api_task_infra-${{ hashFiles('test/outputs/core_test/us-east-1/api-task/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -320,7 +320,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-us_east_1_api_task_infra-${{ github.run_id }}",
               "path": "test/outputs/core_test/us-east-1/api-task/infra/tfplan\ntest/outputs/core_test/us-east-1/api-task/infra/plan.txt\n",
@@ -349,7 +349,7 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "grafana-token",
@@ -357,7 +357,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -369,7 +369,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-test_outputs_core_test_us_east_1_api_task_monitoring-${{ hashFiles('test/outputs/core_test/us-east-1/api-task/monitoring/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -390,7 +390,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-us_east_1_api_task_monitoring-${{ github.run_id }}",
               "path": "test/outputs/core_test/us-east-1/api-task/monitoring/tfplan\ntest/outputs/core_test/us-east-1/api-task/monitoring/plan.txt\n",
@@ -419,11 +419,11 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -435,7 +435,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-test_outputs_core_test_us_east_1_redis_infra-${{ hashFiles('test/outputs/core_test/us-east-1/redis/infra/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -456,7 +456,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-us_east_1_redis_infra-${{ github.run_id }}",
               "path": "test/outputs/core_test/us-east-1/redis/infra/tfplan\ntest/outputs/core_test/us-east-1/redis/infra/plan.txt\n",
@@ -485,7 +485,7 @@
         "steps": [
           {
             "id": "checkout",
-            "uses": "actions/checkout@v4"
+            "uses": "actions/checkout@v7"
           },
           {
             "id": "grafana-token",
@@ -493,7 +493,7 @@
           },
           {
             "id": "setup-terraform",
-            "uses": "hashicorp/setup-terraform@v3",
+            "uses": "hashicorp/setup-terraform@v4",
             "with": {
               "terraform_version": "1.9.8",
               "terraform_wrapper": false
@@ -505,7 +505,7 @@
           },
           {
             "id": "plugin-cache",
-            "uses": "actions/cache@v4",
+            "uses": "actions/cache@v6",
             "with": {
               "key": "tf-plugins-test_outputs_core_test_us_east_1_redis_monitoring-${{ hashFiles('test/outputs/core_test/us-east-1/redis/monitoring/.terraform.lock.hcl') }}",
               "path": "/home/runner/.terraform.d/plugin-cache",
@@ -526,7 +526,7 @@
           },
           {
             "id": "upload-plan",
-            "uses": "actions/upload-artifact@v4",
+            "uses": "actions/upload-artifact@v7",
             "with": {
               "name": "tfplan-us_east_1_redis_monitoring-${{ github.run_id }}",
               "path": "test/outputs/core_test/us-east-1/redis/monitoring/tfplan\ntest/outputs/core_test/us-east-1/redis/monitoring/plan.txt\n",
@@ -556,7 +556,7 @@
         "steps": [
           {
             "id": "download-plans",
-            "uses": "actions/download-artifact@v4",
+            "uses": "actions/download-artifact@v8",
             "continue-on-error": true,
             "with": {
               "path": "plans",
@@ -565,7 +565,7 @@
           },
           {
             "id": "comment",
-            "uses": "actions/github-script@v7",
+            "uses": "actions/github-script@v9",
             "env": {
               "NEEDS": "${{ toJSON(needs) }}",
               "PLANS": "[{\"job\":\"plan_us_east_1_api_task_infra\",\"label\":\"us-east-1/api-task/infra\",\"slug\":\"us_east_1_api_task_infra\"},{\"job\":\"plan_us_east_1_api_task_monitoring\",\"label\":\"us-east-1/api-task/monitoring\",\"slug\":\"us_east_1_api_task_monitoring\"},{\"job\":\"plan_us_east_1_redis_infra\",\"label\":\"us-east-1/redis/infra\",\"slug\":\"us_east_1_redis_infra\"},{\"job\":\"plan_us_east_1_redis_monitoring\",\"label\":\"us-east-1/redis/monitoring\",\"slug\":\"us_east_1_redis_monitoring\"}]"
