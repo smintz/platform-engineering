@@ -28,7 +28,7 @@ jobs:
       PROTOCONF_VERSION: 0.2.0-rc2
       PROTOCONF_SHA256: eeb8415960567e23f1a3a4acb8eb28a07cb68a544c4c2e3fd41fb7ebdfde9f3a
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Pinned by version AND by sha256 of the artifact (D-04). An unpinned compiler makes
       # every drift result a moving target, and an unverified download makes the thing that
