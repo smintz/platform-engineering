@@ -9,8 +9,9 @@ jobs:
     defaults:
       run:
         working-directory: test/outputs/core_test/us-east-1/api-task/infra
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.plan_us_east_1_api_task_infra.outputs.changes
-      == 'true'
+    if: '!cancelled() && !failure() && github.event_name == ''push'' && github.ref
+      == ''refs/heads/main'' && needs.plan_us_east_1_api_task_infra.outputs.changes
+      == ''true'''
     name: apply us-east-1/api-task/infra
     needs:
     - plan_us_east_1_api_task_infra
@@ -45,8 +46,9 @@ jobs:
     defaults:
       run:
         working-directory: test/outputs/core_test/us-east-1/api-task/monitoring
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.plan_us_east_1_api_task_monitoring.outputs.changes
-      == 'true'
+    if: '!cancelled() && !failure() && github.event_name == ''push'' && github.ref
+      == ''refs/heads/main'' && needs.plan_us_east_1_api_task_monitoring.outputs.changes
+      == ''true'''
     name: apply us-east-1/api-task/monitoring
     needs:
     - plan_us_east_1_api_task_monitoring
@@ -115,8 +117,9 @@ jobs:
     defaults:
       run:
         working-directory: test/outputs/core_test/us-east-1/redis/infra
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.plan_us_east_1_redis_infra.outputs.changes
-      == 'true'
+    if: '!cancelled() && !failure() && github.event_name == ''push'' && github.ref
+      == ''refs/heads/main'' && needs.plan_us_east_1_redis_infra.outputs.changes ==
+      ''true'''
     name: apply us-east-1/redis/infra
     needs:
     - plan_us_east_1_redis_infra
@@ -151,8 +154,9 @@ jobs:
     defaults:
       run:
         working-directory: test/outputs/core_test/us-east-1/redis/monitoring
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.plan_us_east_1_redis_monitoring.outputs.changes
-      == 'true'
+    if: '!cancelled() && !failure() && github.event_name == ''push'' && github.ref
+      == ''refs/heads/main'' && needs.plan_us_east_1_redis_monitoring.outputs.changes
+      == ''true'''
     name: apply us-east-1/redis/monitoring
     needs:
     - plan_us_east_1_redis_monitoring

@@ -654,8 +654,12 @@ def _apply_job(
         # `needs` is only the matching plan: that plan already waited for the upstream
         # applies, so ordering between states is inherited rather than restated.
         lib.Needs(plan),
+        # The status check has to be spelled out here too. Without one GitHub adds an
+        # implicit `success()`, and that looks at every job upstream, not only `needs`: an
+        # upstream apply skipped for having nothing to do would skip this apply with it,
+        # however much its own plan found.
         lib.If(
-            "github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.%s.outputs.changes == 'true'" %
+            "!cancelled() && !failure() && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.%s.outputs.changes == 'true'" %
             plan,
         ),
         lib.Defaults(working_directory = directory),
