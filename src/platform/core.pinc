@@ -151,6 +151,22 @@ def WithLabels(**labels):
 
     return component_filter(do)
 
+# The label WithFreeze writes and FrozenComponents reads. One name for the key, because the
+# two halves have to agree on it and a string repeated in two files is a string that can be
+# corrected in one of them.
+FREEZE_LABEL = "freeze"
+
+# WithFreeze holds a component still: a driver that reads it plans the component's states as
+# usual — drift stays visible while the freeze is on — and never applies them, until the hook
+# is removed again.
+#
+# It is a label rather than a field on Component because freezing is temporary by nature: a
+# migration being done by hand, an incident, a vendor outage. The reason is required for the
+# same reason. A freeze with no reason attached is one nobody else can judge, and a freeze
+# nobody can judge is one that outlives whatever it was for.
+def WithFreeze(reason):
+    return WithLabels(**{FREEZE_LABEL: reason})
+
 MAIN_CONFIG = "infra/main.tf.json"
 
 # config type_url -> prototype, for unpacking in GetConfigs
@@ -254,6 +270,38 @@ def SelectComponents(component, predicate):
 
     walk_upstreams(component, collect)
     return found
+
+# FrozenComponents returns {"<domain>/<name>": reason} for every frozen component in the
+# graph rooted at `component` — the prefix GetConfigs gives that component's config keys,
+# which is what a driver selects on. Translating "this component is frozen" into "these
+# configs are" lives here rather than in a driver because the key layout is GetConfigs'
+# business, and a driver that rebuilt the prefix itself would go on matching nothing the day
+# that layout changed.
+#
+# A freeze reaches every component the frozen one depends on, and that reach is the point: a
+# component whose dependencies keep applying is not frozen, because the ground it stands on
+# is still moving under it. The walk is over the component graph rather than over whatever
+# ordering a driver derives — a dependency that exchanges no Terraform state is still a
+# dependency, and freezing a service while the cache it talks to keeps applying would be a
+# freeze in name only.
+#
+# The cost of that reach is worth saying out loud: dependencies are shared, so freezing one
+# workload freezes everything underneath it — on a graph where every component inherits a
+# dependency on the cluster, that is the cluster and the network beneath it, for everybody.
+# Freeze the narrowest component that covers what is being held still.
+def FrozenComponents(component, reason = ""):
+    # a component's own reason wins over the one it inherited, so the nearest freeze is the
+    # one an operator reads off the job that was skipped
+    if component.metadata:
+        reason = component.metadata.labels.get(FREEZE_LABEL) or reason
+
+    frozen = {}
+    if reason:
+        frozen["/".join([p for p in (component.domain, component.name) if p])] = reason
+    if component.upstreams:
+        for upstream in component.upstreams.components:
+            frozen.update(FrozenComponents(upstream, reason))
+    return frozen
 
 # GetConfigs walks a Component and its upstreams, and returns a map of all the Terraform
 # configs keyed by "<domain>/<name>/<config name>". Components store their configs under

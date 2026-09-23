@@ -2734,8 +2734,9 @@ jobs:
             const result = job.result || 'skipped';
             const changes = (job.outputs || {}).changes;
             const artifact = `tfplan-${p.slug}-${runId}`;
+            const name = '`' + p.label + '`' + (p.frozen ? ` (frozen: ${p.frozen})` : '');
             if (result !== 'success' || changes !== 'true') {
-              rows.push(`| \`${p.label}\` | ${result === 'success' ? 'No changes.' : result} |`);
+              rows.push(`| ${name} | ${result === 'success' ? 'No changes.' : result} |`);
               continue;
             }
             let text = null;
@@ -2746,7 +2747,7 @@ jobs:
             }
             const line = text === null ? 'changes' : summary(text);
             const url = artifactUrl[artifact];
-            rows.push(`| \`${p.label}\` | ${url ? `[${line}](${url})` : line} |`);
+            rows.push(`| ${name} | ${url ? `[${line}](${url})` : line} |`);
             if (text !== null) changed.push({ label: p.label, text, url });
           }
 
