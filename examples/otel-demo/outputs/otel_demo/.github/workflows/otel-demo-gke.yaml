@@ -1080,13 +1080,89 @@ jobs:
         path: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/valkey-cart/infra
     - id: apply
       run: terraform apply -auto-approve -lock-timeout=5m tfplan
+  changed_paths:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    name: changed paths
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+    - id: checkout
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+    - id: diff
+      run: |
+        set -euo pipefail
+
+        if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+          base='${{ github.event.pull_request.base.sha }}'
+        else
+          base='${{ github.event.before }}'
+        fi
+
+        # A base commit this checkout cannot reach — the first push to a branch, a force-push that
+        # orphaned the old tip — leaves nothing to diff against. Name every state rather than none:
+        # a gate that cannot see the change must never be the reason a state goes unplanned.
+        if ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+          echo 'changed=["gke_asia_southeast3_ad_infra","gke_asia_southeast3_astronomy_db_infra","gke_asia_southeast3_cart_infra","gke_asia_southeast3_checkout_infra","gke_asia_southeast3_cluster_infra","gke_asia_southeast3_currency_infra","gke_asia_southeast3_email_infra","gke_asia_southeast3_flagd_infra","gke_asia_southeast3_flagd_ui_infra","gke_asia_southeast3_frontend_infra","gke_asia_southeast3_frontend_proxy_infra","gke_asia_southeast3_grafana_infra","gke_asia_southeast3_image_provider_infra","gke_asia_southeast3_jaeger_infra","gke_asia_southeast3_load_generator_infra","gke_asia_southeast3_network_infra","gke_asia_southeast3_otel_collector_infra","gke_asia_southeast3_payment_infra","gke_asia_southeast3_product_catalog_infra","gke_asia_southeast3_prometheus_infra","gke_asia_southeast3_quote_infra","gke_asia_southeast3_recommendation_infra","gke_asia_southeast3_shipping_infra","gke_asia_southeast3_telemetry_docs_infra","gke_asia_southeast3_valkey_cart_infra"]' >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        # Three dots on a pull request, so the diff is against the merge base: a state that only
+        # main has touched since this branch started is not this branch's change to plan. A push to
+        # main has no such distinction — `before` is the previous tip of this very branch.
+        if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+          git diff --name-only "$base...HEAD" > "$RUNNER_TEMP/changed"
+        else
+          git diff --name-only "$base" HEAD > "$RUNNER_TEMP/changed"
+        fi
+
+        out=''
+        while read -r slug dir; do
+          if grep -q "^$dir/" "$RUNNER_TEMP/changed"; then
+            out="$out${out:+,}\"$slug\""
+          fi
+        done <<'STATES'
+        gke_asia_southeast3_ad_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/ad/infra
+        gke_asia_southeast3_astronomy_db_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/astronomy-db/infra
+        gke_asia_southeast3_cart_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cart/infra
+        gke_asia_southeast3_checkout_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/checkout/infra
+        gke_asia_southeast3_cluster_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cluster/infra
+        gke_asia_southeast3_currency_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/currency/infra
+        gke_asia_southeast3_email_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/email/infra
+        gke_asia_southeast3_flagd_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd/infra
+        gke_asia_southeast3_flagd_ui_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd-ui/infra
+        gke_asia_southeast3_frontend_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend/infra
+        gke_asia_southeast3_frontend_proxy_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend-proxy/infra
+        gke_asia_southeast3_grafana_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/grafana/infra
+        gke_asia_southeast3_image_provider_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/image-provider/infra
+        gke_asia_southeast3_jaeger_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/jaeger/infra
+        gke_asia_southeast3_load_generator_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/load-generator/infra
+        gke_asia_southeast3_network_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/network/infra
+        gke_asia_southeast3_otel_collector_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/otel-collector/infra
+        gke_asia_southeast3_payment_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/payment/infra
+        gke_asia_southeast3_product_catalog_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/product-catalog/infra
+        gke_asia_southeast3_prometheus_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/prometheus/infra
+        gke_asia_southeast3_quote_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/quote/infra
+        gke_asia_southeast3_recommendation_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/recommendation/infra
+        gke_asia_southeast3_shipping_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/shipping/infra
+        gke_asia_southeast3_telemetry_docs_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/telemetry-docs/infra
+        gke_asia_southeast3_valkey_cart_infra examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/valkey-cart/infra
+        STATES
+        echo "changed=[$out]" >> "$GITHUB_OUTPUT"
   plan_gke_asia_southeast3_ad_infra:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/ad/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_ad_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/ad/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -1147,9 +1223,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/astronomy-db/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_astronomy_db_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/astronomy-db/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -1210,9 +1289,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cart/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_cart_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/cart/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -1273,9 +1355,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/checkout/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_checkout_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/checkout/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -1336,9 +1421,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/cluster/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_cluster_infra"'')
+      || needs.apply_gke_asia_southeast3_network_infra.result == ''success'')'
     name: plan gke-asia-southeast3/cluster/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_network_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -1399,9 +1487,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/currency/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_currency_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/currency/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -1462,9 +1553,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/email/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_email_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/email/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -1525,9 +1619,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_flagd_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/flagd/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -1588,9 +1685,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/flagd-ui/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_flagd_ui_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/flagd-ui/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -1651,9 +1751,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_frontend_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/frontend/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -1714,9 +1817,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/frontend-proxy/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_frontend_proxy_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/frontend-proxy/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -1777,9 +1883,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/grafana/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_grafana_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/grafana/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -1840,9 +1949,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/image-provider/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_image_provider_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/image-provider/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -1903,9 +2015,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/jaeger/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_jaeger_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/jaeger/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -1966,9 +2081,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/load-generator/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_load_generator_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/load-generator/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -2029,8 +2147,11 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/network/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_network_infra"''))'
     name: plan gke-asia-southeast3/network/infra
+    needs:
+    - changed_paths
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
     runs-on: ubuntu-latest
@@ -2090,9 +2211,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/otel-collector/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_otel_collector_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/otel-collector/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -2153,9 +2277,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/payment/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_payment_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/payment/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -2216,9 +2343,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/product-catalog/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_product_catalog_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/product-catalog/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -2279,9 +2409,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/prometheus/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_prometheus_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/prometheus/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -2342,9 +2475,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/quote/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_quote_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/quote/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -2405,9 +2541,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/recommendation/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_recommendation_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/recommendation/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -2468,9 +2607,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/shipping/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_shipping_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/shipping/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -2531,9 +2673,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/telemetry-docs/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_telemetry_docs_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/telemetry-docs/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
@@ -2594,9 +2739,12 @@ jobs:
     defaults:
       run:
         working-directory: examples/otel-demo/outputs/otel_demo/gke-asia-southeast3/valkey-cart/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"gke_asia_southeast3_valkey_cart_infra"'')
+      || needs.apply_gke_asia_southeast3_cluster_infra.result == ''success'')'
     name: plan gke-asia-southeast3/valkey-cart/infra
     needs:
+    - changed_paths
     - apply_gke_asia_southeast3_cluster_infra
     outputs:
       changes: ${{ steps.plan.outputs.changes }}

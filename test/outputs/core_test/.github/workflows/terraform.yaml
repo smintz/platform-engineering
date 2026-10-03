@@ -221,12 +221,67 @@ jobs:
         path: test/outputs/core_test/us-east-1/redis/monitoring
     - id: apply
       run: terraform apply -auto-approve -lock-timeout=5m tfplan
+  changed_paths:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    name: changed paths
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+    - id: checkout
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+    - id: diff
+      run: |
+        set -euo pipefail
+
+        if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+          base='${{ github.event.pull_request.base.sha }}'
+        else
+          base='${{ github.event.before }}'
+        fi
+
+        # A base commit this checkout cannot reach — the first push to a branch, a force-push that
+        # orphaned the old tip — leaves nothing to diff against. Name every state rather than none:
+        # a gate that cannot see the change must never be the reason a state goes unplanned.
+        if ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+          echo 'changed=["us_east_1_api_task_infra","us_east_1_api_task_monitoring","us_east_1_redis_infra","us_east_1_redis_monitoring"]' >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        # Three dots on a pull request, so the diff is against the merge base: a state that only
+        # main has touched since this branch started is not this branch's change to plan. A push to
+        # main has no such distinction — `before` is the previous tip of this very branch.
+        if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+          git diff --name-only "$base...HEAD" > "$RUNNER_TEMP/changed"
+        else
+          git diff --name-only "$base" HEAD > "$RUNNER_TEMP/changed"
+        fi
+
+        out=''
+        while read -r slug dir; do
+          if grep -q "^$dir/" "$RUNNER_TEMP/changed"; then
+            out="$out${out:+,}\"$slug\""
+          fi
+        done <<'STATES'
+        us_east_1_api_task_infra test/outputs/core_test/us-east-1/api-task/infra
+        us_east_1_api_task_monitoring test/outputs/core_test/us-east-1/api-task/monitoring
+        us_east_1_redis_infra test/outputs/core_test/us-east-1/redis/infra
+        us_east_1_redis_monitoring test/outputs/core_test/us-east-1/redis/monitoring
+        STATES
+        echo "changed=[$out]" >> "$GITHUB_OUTPUT"
   plan_us_east_1_api_task_infra:
     defaults:
       run:
         working-directory: test/outputs/core_test/us-east-1/api-task/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"us_east_1_api_task_infra"''))'
     name: plan us-east-1/api-task/infra
+    needs:
+    - changed_paths
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
     runs-on: ubuntu-latest
@@ -280,8 +335,11 @@ jobs:
     defaults:
       run:
         working-directory: test/outputs/core_test/us-east-1/api-task/monitoring
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"us_east_1_api_task_monitoring"''))'
     name: plan us-east-1/api-task/monitoring
+    needs:
+    - changed_paths
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
     runs-on: ubuntu-latest
@@ -369,8 +427,11 @@ jobs:
     defaults:
       run:
         working-directory: test/outputs/core_test/us-east-1/redis/infra
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"us_east_1_redis_infra"''))'
     name: plan us-east-1/redis/infra
+    needs:
+    - changed_paths
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
     runs-on: ubuntu-latest
@@ -424,8 +485,11 @@ jobs:
     defaults:
       run:
         working-directory: test/outputs/core_test/us-east-1/redis/monitoring
-    if: '!cancelled() && !failure()'
+    if: '!cancelled() && !failure() && ((github.event_name != ''push'' && github.event_name
+      != ''pull_request'') || contains(needs.changed_paths.outputs.changed, ''"us_east_1_redis_monitoring"''))'
     name: plan us-east-1/redis/monitoring
+    needs:
+    - changed_paths
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
     runs-on: ubuntu-latest

@@ -27,9 +27,10 @@ LOCK_TIMEOUT = "5m"
 # be spelled `needs['a-b']` everywhere it is read.
 _unsafe = re.compile("[^a-zA-Z0-9]+")
 
-# The one job id not derived from a config. Plan and apply ids are prefixed, so nothing
-# a config can be called collides with it.
+# The two job ids not derived from a config. Plan and apply ids are prefixed, so nothing
+# a config can be called collides with either.
 COMMENT_JOB_ID = "pr_comment"
+GATE_JOB_ID = "changed_paths"
 
 def _dir(key):
     return "/".join(key.split("/")[:-1])
@@ -503,6 +504,87 @@ prev
   : await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body: out });
 """
 
+# One job reads the diff once and names the states it touches; every plan job then asks
+# whether its own state is in that list. Doing it per plan job instead would be N copies of
+# the same diff, and — the part that matters — a runner started for every state in the
+# pipeline, which is the cost this gate exists to avoid.
+#
+# The output is one JSON list of slugs rather than one output per state, because a job's
+# outputs are a map GitHub builds per run and a pipeline has no fixed number of states.
+# Readers match it with `contains` on the string, looking for `"<slug>"` with the quotes —
+# which no other slug can contain — rather than with fromJSON on the list: a skipped gate
+# hands its readers the empty string, and fromJSON would fail the run on it where a string
+# `contains` is simply false.
+CHANGED_PATHS_SCRIPT = """\
+set -euo pipefail
+
+if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+  base='${{ github.event.pull_request.base.sha }}'
+else
+  base='${{ github.event.before }}'
+fi
+
+# A base commit this checkout cannot reach — the first push to a branch, a force-push that
+# orphaned the old tip — leaves nothing to diff against. Name every state rather than none:
+# a gate that cannot see the change must never be the reason a state goes unplanned.
+if ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+  echo 'changed=%(all)s' >> "$GITHUB_OUTPUT"
+  exit 0
+fi
+
+# Three dots on a pull request, so the diff is against the merge base: a state that only
+# main has touched since this branch started is not this branch's change to plan. A push to
+# main has no such distinction — `before` is the previous tip of this very branch.
+if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+  git diff --name-only "$base...HEAD" > "$RUNNER_TEMP/changed"
+else
+  git diff --name-only "$base" HEAD > "$RUNNER_TEMP/changed"
+fi
+
+out=''
+while read -r slug dir; do
+  if grep -q "^$dir/" "$RUNNER_TEMP/changed"; then
+    out="$out${out:+,}\\"$slug\\""
+  fi
+done <<'STATES'
+%(states)s
+STATES
+echo "changed=[$out]" >> "$GITHUB_OUTPUT"
+"""
+
+def _changed_paths_job(directories):
+    slugs = sorted(directories.keys())
+    return lib.Job(
+        GATE_JOB_ID,
+        lib.Name("changed paths"),
+        # Only the two events that carry a diff. A schedule and a dispatch plan everything
+        # on purpose, so there is nothing here for them to decide and no runner to spend.
+        lib.If("github.event_name == 'push' || github.event_name == 'pull_request'"),
+        lib.Outputs(changed = "${{ steps.diff.outputs.changed }}"),
+        # This job runs `git diff` over contributor-authored refs and nothing else. It needs
+        # no identity, no pull request and no artifacts, and the workflow-level permissions
+        # grant all three — so it drops them here.
+        lib.Permissions(contents = "read"),
+        lib.Step(
+            "checkout",
+            lib.Uses("actions/checkout@v7"),
+            # The base commit is reachable only with history; a shallow clone would send
+            # every run down the "cannot reach the base" path above and gate nothing.
+            lib.With(**{"fetch-depth": 0}),
+        ),
+        lib.Step(
+            "diff",
+            lib.Cmd(
+                CHANGED_PATHS_SCRIPT % {
+                    "all": "[%s]" % ",".join(['"%s"' % slug for slug in slugs]),
+                    "states": "\n".join(
+                        ["%s %s" % (slug, directories[slug]) for slug in slugs],
+                    ),
+                },
+            ),
+        ),
+    )
+
 PLAN_SCRIPT = """\
 set +e
 terraform plan -detailed-exitcode -lock-timeout=%(lock)s -out=tfplan
@@ -617,14 +699,34 @@ def _plan_job(
             ),
         )
 
+    # On a push or a pull request, the states worth planning are the ones the change can
+    # reach: the state whose own directory the diff touched, and anything downstream of an
+    # apply that actually applied something. Every other state would plan the same
+    # configuration against the same state as last time and spend a runner to say "No
+    # changes."
+    #
+    # The upstream half is not an optimisation that can be dropped. A state read through
+    # `terraform_remote_state` is read live at plan time, not from a file, so an upstream
+    # apply changes what this plan sees without touching a single path in this directory.
+    # `result == 'success'` is exactly "that apply ran", since an apply with nothing to do
+    # is skipped — and it propagates, because that upstream plan was gated by this same rule.
+    #
+    # A schedule and a dispatch are the opposite case: they exist to plan states nobody
+    # touched, so they are not gated at all.
+    reached = ["contains(needs.%s.outputs.changed, '\"%s\"')" % (GATE_JOB_ID, _slug(label))]
+    reached += ["needs.%s.result == 'success'" % _apply_id(u) for u in upstreams]
+
     return lib.Job(
         id,
         lib.Name("plan %s" % label),
         # An upstream with nothing to apply is skipped, not failed, and a plan that waited
         # on `success()` would be skipped with it and take the whole downstream chain
         # along. This says the real rule instead: run unless something upstream broke.
-        lib.If("!cancelled() && !failure()"),
-        lib.Needs(*[_apply_id(u) for u in upstreams]),
+        lib.If(
+            "!cancelled() && !failure() && ((github.event_name != 'push' && " +
+            "github.event_name != 'pull_request') || %s)" % " || ".join(reached),
+        ),
+        lib.Needs(*([GATE_JOB_ID] + [_apply_id(u) for u in upstreams])),
         lib.Defaults(working_directory = directory),
         lib.Outputs(changes = "${{ steps.plan.outputs.changes }}"),
         *(_runs_on(config, private_runner) + steps)
@@ -797,8 +899,10 @@ def TerraformPipeline(
         fail("TerraformPipeline: no Terraform configs to build a pipeline from")
 
     # A change anywhere under the root can change any state, because a single component
-    # writes into several of them. Narrowing this per job is not possible in one workflow,
-    # and would be wrong anyway.
+    # writes into several of them — so the trigger stays as wide as the root. Which of those
+    # states a given change actually reaches is decided per job by the gate below, where the
+    # diff is available and the job graph can be taken into account; `on.paths` can do
+    # neither.
     if paths == None:
         paths = ["%s/**" % output_root]
 
@@ -825,8 +929,10 @@ def TerraformPipeline(
     frozen = _frozen_configs(configs, frozen)
 
     jobs = []
+    directories = {}
     for key in sorted(configs.keys()):
         directory = "%s/%s" % (output_root, _dir(key))
+        directories[_slug(_dir(key))] = directory
         jobs.append(
             _plan_job(
                 key,
@@ -851,6 +957,7 @@ def TerraformPipeline(
                 frozen.get(key, ""),
             ),
         )
+    jobs.append(_changed_paths_job(directories))
     jobs.append(_comment_job(sorted(configs.keys()), frozen))
 
     triggers = [
