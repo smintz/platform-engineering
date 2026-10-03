@@ -2,6 +2,7 @@ test:
 	protoconf mod tidy
 	protoconf compile .
 	$(MAKE) gates
+	./changed_paths_test.sh
 
 # The fixture's pipeline stays under outputs/ and is never installed at the repository root:
 # its S3 backend is a placeholder no runner can reach, so it is drift-checked, not run.
