@@ -2805,6 +2805,7 @@ jobs:
     if: always() && github.event_name == 'pull_request'
     name: comment
     needs:
+    - changed_paths
     - plan_gke_asia_southeast3_ad_infra
     - plan_gke_asia_southeast3_astronomy_db_infra
     - plan_gke_asia_southeast3_cart_infra
@@ -2841,6 +2842,7 @@ jobs:
     - env:
         NEEDS: ${{ toJSON(needs) }}
         PLANS: '[{"job":"plan_gke_asia_southeast3_ad_infra","label":"gke-asia-southeast3/ad/infra","slug":"gke_asia_southeast3_ad_infra"},{"job":"plan_gke_asia_southeast3_astronomy_db_infra","label":"gke-asia-southeast3/astronomy-db/infra","slug":"gke_asia_southeast3_astronomy_db_infra"},{"job":"plan_gke_asia_southeast3_cart_infra","label":"gke-asia-southeast3/cart/infra","slug":"gke_asia_southeast3_cart_infra"},{"job":"plan_gke_asia_southeast3_checkout_infra","label":"gke-asia-southeast3/checkout/infra","slug":"gke_asia_southeast3_checkout_infra"},{"job":"plan_gke_asia_southeast3_cluster_infra","label":"gke-asia-southeast3/cluster/infra","slug":"gke_asia_southeast3_cluster_infra"},{"job":"plan_gke_asia_southeast3_currency_infra","label":"gke-asia-southeast3/currency/infra","slug":"gke_asia_southeast3_currency_infra"},{"job":"plan_gke_asia_southeast3_email_infra","label":"gke-asia-southeast3/email/infra","slug":"gke_asia_southeast3_email_infra"},{"job":"plan_gke_asia_southeast3_flagd_ui_infra","label":"gke-asia-southeast3/flagd-ui/infra","slug":"gke_asia_southeast3_flagd_ui_infra"},{"job":"plan_gke_asia_southeast3_flagd_infra","label":"gke-asia-southeast3/flagd/infra","slug":"gke_asia_southeast3_flagd_infra"},{"job":"plan_gke_asia_southeast3_frontend_proxy_infra","label":"gke-asia-southeast3/frontend-proxy/infra","slug":"gke_asia_southeast3_frontend_proxy_infra"},{"job":"plan_gke_asia_southeast3_frontend_infra","label":"gke-asia-southeast3/frontend/infra","slug":"gke_asia_southeast3_frontend_infra"},{"job":"plan_gke_asia_southeast3_grafana_infra","label":"gke-asia-southeast3/grafana/infra","slug":"gke_asia_southeast3_grafana_infra"},{"job":"plan_gke_asia_southeast3_image_provider_infra","label":"gke-asia-southeast3/image-provider/infra","slug":"gke_asia_southeast3_image_provider_infra"},{"job":"plan_gke_asia_southeast3_jaeger_infra","label":"gke-asia-southeast3/jaeger/infra","slug":"gke_asia_southeast3_jaeger_infra"},{"job":"plan_gke_asia_southeast3_load_generator_infra","label":"gke-asia-southeast3/load-generator/infra","slug":"gke_asia_southeast3_load_generator_infra"},{"job":"plan_gke_asia_southeast3_network_infra","label":"gke-asia-southeast3/network/infra","slug":"gke_asia_southeast3_network_infra"},{"job":"plan_gke_asia_southeast3_otel_collector_infra","label":"gke-asia-southeast3/otel-collector/infra","slug":"gke_asia_southeast3_otel_collector_infra"},{"job":"plan_gke_asia_southeast3_payment_infra","label":"gke-asia-southeast3/payment/infra","slug":"gke_asia_southeast3_payment_infra"},{"job":"plan_gke_asia_southeast3_product_catalog_infra","label":"gke-asia-southeast3/product-catalog/infra","slug":"gke_asia_southeast3_product_catalog_infra"},{"job":"plan_gke_asia_southeast3_prometheus_infra","label":"gke-asia-southeast3/prometheus/infra","slug":"gke_asia_southeast3_prometheus_infra"},{"job":"plan_gke_asia_southeast3_quote_infra","label":"gke-asia-southeast3/quote/infra","slug":"gke_asia_southeast3_quote_infra"},{"job":"plan_gke_asia_southeast3_recommendation_infra","label":"gke-asia-southeast3/recommendation/infra","slug":"gke_asia_southeast3_recommendation_infra"},{"job":"plan_gke_asia_southeast3_shipping_infra","label":"gke-asia-southeast3/shipping/infra","slug":"gke_asia_southeast3_shipping_infra"},{"job":"plan_gke_asia_southeast3_telemetry_docs_infra","label":"gke-asia-southeast3/telemetry-docs/infra","slug":"gke_asia_southeast3_telemetry_docs_infra"},{"job":"plan_gke_asia_southeast3_valkey_cart_infra","label":"gke-asia-southeast3/valkey-cart/infra","slug":"gke_asia_southeast3_valkey_cart_infra"}]'
+        REACHED: ${{ needs.changed_paths.outputs.changed }}
       id: comment
       uses: actions/github-script@v9
       with:
@@ -2850,6 +2852,9 @@ jobs:
           const plans = JSON.parse(process.env.PLANS);
           const needs = JSON.parse(process.env.NEEDS);
           const runId = process.env.GITHUB_RUN_ID;
+          // The states this change reached, as the path gate named them — empty on the events the
+          // gate does not run for.
+          const reached = process.env.REACHED || '';
 
           // GitHub rejects a comment over 65536 characters, and a rejected comment says nothing at
           // all about any state. Everything below is spent staying under that.
@@ -2884,7 +2889,16 @@ jobs:
             const artifact = `tfplan-${p.slug}-${runId}`;
             const name = '`' + p.label + '`' + (p.frozen ? ` (frozen: ${p.frozen})` : '');
             if (result !== 'success' || changes !== 'true') {
-              rows.push(`| ${name} | ${result === 'success' ? 'No changes.' : result} |`);
+              // A state the path gate did not name was never planned, and saying only "skipped" puts
+              // it in the same row as a plan that was skipped because something upstream failed. On a
+              // narrow pull request that is most of this table, so the two have to read differently:
+              // one is the gate working, the other is a plan a reviewer is still owed. `reached` is
+              // empty on a schedule or a dispatch, where nothing is gated and `skipped` means only
+              // what it has always meant.
+              const why = result === 'success' ? 'No changes.'
+                : result === 'skipped' && reached && !reached.includes(`"${p.slug}"`) ? 'Not in this change.'
+                : result;
+              rows.push(`| ${name} | ${why} |`);
               continue;
             }
             let text = null;

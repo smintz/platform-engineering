@@ -423,6 +423,9 @@ const tag = '<!-- tf-plan -->';
 const plans = JSON.parse(process.env.PLANS);
 const needs = JSON.parse(process.env.NEEDS);
 const runId = process.env.GITHUB_RUN_ID;
+// The states this change reached, as the path gate named them — empty on the events the
+// gate does not run for.
+const reached = process.env.REACHED || '';
 
 // GitHub rejects a comment over 65536 characters, and a rejected comment says nothing at
 // all about any state. Everything below is spent staying under that.
@@ -457,7 +460,16 @@ for (const p of plans) {
   const artifact = `tfplan-${p.slug}-${runId}`;
   const name = '`' + p.label + '`' + (p.frozen ? ` (frozen: ${p.frozen})` : '');
   if (result !== 'success' || changes !== 'true') {
-    rows.push(`| ${name} | ${result === 'success' ? 'No changes.' : result} |`);
+    // A state the path gate did not name was never planned, and saying only "skipped" puts
+    // it in the same row as a plan that was skipped because something upstream failed. On a
+    // narrow pull request that is most of this table, so the two have to read differently:
+    // one is the gate working, the other is a plan a reviewer is still owed. `reached` is
+    // empty on a schedule or a dispatch, where nothing is gated and `skipped` means only
+    // what it has always meant.
+    const why = result === 'success' ? 'No changes.'
+      : result === 'skipped' && reached && !reached.includes(`"${p.slug}"`) ? 'Not in this change.'
+      : result;
+    rows.push(`| ${name} | ${why} |`);
     continue;
   }
   let text = null;
@@ -811,7 +823,10 @@ def _comment_job(keys, frozen):
         # always(), because a plan that failed or never ran is the most interesting thing
         # the comment can say; the default would drop the comment along with the failure.
         lib.If("always() && github.event_name == 'pull_request'"),
-        lib.Needs(*[_plan_id(key) for key in keys]),
+        # The gate as well as every plan: the comment distinguishes a state this change
+        # never reached from a plan that was skipped for some other reason, and the gate's
+        # output is the only thing that knows which is which.
+        lib.Needs(*([GATE_JOB_ID] + [_plan_id(key) for key in keys])),
         lib.Step(
             "download-plans",
             lib.Uses("actions/download-artifact@v8"),
@@ -826,6 +841,7 @@ def _comment_job(keys, frozen):
             lib.SetEnv(
                 PLANS = json.encode(manifest),
                 NEEDS = "${{ toJSON(needs) }}",
+                REACHED = "${{ needs.%s.outputs.changed }}" % GATE_JOB_ID,
             ),
             lib.With(script = PLAN_COMMENT_SCRIPT),
         ),
