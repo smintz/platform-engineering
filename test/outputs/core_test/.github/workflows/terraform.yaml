@@ -577,6 +577,7 @@ jobs:
     if: always() && github.event_name == 'pull_request'
     name: comment
     needs:
+    - changed_paths
     - plan_us_east_1_api_task_infra
     - plan_us_east_1_api_task_monitoring
     - plan_us_east_1_redis_infra
@@ -592,6 +593,7 @@ jobs:
     - env:
         NEEDS: ${{ toJSON(needs) }}
         PLANS: '[{"job":"plan_us_east_1_api_task_infra","label":"us-east-1/api-task/infra","slug":"us_east_1_api_task_infra"},{"job":"plan_us_east_1_api_task_monitoring","label":"us-east-1/api-task/monitoring","slug":"us_east_1_api_task_monitoring"},{"job":"plan_us_east_1_redis_infra","label":"us-east-1/redis/infra","slug":"us_east_1_redis_infra"},{"job":"plan_us_east_1_redis_monitoring","label":"us-east-1/redis/monitoring","slug":"us_east_1_redis_monitoring"}]'
+        REACHED: ${{ needs.changed_paths.outputs.changed }}
       id: comment
       uses: actions/github-script@v9
       with:
@@ -601,6 +603,9 @@ jobs:
           const plans = JSON.parse(process.env.PLANS);
           const needs = JSON.parse(process.env.NEEDS);
           const runId = process.env.GITHUB_RUN_ID;
+          // The states this change reached, as the path gate named them — empty on the events the
+          // gate does not run for.
+          const reached = process.env.REACHED || '';
 
           // GitHub rejects a comment over 65536 characters, and a rejected comment says nothing at
           // all about any state. Everything below is spent staying under that.
@@ -635,7 +640,16 @@ jobs:
             const artifact = `tfplan-${p.slug}-${runId}`;
             const name = '`' + p.label + '`' + (p.frozen ? ` (frozen: ${p.frozen})` : '');
             if (result !== 'success' || changes !== 'true') {
-              rows.push(`| ${name} | ${result === 'success' ? 'No changes.' : result} |`);
+              // A state the path gate did not name was never planned, and saying only "skipped" puts
+              // it in the same row as a plan that was skipped because something upstream failed. On a
+              // narrow pull request that is most of this table, so the two have to read differently:
+              // one is the gate working, the other is a plan a reviewer is still owed. `reached` is
+              // empty on a schedule or a dispatch, where nothing is gated and `skipped` means only
+              // what it has always meant.
+              const why = result === 'success' ? 'No changes.'
+                : result === 'skipped' && reached && !reached.includes(`"${p.slug}"`) ? 'Not in this change.'
+                : result;
+              rows.push(`| ${name} | ${why} |`);
               continue;
             }
             let text = null;
