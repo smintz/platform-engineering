@@ -135,8 +135,8 @@ def main():
     # a gate that had quietly stopped firing would still look green — and it would still exit
     # non-zero from those second catchers, which is why `make gates` asserts on the gate's own
     # message and on the function named in the traceback rather than on the exit code. The
-    # result is discarded: nothing here is materialized.
-    actions.TerraformPipeline(
+    # workflow it returns is asserted on below; nothing here is materialized.
+    workflow = actions.TerraformPipeline(
         configs,
         OUTPUT_ROOT,
         actions.OidcCredentials("us-east-1"),
@@ -160,5 +160,85 @@ def main():
              "state id, so both halves of the handshake are no longer pointed at the same " +
              "backend.") % (expected, deps),
         )
+
+    # The edge above is only half of what the pipeline does with it. The other half is the
+    # condition the plan jobs carry, and this fixture is the only place it can be asserted:
+    # every state in core_test stands alone, so its generated workflow renders a plan job
+    # with no upstream clause at all, and a change that dropped that clause from the driver
+    # would leave every golden file in this repository byte-identical.
+    #
+    # What it would cost is silence of the worst kind. A state read through
+    # terraform_remote_state is read live at plan time rather than from a file, so an
+    # upstream apply changes what this plan would see without touching one path in this
+    # state's directory. Drop the clause and the subscriber is planned only when its own
+    # files change — it goes unplanned on exactly the runs where the publisher moved the
+    # ground under it, and an unplanned state is indistinguishable, in a run's job list,
+    # from a state with nothing to do.
+    #
+    # Composed from the keys for the reason they are themselves composed: the job id is the
+    # key's directory with the separators collapsed, and a literal here would keep passing
+    # after a change to that layout by asserting against a job the driver no longer writes.
+    # Every name in this fixture is already slug-safe, so "/" is the only character the
+    # driver's own transform has anything to do with; one that is not would fail below
+    # naming the id it looked for, which is loud rather than quiet.
+    slug = lambda key: "_".join(key.split("/")[:-1])
+    own = lambda key: "contains(needs.changed_paths.outputs.changed, '\"%s\"')" % slug(key)
+    applied = lambda key: "needs.apply_%s.result == 'success'" % slug(key)
+
+    for key, upstreams in [(sub, [pub]), (pub, [])]:
+        id = "plan_%s" % slug(key)
+        job = workflow.jobs[id]
+
+        # The gate job first, then the upstream applies. A plan that did not wait for the
+        # gate would read an output that had not been written yet — the empty string — and
+        # skip itself on every push and pull request there is.
+        wanted = ["changed_paths"] + ["apply_%s" % slug(u) for u in upstreams]
+        if list(job.needs) != wanted:
+            fail(
+                ("handshake_test: %s waits on %s, expected %s. A plan job reads the path " +
+                 "gate's output and its upstream applies' results, and `needs` is what " +
+                 "makes either one readable at all.") % (id, list(job.needs), wanted),
+            )
+
+        if own(key) not in job.if_condition:
+            fail(
+                ("handshake_test: %s does not test the path gate for its own state. Its " +
+                 "condition is %s. Without that clause the state is planned on every push " +
+                 "and pull request, which is the whole of what the gate removes.") %
+                (id, job.if_condition),
+            )
+
+        # The nightly drift check and a manual dispatch plan states nobody touched — that
+        # is what they are for — so the gate must not reach them. A condition that lost
+        # this clause would leave the nightly run planning nothing and reporting drift on
+        # nothing, which reads exactly like a stack that has stopped drifting.
+        if "github.event_name != 'push'" not in job.if_condition:
+            fail(
+                ("handshake_test: %s gates events other than push and pull request. Its " +
+                 "condition is %s. The nightly drift check exists to plan states nobody " +
+                 "touched, and a gated schedule would find drift in none of them.") %
+                (id, job.if_condition),
+            )
+
+        # Positive and negative in one loop. The publisher reads nothing, so an upstream
+        # clause on its plan would mean the clauses are sprayed onto every job rather than
+        # derived from the handshake — which a test that only ever looked at the subscriber
+        # would pass.
+        for candidate in [pub]:
+            present = applied(candidate) in job.if_condition
+            if present != (candidate in upstreams):
+                fail(
+                    ("handshake_test: %s %s an upstream clause for %s. Its condition is " +
+                     "%s, and its upstreams are %s. That clause is what plans a state " +
+                     "after the state it reads has moved, and it belongs to the " +
+                     "handshake — on the jobs that have one, and on no others.") %
+                    (
+                        id,
+                        "carries" if present else "is missing",
+                        "apply_%s" % slug(candidate),
+                        job.if_condition,
+                        ["apply_%s" % slug(u) for u in upstreams],
+                    ),
+                )
 
     return {}
