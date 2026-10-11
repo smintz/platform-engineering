@@ -1,0 +1,98 @@
+load("@github_actions//github_actions.pinc", "actions")
+load("@kubernetes//kubernetes.pinc", "Workload")
+load("@platform//platform/platform.pinc", "platform")
+load("@terraform_state//terraform.pinc", "S3Backend", "WithState")
+
+# What the golden files cannot see, part four. SetRunners moves a state's jobs to another
+# runner pool, and this repo's reference stacks pass no such hook — so every job in them
+# lands on ubuntu-latest whether the hook works, routes everything, or routes nothing. The
+# three outcomes are indistinguishable under outputs/, and two of them are a state planned
+# on a runner that cannot reach it or a private pool paying for the whole pipeline.
+#
+# main() returns an empty dict on purpose: an .mpconf with no keys writes no output file, so
+# this costs zero golden-file surface while still compiling on every `make test`.
+
+# Where these states would live if anything ever applied them. The key the lambda builds is
+# also what the condition below reads, which is the property under test: a hook decides by
+# looking at the config, not at a list of state names kept somewhere else.
+BACKEND = S3Backend(
+    "runners-test-fixture",
+    "us-east-1",
+    lambda domain, name: "%s/%s.tfstate" % (domain, name),
+)
+
+DOMAIN = "runners"
+PRIVATE_RUNNER = "self-hosted-private-subnet"
+
+# Never written to: TerraformPipeline needs a root to resolve working directories against.
+OUTPUT_ROOT = "test/outputs/runners_test"
+
+def PrivateComponent(*hooks):
+    return platform.Component(
+        "private",
+        WithState(lambda component: Workload("private", "postgres:16", 5432), BACKEND),
+        *hooks
+    )
+
+# The control. Same pipeline, same root, and the condition says no to it: a hook that routed
+# every state would pass an assertion that only looks at the state it expected to move.
+def PublicComponent(*hooks):
+    return platform.Component(
+        "public",
+        WithState(lambda component: Workload("public", "ghcr.io/example/public:latest", 8080), BACKEND),
+        *hooks
+    )
+
+def TopComponent(*hooks):
+    return platform.Component(
+        "top",
+        WithState(lambda component: Workload("top", "ghcr.io/example/top:latest", 8080), BACKEND),
+        platform.WithDeps(PrivateComponent, PublicComponent),
+        *hooks
+    )
+
+def main():
+    root = TopComponent(platform.WithFailureDomain(DOMAIN)).msg
+
+    workflow = actions.TerraformPipeline(
+        platform.GetConfigs(root),
+        OUTPUT_ROOT,
+        # no credentials: nothing here is ever applied
+        lambda phase, config: [],
+        actions.SetRunners(
+            PRIVATE_RUNNER,
+            lambda config: config.terraform.backend.s3.key == "%s/private.tfstate" % DOMAIN,
+        ),
+    )
+
+    # Composed rather than hardcoded: the job id layout is the driver's business, and a
+    # literal here would keep passing against ids the driver no longer emits.
+    def ids(name):
+        return [
+            "plan_%s_%s_infra" % (DOMAIN, name),
+            "apply_%s_%s_infra" % (DOMAIN, name),
+        ]
+
+    # Both jobs, not just the plan: an apply left on a shared runner is the same state
+    # unreachable from the same network, one phase later and with a lock held.
+    for id in ids("private"):
+        job = workflow.jobs.get(id)
+        if not job:
+            fail("runners_test: no job %s in the workflow — the fixture's job ids no longer match the driver's" % id)
+        if job.runs_on != PRIVATE_RUNNER:
+            fail(
+                ("runners_test: %s should run on %r and runs on %r. A config the condition " +
+                 "accepted did not move, so the hook is not reaching this job.") %
+                (id, PRIVATE_RUNNER, job.runs_on),
+            )
+
+    for id in ids("public") + ids("top"):
+        job = workflow.jobs[id]
+        if job.runs_on != "ubuntu-latest":
+            fail(
+                ("runners_test: %s runs on %r and nothing asked it to — the condition is " +
+                 "being ignored and every state is going to the private pool") %
+                (id, job.runs_on),
+            )
+
+    return {}

@@ -647,18 +647,32 @@ def _setup(directory, credentials, phase, terraform_version, config):
         ]
     )
 
-# A config that declares the postgres provider has to reach leap-aurora to plan or apply
-# at all, and leap-aurora is not reachable from GitHub's runners: it is not publicly
-# accessible and its security group admits 5432 only from the private subnets. Those
-# states go to the self-hosted pool that sits on those subnets. Everything else stays on
-# GitHub's runners, which are disposable in a way the self-hosted ones are not.
+# A pipeline hook is a function of one Terraform config returning job hooks from
+# `//github/lib.pinc` — the same hooks lib.Job takes — and whatever it returns is applied to
+# both of that config's jobs. It is how the caller says something about every state's jobs
+# that the configs themselves already imply, without the driver holding a list of states.
+def _job_hooks(config, hooks):
+    return [job_hook for hook in hooks for job_hook in hook(config)]
+
+# SetRunners sends a state's plan and apply to a particular runner pool, for the states
+# `condition` accepts — and every state when there is no condition.
 #
-# Reading the provider off the config keeps this in step with the rest of the driver:
-# nothing lists which states are private, the configs already say so.
-def _runs_on(config, private_runner):
-    if private_runner and config.provider and config.provider.postgresql:
-        return [lib.RunsOn(private_runner)]
-    return []
+# The condition reads the Terraform config, which is the point: a state that cannot be
+# planned from GitHub's runners says so in its own configuration. A config declaring the
+# postgresql provider against a database that admits 5432 only from private subnets needs
+# a runner on those subnets, so
+#
+#     SetRunners("self-hosted", lambda config: config.provider and config.provider.postgresql)
+#
+# routes exactly those states there and leaves everything else on GitHub's disposable
+# runners. Nobody keeps a list of which states are private; the configs already say.
+def SetRunners(label = "ubuntu-latest", condition = None):
+    def runners(config):
+        if condition and not condition(config):
+            return []
+        return [lib.RunsOn(label)]
+
+    return runners
 
 def _plan_job(
         key,
@@ -667,7 +681,7 @@ def _plan_job(
         credentials,
         terraform_version,
         config,
-        private_runner,
+        job_hooks,
         frozen):
     id = _plan_id(key)
     label = _dir(key)
@@ -741,7 +755,7 @@ def _plan_job(
         lib.Needs(*([GATE_JOB_ID] + [_apply_id(u) for u in upstreams])),
         lib.Defaults(working_directory = directory),
         lib.Outputs(changes = "${{ steps.plan.outputs.changes }}"),
-        *(_runs_on(config, private_runner) + steps)
+        *(job_hooks + steps)
     )
 
 def _apply_job(
@@ -751,7 +765,7 @@ def _apply_job(
         terraform_version,
         environment,
         config,
-        private_runner,
+        job_hooks,
         frozen):
     id = _apply_id(key)
     plan = _plan_id(key)
@@ -795,7 +809,7 @@ def _apply_job(
         lib.Needs(plan),
         lib.If(condition),
         lib.Defaults(working_directory = directory),
-    ] + _runs_on(config, private_runner)
+    ] + job_hooks
     if environment:
         hooks.append(lib.Environment(environment))
 
@@ -900,12 +914,12 @@ def TerraformPipeline(
         configs,
         output_root,
         credentials,
+        *hooks,
         name = "terraform",
         terraform_version = TERRAFORM_VERSION,
         environment = "",
         drift_cron = "0 3 * * *",
         paths = None,
-        private_runner = "",
         frozen = {}):
     # GetConfigs also returns the plain config files a component renders beside its state
     # (a Struct under the same directory). Terraform applies the directory and those ride
@@ -948,6 +962,7 @@ def TerraformPipeline(
     directories = {}
     for key in sorted(configs.keys()):
         directory = "%s/%s" % (output_root, _dir(key))
+        job_hooks = _job_hooks(configs[key], hooks)
         directories[_slug(_dir(key))] = directory
         jobs.append(
             _plan_job(
@@ -957,7 +972,7 @@ def TerraformPipeline(
                 credentials,
                 terraform_version,
                 configs[key],
-                private_runner,
+                job_hooks,
                 frozen.get(key, ""),
             ),
         )
@@ -969,7 +984,7 @@ def TerraformPipeline(
                 terraform_version,
                 environment,
                 configs[key],
-                private_runner,
+                job_hooks,
                 frozen.get(key, ""),
             ),
         )
@@ -1015,6 +1030,7 @@ def TerraformPipeline(
 
 actions = struct(
     TerraformPipeline = TerraformPipeline,
+    SetRunners = SetRunners,
     OidcCredentials = OidcCredentials,
     GoogleOidcCredentials = GoogleOidcCredentials,
     AccessKeyCredentials = AccessKeyCredentials,
