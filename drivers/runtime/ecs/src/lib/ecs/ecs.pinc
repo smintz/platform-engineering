@@ -64,6 +64,21 @@ def WithUlimit(name, soft_limit, hard_limit, container_id = "main"):
 
     return with_ulimit
 
+# WithRestartPolicy restarts the container in place when it exits with a code not in
+# ignored_exit_codes. The default ignores 0, so a clean exit ends the task and a failure
+# retries it, which is what a scheduled job wants. On the EC2 launch type this needs ECS
+# agent >= 1.86.
+def WithRestartPolicy(ignored_exit_codes = [0], restart_attempt_period = 300, container_id = "main"):
+    def with_restart_policy(t, next):
+        t.tmp["containers"][container_id].restart_policy = ContainerDefinition.RestartPolicy(
+            enabled = True,
+            ignored_exit_codes = ignored_exit_codes,
+            restart_attempt_period = restart_attempt_period,
+        )
+        return next(t)
+
+    return with_restart_policy
+
 def WithDatabaseUser(dbuser):
     def with_database_user(t, next):
         t.Chain(
@@ -610,6 +625,7 @@ ecs = struct(
     WithSidecar = WithSidecar,
     WithCommand = WithCommand,
     WithImage = WithImage,
+    WithRestartPolicy = WithRestartPolicy,
     # AWS IAM/Policy functions
     WithDatabaseUser = WithDatabaseUser,
     WithS3Access = WithS3Access,

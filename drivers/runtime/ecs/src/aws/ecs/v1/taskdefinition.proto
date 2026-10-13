@@ -34,6 +34,13 @@ message ContainerDefinition {
   repeated VolumeFrom volumes_from = 29; // Data volumes to mount from another container
   string working_directory = 30; // The working directory in which to run commands inside the container
   repeated Secret secrets = 31; // The secrets to pass to the container
+  RestartPolicy restart_policy = 32; // Restart the container in place when it exits
+
+  message RestartPolicy {
+    bool enabled = 1; // Whether the restart policy is enabled
+    repeated int32 ignored_exit_codes = 2; // Exit codes that do not trigger a restart
+    int32 restart_attempt_period = 3; // Seconds a container must run before a restart is attempted
+  }
 
   message Secret {
     string name = 1; // The name of the secret
