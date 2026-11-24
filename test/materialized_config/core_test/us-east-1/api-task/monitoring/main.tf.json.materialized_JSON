@@ -39,7 +39,7 @@
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"(sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[1h]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[1h]))) \\u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "model": "{\"expr\":\"sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[1h]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
                     "from": "3600",
@@ -48,7 +48,7 @@
                 },
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"(sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[5m]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[5m]))) \\u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "model": "{\"expr\":\"sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[5m]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
                     "from": "300",
@@ -83,7 +83,7 @@
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"(sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[6h]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[6h]))) \\u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "model": "{\"expr\":\"sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[6h]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
                     "from": "21600",
@@ -92,7 +92,7 @@
                 },
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"(sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[30m]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[30m]))) \\u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "model": "{\"expr\":\"sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[30m]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
                     "from": "1800",
@@ -127,7 +127,7 @@
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"(sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[3d]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[3d]))) \\u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "model": "{\"expr\":\"sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[3d]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
                     "from": "259200",
@@ -136,7 +136,7 @@
                 },
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"(sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[6h]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[6h]))) \\u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "model": "{\"expr\":\"sum(rate(http_requests_total{job=\\\"api-task\\\",code!~\\\"5..\\\"}[6h]))\\n  / sum(rate(http_requests_total{job=\\\"api-task\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
                     "from": "21600",
@@ -171,7 +171,7 @@
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"(sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[1h]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[1h]))) \\u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "model": "{\"expr\":\"sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[1h]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
                     "from": "3600",
@@ -180,7 +180,7 @@
                 },
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"(sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[5m]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[5m]))) \\u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "model": "{\"expr\":\"sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[5m]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
                     "from": "300",
@@ -215,7 +215,7 @@
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"(sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[6h]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[6h]))) \\u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "model": "{\"expr\":\"sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[6h]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
                     "from": "21600",
@@ -224,7 +224,7 @@
                 },
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"(sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[30m]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[30m]))) \\u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "model": "{\"expr\":\"sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[30m]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
                     "from": "1800",
@@ -259,7 +259,7 @@
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"(sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[3d]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[3d]))) \\u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "model": "{\"expr\":\"sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[3d]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
                     "from": "259200",
@@ -268,7 +268,7 @@
                 },
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"(sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[6h]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[6h]))) \\u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "model": "{\"expr\":\"sum(rate(http_request_duration_seconds_bucket{job=\\\"api-task\\\",le=\\\"0.3\\\"}[6h]))\\n  / sum(rate(http_request_duration_seconds_count{job=\\\"api-task\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
                     "from": "21600",
