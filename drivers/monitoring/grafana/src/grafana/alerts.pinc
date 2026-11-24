@@ -149,6 +149,24 @@ def expression_stage(ref_id, model, seconds):
 def threshold_for(objective, burn):
     return 1.0 - burn.factor * (1.0 - objective.query.min)
 
+# Grafana's spelling of each override. UNSPECIFIED is absent on purpose: it means the
+# caller's default for the rule's shape.
+NoData = component_proto.Objective.Query.NoData
+NO_DATA_STATES = {
+    NoData.NO_DATA_OK: "OK",
+    NoData.NO_DATA_ALERTING: "Alerting",
+    NoData.NO_DATA_NO_DATA: "NoData",
+    NoData.NO_DATA_KEEP_LAST: "KeepLast",
+}
+
+def _no_data_state(objective, default):
+    return NO_DATA_STATES.get(objective.query.no_data_state, default)
+
+# No data defaults to OK. The SLI is good events over valid events, so with zero valid
+# events no error budget is spent, and OK is the correct state, not "unknown". Without
+# this, every quiet night or weekend sends a DatasourceNoData alert. The cost: this rule
+# cannot detect a total loss of telemetry. A threshold objective on a signal that must
+# always report has to do that.
 def burn_rule(component, objective, burn, uid, region):
     threshold = threshold_for(objective, burn)
 
@@ -161,7 +179,7 @@ def burn_rule(component, objective, burn, uid, region):
     return Rule(
         name = "%s: %s · %s" % (component.name, objective.name, burn.name),
         condition = "C",
-        no_data_state = "NoData",
+        no_data_state = _no_data_state(objective, "OK"),
         exec_err_state = "Error",
         data = [
             query_stage(
@@ -271,7 +289,8 @@ def threshold_rule(component, objective, uid, region):
     return Rule(
         name = "%s: %s · over threshold" % (component.name, objective.name),
         condition = "C",
-        no_data_state = "NoData",
+        # a gauge that stops reporting can be the failure itself, so no data stays NoData
+        no_data_state = _no_data_state(objective, "NoData"),
         exec_err_state = "Error",
         data = [
             query_stage(objective, query.query, "A", THRESHOLD_SECONDS, uid, region),

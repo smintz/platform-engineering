@@ -164,6 +164,11 @@ platform.WithDiagnostic("pod restarts", "sum(increase(kube_pod_container_status_
 - **`WithSLO`** is a promise: a query, a bound (`min` for a ratio, `max` for a ceiling), a
   unit and a severity. A `burn_query` gives it multiwindow burn-rate alerts; without one, a
   `threshold_alert` gives it a plain threshold rule.
+- **No data.** A burn-rate rule with no data is OK: zero valid events spend no budget, so a
+  quiet night does not alert. It also cannot see a total loss of telemetry; a threshold
+  objective must catch that. A threshold rule with no data goes to NoData, because a gauge
+  that stops reporting can be the failure. `no_data_state = platform.NoData.NO_DATA_ALERTING`
+  (or `NO_DATA_OK`, `NO_DATA_NO_DATA`, `NO_DATA_KEEP_LAST`) overrides either default.
 - **`WithDiagnostic`** is not a promise: a signal on the dashboard that explains a broken
   objective, and never pages.
 - **`WithGrafanaDashboard(backend, datasources)`** (in the Grafana driver) renders one

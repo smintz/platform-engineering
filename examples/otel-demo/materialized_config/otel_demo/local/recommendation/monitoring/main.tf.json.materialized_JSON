@@ -35,7 +35,7 @@
                 "severity": "page"
               },
               "name": "recommendation: availability · fast burn",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -79,7 +79,7 @@
                 "severity": "page"
               },
               "name": "recommendation: availability · slow burn",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -123,7 +123,7 @@
                 "severity": "ticket"
               },
               "name": "recommendation: availability · budget leak",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -167,7 +167,7 @@
                 "severity": "page"
               },
               "name": "recommendation: latency · fast burn",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -211,7 +211,7 @@
                 "severity": "page"
               },
               "name": "recommendation: latency · slow burn",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -255,7 +255,7 @@
                 "severity": "ticket"
               },
               "name": "recommendation: latency · budget leak",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -299,7 +299,7 @@
                 "severity": "page"
               },
               "name": "recommendation: recommendation latency · slow burn",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -343,7 +343,7 @@
                 "severity": "ticket"
               },
               "name": "recommendation: recommendation latency · budget leak",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",

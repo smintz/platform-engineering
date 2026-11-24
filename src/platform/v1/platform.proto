@@ -95,6 +95,14 @@ message Component {
             // renderer, which knows which labels tell the series apart.
             string legend = 8;
 
+            // What an alert rule on this objective does when its query returns no rows.
+            // Unspecified takes the driver's default for the rule's shape. A burn-rate rule
+            // defaults to OK: the SLI is good events over valid events, so zero valid events
+            // spend no budget, and a quiet night is not an incident. A threshold rule
+            // defaults to NoData: a gauge that stops reporting can be the failure itself.
+            // Set it only where the default is wrong for this one objective.
+            NoData no_data_state = 9;
+
             enum Unit {
                 UNIT_UNSPECIFIED = 0;
                 // 0.0 - 1.0
@@ -105,6 +113,14 @@ message Component {
                 UNIT_MILLISECONDS = 4;
                 UNIT_BYTES = 5;
                 UNIT_COUNT = 6;
+            }
+
+            enum NoData {
+                NO_DATA_UNSPECIFIED = 0;
+                NO_DATA_OK = 1;
+                NO_DATA_ALERTING = 2;
+                NO_DATA_NO_DATA = 3;
+                NO_DATA_KEEP_LAST = 4;
             }
         }
 

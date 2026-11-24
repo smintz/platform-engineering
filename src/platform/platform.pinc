@@ -28,6 +28,7 @@ load(
     "//platform/monitoring.pinc",
     "MONITORING_CONFIG",
     "MONITORING_SUFFIX",
+    "NoData",
     "Status",
     "Unit",
     "WithDiagnostic",
@@ -79,5 +80,6 @@ platform = struct(
     WithDiagnostic = WithDiagnostic,
     WithSLO = WithSLO,
     Unit = Unit,
+    NoData = NoData,
     Status = Status,
 )

@@ -32,7 +32,7 @@
               "severity": "page"
             },
             "name": "payment: availability · fast burn",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -76,7 +76,7 @@
               "severity": "page"
             },
             "name": "payment: availability · slow burn",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -120,7 +120,7 @@
               "severity": "ticket"
             },
             "name": "payment: availability · budget leak",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -164,7 +164,7 @@
               "severity": "page"
             },
             "name": "payment: latency · fast burn",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -208,7 +208,7 @@
               "severity": "page"
             },
             "name": "payment: latency · slow burn",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -252,7 +252,7 @@
               "severity": "ticket"
             },
             "name": "payment: latency · budget leak",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -296,7 +296,7 @@
               "severity": "page"
             },
             "name": "payment: charge latency · slow burn",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -340,7 +340,7 @@
               "severity": "ticket"
             },
             "name": "payment: charge latency · budget leak",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
