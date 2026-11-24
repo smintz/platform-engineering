@@ -39,7 +39,7 @@
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[1h])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "model": "{\"expr\":\"(sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[1h])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[1h]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
                     "from": "3600",
@@ -48,7 +48,7 @@
                 },
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[5m])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "model": "{\"expr\":\"(sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[5m])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[5m]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
                     "from": "300",
@@ -83,7 +83,7 @@
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "model": "{\"expr\":\"(sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[6h]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
                     "from": "21600",
@@ -92,7 +92,7 @@
                 },
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[30m])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "model": "{\"expr\":\"(sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[30m])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[30m]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
                     "from": "1800",
@@ -127,7 +127,7 @@
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[3d])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "model": "{\"expr\":\"(sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[3d])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[3d]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
                     "from": "259200",
@@ -136,7 +136,7 @@
                 },
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "model": "{\"expr\":\"(sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[6h]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
                     "from": "21600",
@@ -171,7 +171,7 @@
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[1h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "model": "{\"expr\":\"(sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[1h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[1h]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
                     "from": "3600",
@@ -180,7 +180,7 @@
                 },
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[5m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "model": "{\"expr\":\"(sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[5m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[5m]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
                     "from": "300",
@@ -215,7 +215,7 @@
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "model": "{\"expr\":\"(sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[6h]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
                     "from": "21600",
@@ -224,7 +224,7 @@
                 },
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[30m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "model": "{\"expr\":\"(sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[30m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[30m]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
                     "from": "1800",
@@ -259,7 +259,7 @@
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[3d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "model": "{\"expr\":\"(sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[3d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[3d]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
                     "from": "259200",
@@ -268,7 +268,7 @@
                 },
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "model": "{\"expr\":\"(sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\",le=\\\"1000\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{service_name=\\\"frontend-proxy\\\",span_kind=\\\"SPAN_KIND_SERVER\\\",upstream_cluster!=\\\"grafana\\\"}[6h]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
                     "from": "21600",
@@ -303,7 +303,7 @@
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[1h])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "model": "{\"expr\":\"(sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[1h])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[1h]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
                     "from": "3600",
@@ -312,7 +312,7 @@
                 },
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[5m])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "model": "{\"expr\":\"(sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[5m])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[5m]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
                     "from": "300",
@@ -347,7 +347,7 @@
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[6h])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "model": "{\"expr\":\"(sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[6h])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[6h]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
                     "from": "21600",
@@ -356,7 +356,7 @@
                 },
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[30m])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "model": "{\"expr\":\"(sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[30m])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[30m]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
                     "from": "1800",
@@ -391,7 +391,7 @@
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[3d])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                  "model": "{\"expr\":\"(sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[3d])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[3d]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                   "ref_id": "A",
                   "relative_time_range": {
                     "from": "259200",
@@ -400,7 +400,7 @@
                 },
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                  "model": "{\"expr\":\"sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[6h])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                  "model": "{\"expr\":\"(sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\",status!~\\\"5..|0\\\"}[6h])) / sum(rate(k6_http_reqs_total{service_name=\\\"load-generator\\\"}[6h]))) >= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                   "ref_id": "B",
                   "relative_time_range": {
                     "from": "21600",

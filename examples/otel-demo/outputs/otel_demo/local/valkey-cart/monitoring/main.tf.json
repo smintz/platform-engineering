@@ -36,7 +36,7 @@
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[1h])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "model": "{\"expr\":\"(sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[1h])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[1h]))) \u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                 "ref_id": "A",
                 "relative_time_range": {
                   "from": "3600",
@@ -45,7 +45,7 @@
               },
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[5m])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "model": "{\"expr\":\"(sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[5m])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[5m]))) \u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                 "ref_id": "B",
                 "relative_time_range": {
                   "from": "300",
@@ -80,7 +80,7 @@
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "model": "{\"expr\":\"(sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[6h]))) \u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                 "ref_id": "A",
                 "relative_time_range": {
                   "from": "21600",
@@ -89,7 +89,7 @@
               },
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[30m])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "model": "{\"expr\":\"(sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[30m])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[30m]))) \u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                 "ref_id": "B",
                 "relative_time_range": {
                   "from": "1800",
@@ -124,7 +124,7 @@
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[3d])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "model": "{\"expr\":\"(sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[3d])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[3d]))) \u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                 "ref_id": "A",
                 "relative_time_range": {
                   "from": "259200",
@@ -133,7 +133,7 @@
               },
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                "model": "{\"expr\":\"sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "model": "{\"expr\":\"(sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",status_code!=\\\"STATUS_CODE_ERROR\\\"}[6h])) / sum(rate(traces_span_metrics_calls_total{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[6h]))) \u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                 "ref_id": "B",
                 "relative_time_range": {
                   "from": "21600",
@@ -168,7 +168,7 @@
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[1h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[1h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "model": "{\"expr\":\"(sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[1h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[1h]))) \u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                 "ref_id": "A",
                 "relative_time_range": {
                   "from": "3600",
@@ -177,7 +177,7 @@
               },
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[5m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[5m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "model": "{\"expr\":\"(sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[5m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[5m]))) \u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                 "ref_id": "B",
                 "relative_time_range": {
                   "from": "300",
@@ -212,7 +212,7 @@
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "model": "{\"expr\":\"(sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[6h]))) \u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                 "ref_id": "A",
                 "relative_time_range": {
                   "from": "21600",
@@ -221,7 +221,7 @@
               },
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[30m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[30m]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "model": "{\"expr\":\"(sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[30m])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[30m]))) \u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                 "ref_id": "B",
                 "relative_time_range": {
                   "from": "1800",
@@ -256,7 +256,7 @@
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[3d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[3d]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
+                "model": "{\"expr\":\"(sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[3d])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[3d]))) \u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"A\"}",
                 "ref_id": "A",
                 "relative_time_range": {
                   "from": "259200",
@@ -265,7 +265,7 @@
               },
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
-                "model": "{\"expr\":\"sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[6h]))\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
+                "model": "{\"expr\":\"(sum(rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\",le=\\\"10\\\"}[6h])) / sum(rate(traces_span_metrics_duration_milliseconds_count{span_kind=\\\"SPAN_KIND_CLIENT\\\",server_address=\\\"valkey-cart\\\"}[6h]))) \u003e= 0\",\"instant\":true,\"intervalMs\":60000,\"maxDataPoints\":1,\"refId\":\"B\"}",
                 "ref_id": "B",
                 "relative_time_range": {
                   "from": "21600",

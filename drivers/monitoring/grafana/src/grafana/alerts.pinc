@@ -84,7 +84,19 @@ def windowed_query(objective, window):
             "no %s window spelling for datasource '%s', needed by objective '%s'" %
             (window, objective.query.datasource, objective.name),
         )
-    return objective.query.burn_query.replace(WINDOW_TOKEN, spelling)
+    query = objective.query.burn_query.replace(WINDOW_TOKEN, spelling)
+
+    # A window with zero events makes good/valid 0/0 = NaN, not "no data", so
+    # no_data_state never applies and Grafana fires the math condition on NaN. A PromQL
+    # comparison with NaN is false, so ">= 0" drops the NaN series and leaves the result
+    # empty. A real ratio is always >= 0, so the filter changes nothing else.
+    #
+    # The other datasources are not wrapped. A Postgres burn query must use NULLIF on the
+    # denominator and return NULL for zero events. CloudWatch has no window spelling above,
+    # so it has no windowed burn rules yet.
+    if objective.query.datasource == "prometheus":
+        query = "(%s) >= 0" % query
+    return query
 
 # `from` is a Starlark keyword, so the only way to name that field is through a dict, where
 # it is just a string.
@@ -163,10 +175,11 @@ def _no_data_state(objective, default):
     return NO_DATA_STATES.get(objective.query.no_data_state, default)
 
 # No data defaults to OK. The SLI is good events over valid events, so with zero valid
-# events no error budget is spent, and OK is the correct state, not "unknown". Without
-# this, every quiet night or weekend sends a DatasourceNoData alert. The cost: this rule
-# cannot detect a total loss of telemetry. A threshold objective on a signal that must
-# always report has to do that.
+# events no error budget is spent, and OK is the correct state, not "unknown". Zero events
+# can come back as NaN (the counters exist but did not increase) or as no data (no series
+# at all); windowed_query turns NaN into no data, so both give OK. Without this, every
+# quiet night or weekend sends an alert. The cost: this rule cannot detect a total loss of
+# telemetry. A threshold objective on a signal that must always report has to do that.
 def burn_rule(component, objective, burn, uid, region):
     threshold = threshold_for(objective, burn)
 
