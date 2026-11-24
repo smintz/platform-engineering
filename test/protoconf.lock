@@ -39,7 +39,7 @@
       "branch": "main",
       "sourcePath": "src",
       "getterUrl": "file:///tmp/claude-1000/-workspaces-leap-infra/a40222d2-23d2-43c7-8008-79eb76d535b8/scratchpad/platform-engineering?ref=main",
-      "fileDescriptorSetSum": "b1294967e96fdad58f1751bcf03ba663"
+      "fileDescriptorSetSum": "e7d9df4ab9574745d9848bf106fefd4d"
     },
     "terraform_state": {
       "label": "terraform_state",

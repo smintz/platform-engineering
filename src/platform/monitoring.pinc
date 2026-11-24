@@ -24,11 +24,15 @@ def WithMonitoring(component, backend, *hooks):
     )
 
 Unit = component_proto.Objective.Query.Unit
+NoData = component_proto.Objective.Query.NoData
 Status = component_proto.Status
 
 # WithSLO records a service level objective: a query, and the range its result has to stay
 # in. Recording it on the component rather than in a dashboard means whoever renders the
 # dashboards is a separate, replaceable concern — see Finally and grafana.pinc.
+#
+# `no_data_state` overrides what its alert rules do when the query returns nothing; see the
+# field in platform.proto for the defaults it overrides.
 #
 # min/max are proto floats, so an unset bound reads back as 0. Objectives that legitimately
 # bound at zero should say so explicitly on the reading side.
@@ -42,7 +46,8 @@ def WithSLO(
         unit = Unit.UNIT_UNSPECIFIED,
         severity = component_proto.Status.STATUS_WARN,
         burn_query = "",
-        threshold_alert = ""):
+        threshold_alert = "",
+        no_data_state = NoData.NO_DATA_UNSPECIFIED):
     return objective(
         component_proto.Objective.Type.TYPE_SLO,
         name,
@@ -56,6 +61,7 @@ def WithSLO(
         burn_query,
         threshold_alert,
         "",
+        no_data_state,
     )
 
 # WithDiagnostic records a signal that is not a promise: saturation, restart counts, feed
@@ -86,6 +92,7 @@ def WithDiagnostic(
         "",
         "",
         legend,
+        NoData.NO_DATA_UNSPECIFIED,
     )
 
 def objective(
@@ -100,7 +107,8 @@ def objective(
         severity,
         burn_query,
         threshold_alert,
-        legend):
+        legend,
+        no_data_state):
     def do(component, next):
         component.objectives.append(
             component_proto.Objective(
@@ -116,6 +124,7 @@ def objective(
                     burn_query = burn_query,
                     threshold_alert = threshold_alert,
                     legend = legend,
+                    no_data_state = no_data_state,
                 ),
                 severity = severity,
             ),

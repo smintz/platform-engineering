@@ -35,7 +35,7 @@
                 "severity": "page"
               },
               "name": "redis: availability · fast burn",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -79,7 +79,7 @@
                 "severity": "page"
               },
               "name": "redis: availability · slow burn",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -123,7 +123,7 @@
                 "severity": "ticket"
               },
               "name": "redis: availability · budget leak",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",

@@ -35,7 +35,7 @@
                 "severity": "page"
               },
               "name": "checkout: availability · fast burn",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -79,7 +79,7 @@
                 "severity": "page"
               },
               "name": "checkout: availability · slow burn",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -123,7 +123,7 @@
                 "severity": "ticket"
               },
               "name": "checkout: availability · budget leak",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -167,7 +167,7 @@
                 "severity": "page"
               },
               "name": "checkout: latency · fast burn",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -211,7 +211,7 @@
                 "severity": "page"
               },
               "name": "checkout: latency · slow burn",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -255,7 +255,7 @@
                 "severity": "ticket"
               },
               "name": "checkout: latency · budget leak",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -299,7 +299,7 @@
                 "severity": "page"
               },
               "name": "checkout: order confirmation coverage · fast burn",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -343,7 +343,7 @@
                 "severity": "page"
               },
               "name": "checkout: order confirmation coverage · slow burn",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -387,7 +387,7 @@
                 "severity": "ticket"
               },
               "name": "checkout: order confirmation coverage · budget leak",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -431,7 +431,7 @@
                 "severity": "page"
               },
               "name": "checkout: order latency · slow burn",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -475,7 +475,7 @@
                 "severity": "ticket"
               },
               "name": "checkout: order latency · budget leak",
-              "no_data_state": "NoData",
+              "no_data_state": "OK",
               "data": [
                 {
                   "datasource_uid": "${data.grafana_data_source.prometheus.uid}",

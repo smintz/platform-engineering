@@ -32,7 +32,7 @@
               "severity": "page"
             },
             "name": "frontend: availability · fast burn",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -76,7 +76,7 @@
               "severity": "page"
             },
             "name": "frontend: availability · slow burn",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -120,7 +120,7 @@
               "severity": "ticket"
             },
             "name": "frontend: availability · budget leak",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -164,7 +164,7 @@
               "severity": "page"
             },
             "name": "frontend: latency · fast burn",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -208,7 +208,7 @@
               "severity": "page"
             },
             "name": "frontend: latency · slow burn",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -252,7 +252,7 @@
               "severity": "ticket"
             },
             "name": "frontend: latency · budget leak",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -296,7 +296,7 @@
               "severity": "page"
             },
             "name": "frontend: checkout availability · fast burn",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -340,7 +340,7 @@
               "severity": "page"
             },
             "name": "frontend: checkout availability · slow burn",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -384,7 +384,7 @@
               "severity": "ticket"
             },
             "name": "frontend: checkout availability · budget leak",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -428,7 +428,7 @@
               "severity": "page"
             },
             "name": "frontend: product page latency · slow burn",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
@@ -472,7 +472,7 @@
               "severity": "ticket"
             },
             "name": "frontend: product page latency · budget leak",
-            "no_data_state": "NoData",
+            "no_data_state": "OK",
             "data": [
               {
                 "datasource_uid": "${data.grafana_data_source.prometheus.uid}",
